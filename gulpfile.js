@@ -168,29 +168,22 @@ gulp.task('server:prod', function(callback) {
  * defined in "vendor.json" file.
  */
 gulp.task('vendor:dev', function(callback) {
-    var arrFileTypes = ['.js', '.min.js', '.min.js.map'];
-    var streamWriteFile, objRequest, strVendorUrl;
+    var streamWriteFile, objRequest;
 
-    return async.forEachOf(vendor.dependencies, function(objVendor, strFolder, _callbackOuter) {
-        if (!objVendor || objVendor.modules.length <= 0 || !strFolder) {
+    return async.forEachOf(vendor.dependencies, function(arrVendor, strFolder, _callbackOuter) {
+        if (!arrVendor || arrVendor.length <= 0 || !strFolder) {
             return _callbackOuter();
         }
 
-        return async.each(objVendor.modules, function(strVendorModule, _callbackInner) {
-            if (!strVendorModule) {
+        return async.each(arrVendor, function(strVendorUrl, _callbackInner) {
+            if (!strVendorUrl) {
                 return _callbackInner();
             }
 
-            return async.each(arrFileTypes, function(strFileType, _callbackFinal) {
-                strVendorUrl = objVendor.url
-                    .replace('{module}', strVendorModule)
-                    .replace('{version}', objVendor.version);
-                strVendorUrl = strVendorUrl + strFileType;
-                return download(strVendorUrl)
-                    .pipe(gulp.dest('client/vendor/' + strFolder))
-                    .on('end', _callbackFinal);
-                
-            }, _callbackInner);
+            return download(strVendorUrl)
+                .pipe(gulp.dest('client/vendor/' + strFolder))
+                .on('end', _callbackInner);
+
         }, _callbackOuter);
     }, callback);
 });
