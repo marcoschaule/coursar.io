@@ -1,2 +1,29 @@
+# Own files #
+#############
+/build
+/node_modules
+
+# OS generated files #
+######################
+__MACOSX
 .DS_Store
-build
+*/.DS_Store
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
