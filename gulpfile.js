@@ -74,6 +74,8 @@ var arrStyleFilesExtended  = arrStyleFiles
 var arrScriptFilesExtended = arrScriptFiles
     .map((strPath) => path.join('build/dev/', strPath));
 
+var serverExpress;
+
 // *****************************************************************************
 // Basic tasks - clean
 // *****************************************************************************
@@ -320,17 +322,17 @@ gulp.task('vendor:download', function(callback) {
 });
 
 // *****************************************************************************
-// Basic tasks - server
+// Basic tasks - servers
 // *****************************************************************************
 
 /**
- * Task to start the server for development.
+ * Task to start the serverExpress for development.
  */
-gulp.task('server:dev', function(callback) {
-    var server = exec('NODE_ENV=dev node server/server.js', function(objErr) {
+gulp.task('server-express:dev', function(callback) {
+    serverExpress = exec('NODE_ENV=dev node server/server.js', function(objErr) {
         return ('function' === typeof callback && callback(objErr));
     });
-    server.stdout.on('data', (buffer) => {
+    serverExpress.stdout.on('data', (buffer) => {
         console.log(buffer.toString());
     });
 });
@@ -338,15 +340,28 @@ gulp.task('server:dev', function(callback) {
 // *****************************************************************************
 
 /**
- * Task to start the server for production.
+ * Task to start the serverExpress for production.
  */
-gulp.task('server:prod', function(callback) {
-    var server = exec('NODE_ENV=prod node server/server.js', function(objErr) {
+gulp.task('server-express:prod', function(callback) {
+    serverExpress = exec('NODE_ENV=prod node server/server.js', function(objErr) {
         return ('function' === typeof callback && callback(objErr));
     });
-    server.stdout.on('data', (buffer) => {
+    serverExpress.stdout.on('data', (buffer) => {
         console.log(buffer.toString());
     });
+});
+
+// *****************************************************************************
+// Watchers
+// *****************************************************************************
+
+/**
+ * Task to watch development files.
+ */
+gulp.task('watch:dev', function() {
+    gulp.watch('client/**/*.styl', ['styles:dev']);
+    gulp.watch('client/**/*.js',   ['scripts:dev']);
+    gulp.watch('client/**/*.jade', ['layout:dev', 'templates']);
 });
 
 // *****************************************************************************
@@ -363,7 +378,7 @@ gulp.task('build:dev', function(callback) {
             'styles:dev',
             'layout:dev',
             'templates',
-        ], 
+        ],
         callback);
 });
 
@@ -373,7 +388,8 @@ gulp.task('build:dev', function(callback) {
 gulp.task('run:dev', function(callback) {
     return runSequence(
         'build:dev',
-        'server:dev',
+        'watch:dev',
+        'server-express:dev',
         callback);
 });
 
@@ -381,10 +397,6 @@ gulp.task('run:dev', function(callback) {
  * Default task.
  */
 gulp.task('default', []);
-
-// *****************************************************************************
-// Watchers
-// *****************************************************************************
 
 // ********************************************************************************
 
