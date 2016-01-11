@@ -1,6 +1,5 @@
 # Own files #
 #############
-.gitignore
 build
 node_modules
 
