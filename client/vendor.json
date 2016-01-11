@@ -1,0 +1,21 @@
+{
+    "dependencies": {
+        "angular": [
+            "https://code.angularjs.org/1.5.0-rc.0/angular.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular.min.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular.min.js.map"
+        ],
+        "angular-sanitize": [
+            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js.map"
+        ],
+        "bootstrap": [
+            "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css",
+            "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css",
+            "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map",
+            "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js",
+            "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        ]
+    }
+}

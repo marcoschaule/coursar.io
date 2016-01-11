@@ -1,6 +1,0 @@
-{
-    "dependencies": {
-        "angular": "^1.4.8",
-        "angular-sanitize": "^1.4.8"
-    }
-}
