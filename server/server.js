@@ -17,28 +17,17 @@ var bodyParser      = require('body-parser');
 // setup
 var env             = process.env.NODE_ENV || 'dev';
 var port            = process.env.PORT     || 3000;
-var expressServer   = express();
+var app             = express();
 var RedisStore      = connectRedist(session);
 var strStaticFolder = path.join(__dirname, '../build/', env);
-var redisClient, redisServer;
-
-// *****************************************************************************
-// Redis
-// *****************************************************************************
-
-if ('dev' === env) {
-    _startupRedisServer();
-}
-if (true) {
-    _startupRedisClient();
-}
+var clientRedis;
 
 // *****************************************************************************
 // Settings
 // *****************************************************************************
 
 var objSettingsRedisSession          = {};
-objSettingsRedisSession.client       = redisClient;
+objSettingsRedisSession.client       = clientRedis;
 
 var objSettingsSession               = {};
 objSettingsSession.resave            = false;
@@ -50,63 +39,35 @@ objSettingsSession.secret            = 'too5tup!tToF!ndMy0wn5ecret';
 // Config
 // *****************************************************************************
 
-expressServer.use(express.static(strStaticFolder));
-expressServer.use(session(objSettingsSession));
-expressServer.use(bodyParser.json());
+app.use(express.static(strStaticFolder));
+app.use(session(objSettingsSession));
+app.use(bodyParser.json());
 
 // ********************************************************************************
 // Routing
 // ********************************************************************************
 
-expressServer.get('/', (req, res, next) => {
+app.get('/', (req, res, next) => {
     res.sendFile(path.join(strStaticFolder, 'index.html'));
 });
 
 // *****************************************************************************
-// Express
+// Startup
 // *****************************************************************************
 
-_startupExpressServer();
+app.listen(port, () => {
+    console.log(`Node-Server running on port ${port}!`);
+});
+
+// *****************************************************************************
+
+clientRedis = redis.createClient();
+clientRedis.on('error', (err) => {
+    console.log(err);
+});
 
 // *****************************************************************************
 // Helper functions
 // *****************************************************************************
-
-/**
- * Helper function to startup the express server.
- */
-function _startupExpressServer() {
-    expressServer.listen(port, () => {
-        console.log(`Node-Server running on port ${port}!`);
-    });
-}
-
-// *****************************************************************************
-
-/**
- * Helper function to startup the redis server.
- */
-function _startupRedisServer() {
-    redisServer = childProcess.spawn('redis-server');
-
-    redisServer.stdout.on('data', (buffer) => {
-        console.log(buffer.toString());
-    });
-}
-
-// *****************************************************************************
-
-/**
- * Helper function to startup the redis client.
- */
-function _startupRedisClient() {
-    redisClient = redis.createClient();
-
-    redisClient.on('error', (err) => {
-        console.log(err);
-    });
-}
-
-// ********************************************************************************
 
 })();

@@ -1,0 +1,8 @@
+{
+    "verbose": true,
+    "ignore": [
+        "nodemon.json",
+        "build/*",
+        "client/*"
+    ]
+}

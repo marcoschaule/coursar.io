@@ -1,4 +1,4 @@
-(function() { 'use strict';
+(() => { 'use strict';
 
 // *****************************************************************************
 // Requires
@@ -7,7 +7,7 @@
 var fs            = require('fs');
 var path          = require('path');
 var del           = require('del');
-var exec          = require('child_process').exec;
+var childProcess  = require('child_process');
 var async         = require('async');
 
 var gulp          = require('gulp');
@@ -29,12 +29,17 @@ var runSequence   = require('run-sequence');
 
 var vendor        = require('./client/vendor.json');
 
+var exec          = childProcess.exec;
+var spawn         = childProcess.spawn;
+
 // *****************************************************************************
 // Variables
 // *****************************************************************************
 
 var regexStylesReplacer       = new RegExp('<\\!--\\s*\\{styles\}\\s*--\\>');
 var regexScriptsReplacer      = new RegExp('<\\!--\\s*\\{scripts\}\\s*--\\>');
+
+// *****************************************************************************
 
 var strTemplateChacheFileName = 'templates.js';
 var strStylesMinFileName      = 'styles.min.css';
@@ -45,6 +50,8 @@ var strPathScriptsUser        = path.join(__dirname, 'build/dev/scripts/');
 var strPathScriptsVendor      = path.join(__dirname, 'build/dev/scripts/vendor/');
 var strPathStylesUser         = path.join(__dirname, 'build/dev/styles/');
 var strPathStylesVendor       = path.join(__dirname, 'build/dev/styles/vendor/');
+
+// *****************************************************************************
 
 var objTemplateCacheSettings  = {
     module: 'cou-templates'
@@ -74,7 +81,11 @@ var arrStyleFilesExtended  = arrStyleFiles
 var arrScriptFilesExtended = arrScriptFiles
     .map((strPath) => path.join('build/dev/', strPath));
 
-var serverExpress;
+// *****************************************************************************
+
+var env  = 'prod';
+var port = 3001;
+var serverExpress, serverRedis;
 
 // *****************************************************************************
 // Basic tasks - clean
@@ -84,7 +95,7 @@ var serverExpress;
  * Task to delete all files and folders in
  * the "/build/dev" folder for development.
  */
-gulp.task('clean:dev', function() {
+gulp.task('clean:dev', () => {
     return del(['build/dev/**/*']);
 });
 
@@ -94,7 +105,7 @@ gulp.task('clean:dev', function() {
  * Task to delete all files and folders in
  * the "/build/prod" folder for production.
  */
-gulp.task('clean:prod', function() {
+gulp.task('clean:prod', () => {
     return del(['build/prod/**/*']);
 });
 
@@ -105,7 +116,7 @@ gulp.task('clean:prod', function() {
 /**
  * Task to build the layout HTML file for development.
  */
-gulp.task('layout:dev', function() {
+gulp.task('layout:dev', () => {
     return gulp
         .src(['client/layout/layout.jade'])
         .pipe(jade())
@@ -121,7 +132,7 @@ gulp.task('layout:dev', function() {
 /**
  * Task to build the layout HTML file for production.
  */
-gulp.task('layout:prod', function() {
+gulp.task('layout:prod', () => {
     return gulp
         .src(['client/layout/layout.jade'])
         .pipe(jade())
@@ -138,7 +149,7 @@ gulp.task('layout:prod', function() {
 /**
  * Task to build the templates for angular's template cache.
  */
-gulp.task('templates', function() {
+gulp.task('templates', () => {
     return gulp
         .src(['client/components/**/*.template.jade'])
         .pipe(jade())
@@ -155,7 +166,7 @@ gulp.task('templates', function() {
  * Task to build css from stylus from layout and
  * components folders for development.
  */
-gulp.task('styles:dev', function(callback) {
+gulp.task('styles:dev', (callback) => {
     return runSequence(
         'styles-vendor:dev',
         'styles-user:dev',
@@ -168,7 +179,7 @@ gulp.task('styles:dev', function(callback) {
  * Task to build user css from stylus from layout and
  * components folders for development.
  */
-gulp.task('styles-user:dev', function() {
+gulp.task('styles-user:dev', () => {
     return gulp
         .src([
             'client/layout/layout.styl',
@@ -185,7 +196,7 @@ gulp.task('styles-user:dev', function() {
  * Task to build vendor css from stylus from layout and
  * components folders for development.
  */
-gulp.task('styles-vendor:dev', function() {
+gulp.task('styles-vendor:dev', () => {
     return gulp
         .src([
             'build/vendor/bootstrap/bootstrap.css',
@@ -200,7 +211,7 @@ gulp.task('styles-vendor:dev', function() {
  * Task to build css from stylus from layout and
  * components folders for production.
  */
-gulp.task('styles:prod', ['styles:dev'], function() {
+gulp.task('styles:prod', ['styles:dev'], () => {
     return gulp
         .src(arrStyleFilesExtended)
         .pipe(concat(strStylesMinFileName))
@@ -218,7 +229,7 @@ gulp.task('styles:prod', ['styles:dev'], function() {
  * Task to copy user and vendor scripts
  * for development.
  */
-gulp.task('scripts:dev', function(callback) {
+gulp.task('scripts:dev', (callback) => {
     return runSequence(
         'scripts-vendor:dev',
         'scripts-user:dev',
@@ -231,7 +242,7 @@ gulp.task('scripts:dev', function(callback) {
  * Task to copy the user scripts to the build
  * folder for development.
  */
-gulp.task('scripts-user:dev', function() {
+gulp.task('scripts-user:dev', () => {
     return gulp
         .src([
             'client/libs/**/*.js',
@@ -248,7 +259,7 @@ gulp.task('scripts-user:dev', function() {
  * Task to copy the vendor scripts to the build
  * folder for development.
  */
-gulp.task('scripts-vendor:dev', function() {
+gulp.task('scripts-vendor:dev', () => {
     return gulp
         .src([
             'build/vendor/angular/angular.js',
@@ -261,7 +272,7 @@ gulp.task('scripts-vendor:dev', function() {
 
 // *****************************************************************************
 
-gulp.task('scripts:prod',  function() {
+gulp.task('scripts:prod',  () => {
     return gulp
         .src(arrScriptFilesExtended)
         .pipe(concat(strScriptsMinFileName))
@@ -278,7 +289,7 @@ gulp.task('scripts:prod',  function() {
 /**
  * Task to delete all vendor files.
  */
-gulp.task('vendor', function(callback) {
+gulp.task('vendor', (callback) => {
     return runSequence(
         'vendor:clean',
         'vendor:download',
@@ -290,7 +301,7 @@ gulp.task('vendor', function(callback) {
 /**
  * Task to delete all vendor files.
  */
-gulp.task('vendor:clean', function() {
+gulp.task('vendor:clean', () => {
     return del(['build/vendor/**/*']);
 });
 
@@ -300,7 +311,7 @@ gulp.task('vendor:clean', function() {
  * Task to download vendor files into vendor folder
  * defined in "vendor.json" file.
  */
-gulp.task('vendor:download', function(callback) {
+gulp.task('vendor:download', (callback) => {
     var streamWriteFile, objRequest;
 
     return async.forEachOf(vendor.dependencies, function(arrVendor, strFolder, _callbackOuter) {
@@ -326,28 +337,44 @@ gulp.task('vendor:download', function(callback) {
 // *****************************************************************************
 
 /**
- * Task to start the serverExpress for development.
+ * Task to start the Redis server.
+ * 
+ * spanw version: "serverRedis = spawn('redis-server');"
  */
-gulp.task('server-express:dev', function(callback) {
-    serverExpress = exec('NODE_ENV=dev node server/server.js', function(objErr) {
+gulp.task('server-redis', (callback) => {
+    if (serverRedis && 'function' === typeof serverRedis.kill) {
+        serverRedis.kill();
+    }
+    serverRedis = exec('redis-server', (objErr) => {
         return ('function' === typeof callback && callback(objErr));
     });
-    serverExpress.stdout.on('data', (buffer) => {
+    serverRedis.stdout.on('data', (buffer) => {
         console.log(buffer.toString());
+    });
+    serverRedis.on('exit', () => {
+        console.log('Redis killed!');
     });
 });
 
 // *****************************************************************************
 
 /**
- * Task to start the serverExpress for production.
+ * Task to start the Express server
+ * 
+ * spawn version: "serverExpress = spawn('node', ['server/server.js'], { NODE_ENV: env, PORT: port });"
  */
-gulp.task('server-express:prod', function(callback) {
-    serverExpress = exec('NODE_ENV=prod node server/server.js', function(objErr) {
+gulp.task('server-express', (callback) => {
+    if (serverExpress && 'function' === typeof serverExpress.kill) {
+        serverExpress.kill();
+    }
+    serverExpress = exec('NODE_ENV=${env} PORT=${port} nodemon server/server.js', (objErr) => {
         return ('function' === typeof callback && callback(objErr));
     });
     serverExpress.stdout.on('data', (buffer) => {
         console.log(buffer.toString());
+    });
+    serverExpress.on('exit', () => {
+        console.log('Express killed!');
     });
 });
 
@@ -358,10 +385,11 @@ gulp.task('server-express:prod', function(callback) {
 /**
  * Task to watch development files.
  */
-gulp.task('watch:dev', function() {
+gulp.task('watch:dev', () => {
     gulp.watch('client/**/*.styl', ['styles:dev']);
     gulp.watch('client/**/*.js',   ['scripts:dev']);
     gulp.watch('client/**/*.jade', ['layout:dev', 'templates']);
+    gulp.watch('server/**/*.js',   ['server-express']);
 });
 
 // *****************************************************************************
@@ -371,7 +399,7 @@ gulp.task('watch:dev', function() {
 /**
  * Task to build the dev files.
  */
-gulp.task('build:dev', function(callback) {
+gulp.task('build:dev', (callback) => {
     return runSequence(
         'clean:dev', [
             'scripts:dev',
@@ -385,11 +413,14 @@ gulp.task('build:dev', function(callback) {
 /**
  * Task to run all development tasks.
  */
-gulp.task('run:dev', function(callback) {
+gulp.task('run:dev', (callback) => {
+    env  = 'dev';
+    port = 3000;
+
     return runSequence(
         'build:dev',
         'watch:dev',
-        'server-express:dev',
+        ['server-redis', 'server-express'],
         callback);
 });
 

@@ -59,6 +59,7 @@
     "gulp-stylus": "^2.2.0",
     "gulp-watch": "^4.3.5",
     "morgan": "^1.6.1",
+    "nodemon": "^1.8.1",
     "run-sequence": "^1.1.5",
     "stylus": "^0.53.0"
   },
