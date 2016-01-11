@@ -1,16 +1,15 @@
 # Own files #
 #############
-/build
-/node_modules
+.gitignore
+build
+node_modules
 
 # OS generated files #
 ######################
 __MACOSX
-.DS_Store
 */.DS_Store
 .DS_Store
 .DS_Store?
-._*
 .Spotlight-V100
 .Trashes
 Icon?
