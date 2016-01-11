@@ -4,13 +4,13 @@
 // Modules
 // *****************************************************************************
 
-angular.module('cou-externals',   []);
-angular.module('cou-templates',   []);
-angular.module('cou-controllers', []);
-angular.module('cou-services',    []);
-angular.module('cou-directives',  []);
-angular.module('cou-filters',     []);
-angular.module('cou',             ['cou-externals', 'cou-templates', 'cou-services', 'cou-directives', 'cou-directives', 'cou-controllers']);
+angular.module('cio-externals',   []);
+angular.module('cio-templates',   []);
+angular.module('cio-controllers', []);
+angular.module('cio-services',    []);
+angular.module('cio-directives',  []);
+angular.module('cio-filters',     []);
+angular.module('cio',             ['cio-externals', 'cio-templates', 'cio-services', 'cio-directives', 'cio-directives', 'cio-controllers']);
 
 // *****************************************************************************
 
