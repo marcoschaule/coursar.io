@@ -40,8 +40,8 @@ var spawn         = childProcess.spawn;
 // Variables
 // *****************************************************************************
 
-var regexStylesReplacer       = new RegExp('<\\!--\\s*\\{styles\}\\s*--\\>');
-var regexScriptsReplacer      = new RegExp('<\\!--\\s*\\{scripts\}\\s*--\\>');
+var regexStylesReplacer       = new RegExp('<\\!--\\s*\\{styles\\}\\s*--\\>');
+var regexScriptsReplacer      = new RegExp('<\\!--\\s*\\{scripts\\}\\s*--\\>');
 
 // *****************************************************************************
 
@@ -60,7 +60,6 @@ var strPathStylesVendor       = path.join(__dirname, 'build/dev/styles/vendor/')
 var objTemplateCacheSettings  = {
     module: 'cio-templates'
 };
-
 var arrStyleFiles = [
     'styles/vendor/bootstrap.css',
     'styles/layout.css',
@@ -431,7 +430,7 @@ gulp.task('run:dev', (callback) => {
 /**
  * Default task.
  */
-gulp.task('default', []);
+gulp.task('default', ['run:dev']);
 
 // *****************************************************************************
 // Version bumping and git management
