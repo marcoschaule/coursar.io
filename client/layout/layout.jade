@@ -5,13 +5,15 @@ html(land="en")
         meta(charset="utf-8")
         
         //- #begin styles
-        link(rel="stylesheet", href="styles/auth.css")
         link(rel="stylesheet", href="styles/layout.css")
+        link(rel="stylesheet", href="styles/auth.css")
         //- #end styles
 
     body
         h1 Welcome
 
         //- #begin scripts
+        script(type="text/javascript", src="scripts/vendor/angular.js")
+        script(type="text/javascript", src="scripts/vendor/angular-sanitize.js")
         script(type="text/javascript", src="scripts/templates.js")
         //- #end scripts

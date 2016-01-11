@@ -5,11 +5,10 @@
 // *****************************************************************************
 
 var fs            = require('fs');
-var http          = require('http');
 var path          = require('path');
 var del           = require('del');
 var exec          = require('child_process').exec;
-var async         = require('async');
+var async         = require('async'); // TODO: delete
 
 var gulp          = require('gulp');
 var stylus        = require('gulp-stylus');
@@ -19,22 +18,33 @@ var concat        = require('gulp-concat');
 var watch         = require('gulp-watch');
 var rename        = require('gulp-rename');
 var replace       = require('gulp-replace');
-var domSrc        = require('gulp-dom-src');
+var cssnano       = require('gulp-cssnano');
+var sourcemaps    = require('gulp-sourcemaps');
+var domSrc        = require('gulp-dom-src'); // TODO: delete
 var download      = require('gulp-download');
-var gCallback     = require('gulp-callback');
+var gCallback     = require('gulp-callback'); // TODO: delete
 var templateCache = require('gulp-angular-templatecache');
 var runSequence   = require('run-sequence');
-
-var vendor        = require('./client/vendor/vendor.json');
 
 // *****************************************************************************
 // Variables
 // *****************************************************************************
 
-var regexStyles   = new RegExp('\/\/- #begin styles(.|\n)*\/\/- #end styles\n');
-var regexScripts  = new RegExp('\/\/- #begin scripts(.|\n)*\/\/- #end scripts\n');
-var strStylesTag  = 'link(rel="stylesheet", href="styles.css")';
-var strScriptsTag = 'link(rel="stylesheet", href="scripts.js")';
+var regexStyles               = new RegExp('link\\(rel="stylesheet", href="(.*)"\\)', 'gi');
+var regexStylesBlock          = new RegExp('\/\/- #begin styles(.|\n)*\/\/- #end styles\n');
+var regexScriptsBlock         = new RegExp('\/\/- #begin scripts(.|\n)*\/\/- #end scripts\n');
+var strStylesTag              = 'link(rel="stylesheet", href="styles.css")';
+var strScriptsTag             = 'link(rel="stylesheet", href="scripts.js")';
+
+var strPathScriptsUser        = path.join(__dirname, 'build/dev/scripts/');
+var strPathScriptsVendor      = path.join(__dirname, 'build/dev/scripts/vendor/');
+var strPathStylesUser         = path.join(__dirname, 'build/dev/styles/');
+var strPathStylesVendor       = path.join(__dirname, 'build/dev/styles/vendor/');
+var strTemplateChacheFileName = 'templates.js';
+
+var objTemplateCacheSettings  = {
+    module: 'cou-templates'
+};
 
 // *****************************************************************************
 // Basic tasks
@@ -79,8 +89,8 @@ gulp.task('layout:dev', function() {
 gulp.task('layout:prod', function() {
     return gulp
         .src(['client/layout/layout.jade'])
-        .pipe(replace(regexStyles, strStylesTag))
-        .pipe(replace(regexScripts, strScriptsTag))
+        .pipe(replace(regexStylesBlock, strStylesTag))
+        .pipe(replace(regexScriptsBlock, strScriptsTag))
         .pipe(jade({ pretty: true }))
         .pipe(rename('index.html'))
         .pipe(gulp.dest('build/prod/'));
@@ -95,7 +105,8 @@ gulp.task('templates', function() {
     return gulp
         .src(['client/components/**/*.template.jade'])
         .pipe(jade())
-        .pipe(templateCache())
+        .pipe(flatten())
+        .pipe(templateCache(strTemplateChacheFileName, objTemplateCacheSettings))
         .pipe(gulp.dest('build/dev/scripts/'));
 });
 
@@ -105,7 +116,20 @@ gulp.task('templates', function() {
  * Task to build css from stylus from layout and
  * components folders for development.
  */
-gulp.task('styles:dev', function() {
+gulp.task('styles-user:dev', function(callback) {
+    return runSequence(
+        'styles-user:dev',
+        'styles-vendor:dev',
+        callback);
+});
+
+// *****************************************************************************
+
+/**
+ * Task to build user css from stylus from layout and
+ * components folders for development.
+ */
+gulp.task('styles-user:dev', function() {
     return gulp
         .src([
             'client/layout/layout.styl',
@@ -119,18 +143,78 @@ gulp.task('styles:dev', function() {
 // *****************************************************************************
 
 /**
+ * Task to build vendor css from stylus from layout and
+ * components folders for development.
+ */
+gulp.task('styles-bootstrap:dev', function() {
+    // return gulp
+    //     .src([
+    //         'node_modules/bootstrap-styl/bootstrap/variables.styl',
+    //         'node_modules/bootstrap-styl/bootstrap/mixins/*.styl',
+    //         'node_modules/bootstrap-styl/bootstrap/*.styl',
+    //     ])
+    //     .pipe(concat('bootstrap.styl'))
+    //     .pipe(stylus())
+    //     // .pipe(flatten())
+    //     .pipe(gulp.dest('build/dev/styles/vendor/'));
+});
+
+// *****************************************************************************
+
+/**
  * Task to build css from stylus from layout and
  * components folders for production.
  */
 gulp.task('styles:prod', ['styles:dev'], function() {
+    var strSrcFilePath = 'client/layout/layout.jade';
+    var arrFiles       = [];
+    var arrMatch, strFileContent, strFileMatch;
+
+    return fs.readFile(strSrcFilePath, function(objErr, strFileBuffer) {
+        strFileContent = strFileBuffer.toString();
+
+        while ((arrMatch = regexStyles.exec(strFileContent)) !== null) {
+            strFileMatch = path.join('build/dev/', arrMatch[1]); 
+            arrFiles.push(strFileMatch);
+        }
+
+        return gulp
+            .src(arrFiles)
+            .pipe(concat('styles.css'))
+            .pipe(sourcemaps.init())
+            .pipe(cssnano())
+            .pipe(sourcemaps.write('.'))
+            .pipe(gulp.dest('build/prod/'));
+    });
+});
+
+// *****************************************************************************
+
+/**
+ * Task to copy the user scripts to the build
+ * folder for development.
+ */
+gulp.task('scripts-user:dev', function() {
+    return gulp
+        .src(['client/components/**/*.js'])
+        .pipe(flatten())
+        .pipe(gulp.dest('build/dev/scripts/'));
+});
+
+// *****************************************************************************
+
+/**
+ * Task to copy the vendor scripts to the build
+ * folder for development.
+ */
+gulp.task('scripts-vendor:dev', function() {
     return gulp
         .src([
-            'client/layout/layout.styl',
-            'client/components/**/*.styl',
+            'node_modules/angular/angular.js',
+            'node_modules/angular-sanitize/angular-sanitize.js',
         ])
-        .pipe(stylus({ compress: true }))
-        .pipe(concat('styles.css'))
-        .pipe(gulp.dest('build/prod/'));
+        .pipe(flatten())
+        .pipe(gulp.dest('build/dev/scripts/vendor/'));
 });
 
 // *****************************************************************************
@@ -139,7 +223,7 @@ gulp.task('styles:prod', ['styles:dev'], function() {
  * Task to start the server for development.
  */
 gulp.task('server:dev', function(callback) {
-    var server = exec('node server/server.js', function(objErr) {
+    var server = exec('NODE_ENV=dev node server/server.js', function(objErr) {
         return ('function' === typeof callback && callback(objErr));
     });
     server.stdout.on('data', (buffer) => {
@@ -162,33 +246,6 @@ gulp.task('server:prod', function(callback) {
 });
 
 // *****************************************************************************
-
-/**
- * Task to download vendor files into vendor folder
- * defined in "vendor.json" file.
- */
-gulp.task('vendor:dev', function(callback) {
-    var streamWriteFile, objRequest;
-
-    return async.forEachOf(vendor.dependencies, function(arrVendor, strFolder, _callbackOuter) {
-        if (!arrVendor || arrVendor.length <= 0 || !strFolder) {
-            return _callbackOuter();
-        }
-
-        return async.each(arrVendor, function(strVendorUrl, _callbackInner) {
-            if (!strVendorUrl) {
-                return _callbackInner();
-            }
-
-            return download(strVendorUrl)
-                .pipe(gulp.dest('client/vendor/' + strFolder))
-                .on('end', _callbackInner);
-
-        }, _callbackOuter);
-    }, callback);
-});
-
-// *****************************************************************************
 // Common tasks
 // *****************************************************************************
 
@@ -197,9 +254,11 @@ gulp.task('vendor:dev', function(callback) {
  */
 gulp.task('build:dev', function(callback) {
     return runSequence('clean:dev', [
+        'scripts-vendor:dev',
+        'scripts-user:dev',
+        'styles:dev',
         'layout:dev',
         'templates',
-        'styles:dev',
     ], callback);
 });
 
