@@ -1,5 +1,8 @@
 # Own files #
 #############
+.mongodb
+mongodb
+.build
 build
 node_modules
 dump.rdb

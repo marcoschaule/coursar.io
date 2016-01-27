@@ -43,15 +43,16 @@ var regexScriptsReplacer      = new RegExp('<\\!--\\s*\\{scripts\\}\\s*--\\>');
 
 // *****************************************************************************
 
+var strPathBuild              = '.build';
 var strTemplateChacheFileName = 'templates.js';
 var strStylesMinFileName      = 'styles.min.css';
 var strScriptsMinFileName     = 'scripts.min.js';
 var strStylesTag              = '<link rel="stylesheet" href="{path}"></link>';
 var strScriptsTag             = '<script type="text/javascript" src="{path}"></script>';
-var strPathScriptsUser        = path.join(__dirname, 'build/dev/scripts/');
-var strPathScriptsVendor      = path.join(__dirname, 'build/dev/scripts/vendor/');
-var strPathStylesUser         = path.join(__dirname, 'build/dev/styles/');
-var strPathStylesVendor       = path.join(__dirname, 'build/dev/styles/vendor/');
+var strPathScriptsUser        = path.join(__dirname, strPathBuild + '/dev/scripts/');
+var strPathScriptsVendor      = path.join(__dirname, strPathBuild + '/dev/scripts/vendor/');
+var strPathStylesUser         = path.join(__dirname, strPathBuild + '/dev/styles/');
+var strPathStylesVendor       = path.join(__dirname, strPathBuild + '/dev/styles/vendor/');
 
 // *****************************************************************************
 
@@ -75,19 +76,19 @@ var arrScriptFiles = [
     'scripts/reset-password.controller.js',
 ];
 var arrScriptVendorFiles = [
-    'build/vendor/angular/angular.js',
-    'build/vendor/angular-sanitize/angular-sanitize.js',
-    'build/vendor/angular-ui/angular-ui-router.js',
-    'build/vendor/bootstrap/bootstrap.js',
+    strPathBuild + '/vendor/angular/angular.js',
+    strPathBuild + '/vendor/angular-sanitize/angular-sanitize.js',
+    strPathBuild + '/vendor/angular-ui/angular-ui-router.js',
+    strPathBuild + '/vendor/bootstrap/bootstrap.js',
 ];
 var arrStyleFilesMapped    = arrStyleFiles
     .map((strPath) => strStylesTag.replace('{path}', strPath));
 var arrScriptFilesMapped   = arrScriptFiles
     .map((strPath) => strScriptsTag.replace('{path}', strPath));
 var arrStyleFilesExtended  = arrStyleFiles
-    .map((strPath) => path.join('build/dev/', strPath));
+    .map((strPath) => path.join(strPathBuild + '/dev/', strPath));
 var arrScriptFilesExtended = arrScriptFiles
-    .map((strPath) => path.join('build/dev/', strPath));
+    .map((strPath) => path.join(strPathBuild + '/dev/', strPath));
 
 // *****************************************************************************
 
@@ -101,20 +102,20 @@ var serverExpress, serverMongoDB, serverRedis;
 
 /**
  * Task to delete all files and folders in
- * the "/build/dev" folder for development.
+ * the "strPathBuild + //dev" folder for development.
  */
 gulp.task('clean:dev', () => {
-    return del(['build/dev/**/*']);
+    return del([strPathBuild + '/dev/**/*']);
 });
 
 // *****************************************************************************
 
 /**
  * Task to delete all files and folders in
- * the "/build/prod" folder for production.
+ * the "strPathBuild + //prod" folder for production.
  */
 gulp.task('clean:prod', () => {
-    return del(['build/prod/**/*']);
+    return del([strPathBuild + '/prod/**/*']);
 });
 
 // *****************************************************************************
@@ -132,7 +133,7 @@ gulp.task('layout:dev', () => {
         .pipe(replace(regexScriptsReplacer, arrScriptFilesMapped.join('\n')))
         .pipe(rename('index.html'))
         .pipe(prettify({ indent_size: 4 }))
-        .pipe(gulp.dest('build/dev/'));
+        .pipe(gulp.dest(strPathBuild + '/dev/'));
 });
 
 // *****************************************************************************
@@ -149,7 +150,7 @@ gulp.task('layout:prod', () => {
         .pipe(replace(regexScriptsReplacer, strScriptsTag
             .replace('{path}', strScriptsMinFileName)))
         .pipe(rename('index.html'))
-        .pipe(gulp.dest('build/prod/'));
+        .pipe(gulp.dest(strPathBuild + '/prod/'));
 });
 
 // *****************************************************************************
@@ -163,7 +164,7 @@ gulp.task('templates', () => {
         .pipe(jade())
         .pipe(flatten())
         .pipe(templateCache(strTemplateChacheFileName, objTemplateCacheSettings))
-        .pipe(gulp.dest('build/dev/scripts/'));
+        .pipe(gulp.dest(strPathBuild + '/dev/scripts/'));
 });
 
 // *****************************************************************************
@@ -195,7 +196,7 @@ gulp.task('styles-user:dev', () => {
         ])
         .pipe(stylus())
         .pipe(flatten())
-        .pipe(gulp.dest('build/dev/styles/'));
+        .pipe(gulp.dest(strPathBuild + '/dev/styles/'));
 });
 
 // *****************************************************************************
@@ -207,10 +208,10 @@ gulp.task('styles-user:dev', () => {
 gulp.task('styles-vendor:dev', () => {
     return gulp
         .src([
-            'build/vendor/bootstrap/bootstrap.css',
+            strPathBuild + '/vendor/bootstrap/bootstrap.css',
         ])
         .pipe(flatten())
-        .pipe(gulp.dest('build/dev/styles/vendor'));
+        .pipe(gulp.dest(strPathBuild + '/dev/styles/vendor'));
 });
 
 // *****************************************************************************
@@ -226,7 +227,7 @@ gulp.task('styles:prod', ['styles:dev'], () => {
         .pipe(sourcemaps.init())
         .pipe(cssnano({ discardComments: { removeAll: true } }))
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('build/prod/'));
+        .pipe(gulp.dest(strPathBuild + '/prod/'));
 });
 
 // *****************************************************************************
@@ -258,7 +259,7 @@ gulp.task('scripts-user:dev', () => {
             'client/components/**/*.js'
         ])
         .pipe(flatten())
-        .pipe(gulp.dest('build/dev/scripts/'));
+        .pipe(gulp.dest(strPathBuild + '/dev/scripts/'));
 });
 
 // *****************************************************************************
@@ -271,7 +272,7 @@ gulp.task('scripts-vendor:dev', () => {
     return gulp
         .src(arrScriptVendorFiles)
         .pipe(flatten())
-        .pipe(gulp.dest('build/dev/scripts/vendor'));
+        .pipe(gulp.dest(strPathBuild + '/dev/scripts/vendor'));
 });
 
 // *****************************************************************************
@@ -283,7 +284,7 @@ gulp.task('scripts:prod',  () => {
         .pipe(sourcemaps.init())
         .pipe(cssnano({ discardComments: { removeAll: true } }))
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('build/prod/'));
+        .pipe(gulp.dest(strPathBuild + '/prod/'));
 });
 
 // *****************************************************************************
@@ -306,7 +307,7 @@ gulp.task('vendor', (callback) => {
  * Task to delete all vendor files.
  */
 gulp.task('vendor:clean', () => {
-    return del(['build/vendor/**/*']);
+    return del([strPathBuild + '/vendor/**/*']);
 });
 
 // *****************************************************************************
@@ -329,7 +330,7 @@ gulp.task('vendor:download', (callback) => {
             }
 
             return download(strVendorUrl)
-                .pipe(gulp.dest('build/vendor/' + strFolder))
+                .pipe(gulp.dest(strPathBuild + '/vendor/' + strFolder))
                 .on('end', _callbackInner);
 
         }, _callbackOuter);
@@ -372,7 +373,7 @@ gulp.task('server-mongodb', (callback) => {
     if (serverMongoDB && 'function' === typeof serverMongoDB.kill) {
         serverMongoDB.kill();
     }
-    serverMongoDB = exec('mongod --dbpath ./mongodb/ --port ' + numPortMongoDB, (objErr) => {
+    serverMongoDB = exec('mongod --dbpath ./.mongodb/ --port ' + numPortMongoDB, (objErr) => {
         return ('function' === typeof callback && callback(objErr));
     });
     serverMongoDB.stdout.on('data', (buffer) => {
