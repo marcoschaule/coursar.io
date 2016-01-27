@@ -15,8 +15,8 @@ var childProcess    = require('child_process');
 var bodyParser      = require('body-parser');
 
 // setup
-var env             = process.env.NODE_ENV || 'dev';
-var port            = process.env.PORT     || 3000;
+var env             = (process.env.NODE_ENV || 'dev');
+var port            = (process.env.PORT     || 3000)*1;
 var app             = express();
 var RedisStore      = connectRedist(session);
 var strStaticFolder = path.join(__dirname, '../build/', env);
@@ -61,7 +61,7 @@ app.listen(port, () => {
 
 // *****************************************************************************
 
-clientRedis = redis.createClient();
+clientRedis = redis.createClient({ port: port+2 });
 clientRedis.on('error', (err) => {
     console.log(err);
 });

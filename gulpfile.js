@@ -21,9 +21,7 @@ var replace       = require('gulp-replace');
 var cssnano       = require('gulp-cssnano');
 var prettify      = require('gulp-prettify');
 var sourcemaps    = require('gulp-sourcemaps');
-var domSrc        = require('gulp-dom-src'); // TODO: delete
 var download      = require('gulp-download');
-var gCallback     = require('gulp-callback'); // TODO: delete
 var git           = require('gulp-git');
 var bump          = require('gulp-bump');
 var filter        = require('gulp-filter');
@@ -63,17 +61,24 @@ var objTemplateCacheSettings  = {
 var arrStyleFiles = [
     'styles/vendor/bootstrap.css',
     'styles/layout.css',
-    'styles/auth.css',
 ];
 var arrScriptFiles = [
     'scripts/vendor/angular.js',
     'scripts/vendor/angular-sanitize.js',
+    'scripts/vendor/angular-ui-router.js',
     'scripts/client.js',
     'scripts/templates.js',
     'scripts/auth.service.js',
+    'scripts/auth.router.js',
     'scripts/sign-in.controller.js',
     'scripts/sign-up.controller.js',
     'scripts/reset-password.controller.js',
+];
+var arrScriptVendorFiles = [
+    'build/vendor/angular/angular.js',
+    'build/vendor/angular-sanitize/angular-sanitize.js',
+    'build/vendor/angular-ui/angular-ui-router.js',
+    'build/vendor/bootstrap/bootstrap.js',
 ];
 var arrStyleFilesMapped    = arrStyleFiles
     .map((strPath) => strStylesTag.replace('{path}', strPath));
@@ -87,8 +92,8 @@ var arrScriptFilesExtended = arrScriptFiles
 // *****************************************************************************
 
 var env  = 'prod';
-var port = 3001;
-var serverExpress, serverRedis;
+var port = 3000;
+var serverExpress, serverMongoDB, serverRedis;
 
 // *****************************************************************************
 // Basic tasks - clean
@@ -264,11 +269,7 @@ gulp.task('scripts-user:dev', () => {
  */
 gulp.task('scripts-vendor:dev', () => {
     return gulp
-        .src([
-            'build/vendor/angular/angular.js',
-            'build/vendor/angular-sanitize/angular-sanitize.js',
-            'build/vendor/bootstrap/bootstrap.js',
-        ])
+        .src(arrScriptVendorFiles)
         .pipe(flatten())
         .pipe(gulp.dest('build/dev/scripts/vendor'));
 });
@@ -342,13 +343,14 @@ gulp.task('vendor:download', (callback) => {
 /**
  * Task to start the Redis server.
  * 
- * spanw version: "serverRedis = spawn('redis-server');"
+ * spawn version: "serverRedis = spawn('redis-server');"
  */
 gulp.task('server-redis', (callback) => {
+    var numPortRedis = port+2;
     if (serverRedis && 'function' === typeof serverRedis.kill) {
         serverRedis.kill();
     }
-    serverRedis = exec('redis-server', (objErr) => {
+    serverRedis = exec('redis-server --port ' + numPortRedis, (objErr) => {
         return ('function' === typeof callback && callback(objErr));
     });
     serverRedis.stdout.on('data', (buffer) => {
@@ -356,6 +358,28 @@ gulp.task('server-redis', (callback) => {
     });
     serverRedis.on('exit', () => {
         console.log('Redis killed!');
+    });
+});
+// *****************************************************************************
+
+/**
+ * Task to start the MongoBD server.
+ * 
+ * spawn version: "serverMongo = spawn('mongo-server');"
+ */
+gulp.task('server-mongodb', (callback) => {
+    var numPortMongoDB = port+1;
+    if (serverMongoDB && 'function' === typeof serverMongoDB.kill) {
+        serverMongoDB.kill();
+    }
+    serverMongoDB = exec('mongod --dbpath ./mongodb/ --port ' + numPortMongoDB, (objErr) => {
+        return ('function' === typeof callback && callback(objErr));
+    });
+    serverMongoDB.stdout.on('data', (buffer) => {
+        console.log(buffer.toString());
+    });
+    serverMongoDB.on('exit', () => {
+        console.log('MongoDB killed!');
     });
 });
 
@@ -367,10 +391,11 @@ gulp.task('server-redis', (callback) => {
  * spawn version: "serverExpress = spawn('node', ['server/server.js'], { NODE_ENV: env, PORT: port });"
  */
 gulp.task('server-express', (callback) => {
+    var numPortExpress = port;
     if (serverExpress && 'function' === typeof serverExpress.kill) {
         serverExpress.kill();
     }
-    serverExpress = exec('NODE_ENV=${env} PORT=${port} nodemon server/server.js', (objErr) => {
+    serverExpress = exec('NODE_ENV=' + env + ' PORT=' + numPortExpress + ' nodemon server/server.js', (objErr) => {
         return ('function' === typeof callback && callback(objErr));
     });
     serverExpress.stdout.on('data', (buffer) => {
@@ -389,10 +414,10 @@ gulp.task('server-express', (callback) => {
  * Task to watch development files.
  */
 gulp.task('watch:dev', () => {
-    gulp.watch('client/**/*.styl', ['styles:dev']);
-    gulp.watch('client/**/*.js',   ['scripts:dev']);
-    gulp.watch('client/**/*.jade', ['layout:dev', 'templates']);
-    gulp.watch('server/**/*.js',   ['server-express']);
+    gulp.watch(['.gulpfile.js', 'client/**/*.styl'], ['styles:dev']);
+    gulp.watch(['.gulpfile.js', 'client/**/*.js'],   ['scripts:dev']);
+    gulp.watch(['.gulpfile.js', 'client/**/*.jade'], ['layout:dev', 'templates']);
+    gulp.watch(['.gulpfile.js', 'server/**/*.js'],   ['server-express']);
 });
 
 // *****************************************************************************
@@ -423,7 +448,7 @@ gulp.task('run:dev', (callback) => {
     return runSequence(
         'build:dev',
         'watch:dev',
-        ['server-redis', 'server-express'],
+        ['server-redis', 'server-mongodb', 'server-express'],
         callback);
 });
 

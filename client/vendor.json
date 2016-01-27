@@ -10,12 +10,21 @@
             "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js",
             "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js.map"
         ],
+        "angular-ui": [
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"
+        ],
         "bootstrap": [
             "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css",
             "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css",
             "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map",
             "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js",
             "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+
         ]
     }
 }
