@@ -14,30 +14,38 @@ var Email    = mongoose.SchemaTypes.Email;
 // *****************************************************************************
 
 var schemaUser = new Schema({
-    username: { type: String, required: true },
-    password: { type: String, required: true },
-    emails  : [{
-        address  : { type: Email },
-        validated: { type: Boolean, default: false },
+    username          : { type: String, required: true },
+    password          : { type: String, required: true },
+    emails            : [{
+        address       : { type: Email },
+        validated     : { type: Boolean, default: false },
     }],
-    profile : {
-        firstName  : { type: String },
-        lastName   : { type: String },
-        dateOfBirth: { type: Date },
+    emailMain         : { type: Email, required: true },
+    profile           : {
+        firstName     : { type: String },
+        lastName      : { type: String },
+        dateOfBirth   : { type: Date },
+    },
+    payments          : {
+        creditCard    : {
+            cardNumber: { type: String }
+        }
     },
 });
 
 // *****************************************************************************
-// Model
+// Model, adding passport
 // *****************************************************************************
 
-var User = mongoose.model('User', blogSchema, 'users');
+// create model
+var User = mongoose.model('User', schemaUser, 'users');
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.User = User;
+module.exports.schemaUser = schemaUser;
+module.exports.User       = User;
 
 // ********************************************************************************
 

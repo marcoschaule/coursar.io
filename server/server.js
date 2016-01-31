@@ -8,6 +8,8 @@
 var express         = require('express');
 var session         = require('express-session');
 var morgan          = require('morgan');
+var mongoose        = require('mongoose');
+var passport        = require('passport');
 var redis           = require('redis');
 var path            = require('path');
 var connectRedist   = require('connect-redis');
@@ -22,6 +24,13 @@ var RedisStore      = connectRedist(session);
 var strStaticFolder = path.join(__dirname, '../build/', env);
 var clientRedis;
 
+// settings
+var objSettingsDatabase = require('./settings/database.settings.js');
+var objSettingsPaths    = require('./settings/paths.settings.js');
+
+// assign paths to global object
+global.paths = objSettingsPaths;
+
 // *****************************************************************************
 // Settings
 // *****************************************************************************
@@ -35,6 +44,9 @@ objSettingsSession.saveUninitialized = false;
 objSettingsSession.store             = new RedisStore(objSettingsRedisSession);
 objSettingsSession.secret            = 'too5tup!tToF!ndMy0wn5ecret';
 
+// connect mongoose
+mongoose.connect(objSettingsDatabase.uri);
+
 // *****************************************************************************
 // Config
 // *****************************************************************************
@@ -42,6 +54,8 @@ objSettingsSession.secret            = 'too5tup!tToF!ndMy0wn5ecret';
 app.use(express.static(strStaticFolder));
 app.use(session(objSettingsSession));
 app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
 
 // ********************************************************************************
 // Routing
@@ -50,6 +64,9 @@ app.use(bodyParser.json());
 app.get('/', (req, res, next) => {
     res.sendFile(path.join(strStaticFolder, 'index.html'));
 });
+
+// initialize component routes
+require('./components/auth/auth.routes.js')(app);
 
 // *****************************************************************************
 // Startup
@@ -61,10 +78,10 @@ app.listen(port, () => {
 
 // *****************************************************************************
 
-clientRedis = redis.createClient({ port: port+2 });
-clientRedis.on('error', (err) => {
-    console.log(err);
-});
+// clientRedis = redis.createClient({ port: port+2 });
+// clientRedis.on('error', (err) => {
+//     console.log(err);
+// });
 
 // *****************************************************************************
 // Helper functions
