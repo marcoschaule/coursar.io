@@ -17,7 +17,7 @@ var objErrors = {
 // *****************************************************************************
 
 /**
- * Error object for "sign in" scenario "user not found".
+ * Error object for "sign in" scenario "general error".
  * @type {Object}
  */
 objErrors.signIn.generalError = {
@@ -84,6 +84,44 @@ objErrors.signIn.userOrPasswordWrong = {
     status : 401,
     code   : 1005,
     message: 'Username/email or password wrong!',
+};
+
+// *****************************************************************************
+// Errors for "sign up"
+// *****************************************************************************
+
+/**
+ * Error object for "sign up" scenario "general error".
+ * @type {Object}
+ */
+objErrors.signUp.generalError = {
+    status : 500,
+    code   : 1100,
+    message: 'General error with sign in!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for "sign up" scenario "general error".
+ * @type {Object}
+ */
+objErrors.signUp.usernameNotAvailable = {
+    status : 401,
+    code   : 1101,
+    message: 'Username not available!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for "sign up" scenario "general error".
+ * @type {Object}
+ */
+objErrors.signUp.emailNotAvailable = {
+    status : 401,
+    code   : 1102,
+    message: 'Email not available!',
 };
 
 // *****************************************************************************

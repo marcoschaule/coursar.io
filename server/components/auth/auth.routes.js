@@ -17,7 +17,7 @@ var AuthCtrl = require('./auth.controller.js');
  */
 function init(app) {
     app.post('/sign-in', AuthCtrl.signIn);
-    // app.post('/sign-up', AuthCtrl.signUp);
+    app.post('/sign-up', AuthCtrl.signUp);
 }
 
 // *****************************************************************************

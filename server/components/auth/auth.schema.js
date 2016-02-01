@@ -4,6 +4,9 @@
 // Includes and definitions
 // ********************************************************************************
 
+var CryptoJS = require('crypto-js');
+var sha1     = require('crypto-js/sha1');
+var jwt      = require('jsonwebtoken');
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
@@ -17,12 +20,20 @@ var Schema   = mongoose.Schema;
  * @type {Schema}
  */
 var objAuth = {
-    username          : { type: String, required: true },
-    password          : {
-        salt          : { type: String, required: true },
-        hash          : { type: String, required: true },
+    profile            : {
+        username       : { type: String, required: true },
+        emails         : [{
+            address    : { type: String },
+            isValidated: { type: Boolean, default: false },
+        }],    
     },
-    emailMain         : { type: String,  required: false },
+    private            : {
+        password       : {
+            salt       : { type: String, required: true },
+            hash       : { type: String, required: true },
+        },
+        isAdmin        : { type: Boolean, default: false },
+    },
 };
 var schemaAuth = new Schema(objAuth, { collection: 'users' });
 
@@ -53,14 +64,29 @@ var objSignUp = {
     password          : { type: String, required: true },
     passwordValidation: { type: String, required: true, validation: _validateEqual('password') },
 };
-var schemaSignUp = new Schema(objSignUp);
+var schemaSignUp = new Schema(objSignUp, {
+    toObject: { virtuals: true },
+    toJSON:   { virtuals: true }
+});
 
 // *****************************************************************************
-// Schema methods
+// Schema methods and statics
 // *****************************************************************************
 
+schemaAuth.statics.encrypt = _encrypt;
 schemaAuth.methods.encrypt = _encrypt;
 schemaAuth.methods.compare = _compare;
+
+// *****************************************************************************
+// Virtuals
+// *****************************************************************************
+
+/**
+ * Virtual getter function to get the primary email.
+ */
+schemaAuth.virtual('profile.email').get(() => {
+    return this.profile && this.profile.emails && this.profile.emails[0];
+});
 
 // *****************************************************************************
 // Helper functions
@@ -120,7 +146,7 @@ function _encrypt(strPassword) {
     var strSalt = CryptoJS.lib.WordArray.random(128/8);
 
     // create the hash
-    var strHash = CryptoJS.PBKDF2(strPassword, strSalt, { keySize: 512/32 });
+    var strHash = CryptoJS.PBKDF2(strPassword, strSalt, { keySize: 512/32 }).toString();
 
     return { salt: strSalt, hash: strHash };
 }
@@ -140,7 +166,7 @@ function _compare(strPassword) {
     /*jshint validthis: true */
 
     // test if password and salt generate the same key
-    return (this.password.hash === CryptoJS.PBKDF2(strPassword, this.password.salt, { keySize: 512/32 }));
+    return (this.private.password.hash === CryptoJS.PBKDF2(strPassword, this.private.password.salt, { keySize: 512/32 })).toString();
 }
 
 // *****************************************************************************

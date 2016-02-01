@@ -14,21 +14,42 @@ var Email    = mongoose.SchemaTypes.Email;
 // *****************************************************************************
 
 var schemaUser = new Schema({
-    username          : { type: String, required: true },
-    password          : { type: String, required: true },
-    emails            : [{
-        address       : { type: Email },
-        validated     : { type: Boolean, default: false },
-    }],
-    emailMain         : { type: Email, required: true },
-    profile           : {
-        firstName     : { type: String },
-        lastName      : { type: String },
-        dateOfBirth   : { type: Date },
+
+    // user's private information
+    private            : {
+        password       : {
+            salt       : { type: String, required: true },
+            hash       : { type: String, required: true },
+        },
     },
-    payments          : {
-        creditCard    : {
-            cardNumber: { type: String }
+
+    // user profile of information that can be delivered to client
+    profile            : {
+
+        // username as alternative for the email
+        username       : { type: String, required: true },
+
+        // natural name of the user
+        name           : {
+            title      : { type: String },
+            first      : { type: String },
+            last       : { type: String },
+        },
+
+        // date of birth
+        dateOfBirth    : { type: Date },
+
+        // all user's emails; convention: first email is main email
+        emails         : [{
+            address    : { type: Email },
+            isValidated: { type: Boolean, default: false },
+        }],
+    },
+
+    // user payments information
+    payments           : {
+        creditCard     : {
+            cardNumber : { type: String }
         }
     },
 });

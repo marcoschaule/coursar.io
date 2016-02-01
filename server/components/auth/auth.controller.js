@@ -25,78 +25,68 @@ var AuthService = require('./auth.service.js');
 function signIn(req, res, next) {
 
     // create user object
-    var objAuth = {
+    var objUser = {
         username  : req.body.username,
         password  : req.body.password,
         isReminded: !!req.body.isReminded,
     };
 
-    return AuthService.signIn(objAuth, (objErr, objUser, strAccessToken) => {
+    return AuthService.signIn(objUser, (objErr, objProfile, strAccessToken) => {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
 
         var objReturn = {
             err        : null,
-            user       : objUser,
-            accessToken: strAccessToken };
+            user       : objProfile,
+            accessToken: strAccessToken
+        };
 
         return res.status(200).json(objReturn);
     });
 }
 
-// // *****************************************************************************
+// *****************************************************************************
 
-// /**
-//  * Controller function to sign in a user.
-//  * 
-//  * @param {Object}   req                object of Express request
-//  * @param {Object}   req.body           object of request body
-//  * @param {Object}   req.body.email     string of new user's email
-//  * @param {Object}   req.body.username  string of new user's username
-//  * @param {Object}   req.body.password  string of new user's password
-//  * @param {Object}   res                object of Express response
-//  * @param {Function} next               function of callback for next middleware
-//  */
-// function signUp(req, res, next) {
+/**
+ * Controller function to sign in a user.
+ * 
+ * @param {Object}   req                object of Express request
+ * @param {Object}   req.body           object of request body
+ * @param {Object}   req.body.email     string of new user's email
+ * @param {Object}   req.body.username  string of new user's username
+ * @param {Object}   req.body.password  string of new user's password
+ * @param {Object}   res                object of Express response
+ * @param {Function} next               function of callback for next middleware
+ */
+function signUp(req, res, next) {
 
-//     // create user object
-//     var objUser = new User({
-//         email   : req.body.email,
-//         username: req.body.username,
-//         password: req.body.password,
-//     });
+    // create user object
+    var objUser = {
+        email             : req.body.email,
+        emailValidation   : req.body.emailValidation,
+        username          : req.body.username,
+        password          : req.body.password,
+        passwordValidation: req.body.passwordValidation,
+    };
 
-//     // validate user data
-//     // -- validation --
+    // validate user data
+    // -- validation --
 
-//     return User.register(objUser, objUser.password, (err, objUserResult) => {
-//         if (err) {
-//             return next(err);
-//         }
-
-//         // delete unnecessary email
-//         if (objUser.email) {
-//             delete objUser.email;
-//         }
-
-//         // sign in user
-//         return req.login(objUser, (err) => {
-//             if (err) {
-//                 return next(err);
-//             }
-
-//             return res.status(200).json({ user: req.user });
-//         });
-//     });
-// }
+    return AuthService.signUp(objUser, (objErr, objUserResult) => {
+        if (objErr) {
+            return res.status(objErr.status || 500).json({ err: objErr });
+        }
+        return signIn(req, res, next);
+    });
+}
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
 module.exports.signIn = signIn;
-// module.exports.signUp = signUp;
+module.exports.signUp = signUp;
 
 // *****************************************************************************
 // Helpers
