@@ -11,6 +11,18 @@ var objDatabase = { redis: {}, mongoDb: {} };
 // *****************************************************************************
 
 /**
+ * Redis protocol settings.
+ * @type {String}
+ */
+objDatabase.redis.secret = null;
+
+/**
+ * Redis protocol settings.
+ * @type {String}
+ */
+objDatabase.redis.protocol = 'redis';
+
+/**
  * Redis host settings.
  * @type {String}
  */
@@ -22,9 +34,27 @@ objDatabase.redis.host = 'localhost';
  */
 objDatabase.redis.port = 3002;
 
+/**
+ * Redis settings URI.
+ * @type {Number}
+ */
+objDatabase.redis.uri = [
+    objDatabase.redis.protocol + '://',
+    // objDatabase.redis.secret   + '@',
+    objDatabase.redis.host     + ':',
+    objDatabase.redis.port     + '/',
+    objDatabase.redis.name     + '/',
+].join('');
+
 // *****************************************************************************
 // MongoDB settings
 // *****************************************************************************
+
+/**
+ * MongoDB protocol settings.
+ * @type {String}
+ */
+objDatabase.mongoDb.secret = null;
 
 /**
  * MongoDB protocol settings.
@@ -55,10 +85,11 @@ objDatabase.mongoDb.name = 'coursar-io';
  * @type {String}
  */
 objDatabase.mongoDb.uri = [
-    objDatabase.mongoDb.protocol, '://',
-    objDatabase.mongoDb.host, ':',
-    objDatabase.mongoDb.port, '/',
-    objDatabase.mongoDb.name, '/',
+    objDatabase.mongoDb.protocol + '://',
+    // objDatabase.mongoDb.secret   + '@',
+    objDatabase.mongoDb.host     + ':',
+    objDatabase.mongoDb.port     + '/',
+    objDatabase.mongoDb.name     + '/',
 ].join('');
 
 // *****************************************************************************

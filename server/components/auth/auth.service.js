@@ -6,6 +6,7 @@
 
 var async          = require('async');
 var jwt            = require('jsonwebtoken');
+var uuid           = require('node-uuid');
 var Auth           = require('./auth.schema.js').Auth;
 var settingsAuth   = require(global.paths.settings.auth);
 var settingsErrors = require(global.paths.settings.errors);
@@ -17,15 +18,21 @@ var settingsErrors = require(global.paths.settings.errors);
 /**
  * Service function to sign user in.
  * 
- * @param  {Object}   objSignIn           object of sign in
- * @param  {String}   objSignIn.username  string of username
- * @param  {String}   objSignIn.password  string of password, still unencrypted
- * @param  {Function} callback            function for callback
+ * @param  {Object}   objSignIn               object of sign in
+ * @param  {String}   objSignIn.username      string of username
+ * @param  {String}   objSignIn.password      string of password, still unencrypted
+ * @param  {String}   objSignIn.isRemembered  string of password, still unencrypted
+ * @param  {Object}   objInfo                 object for additional (user) information
+ * @param  {Object}   objInfo.ip              string of the current user's IP address
+ * @param  {Function} callback                function for callback
  */
-function signIn(objSignIn, callback) {
+function signIn(objSignIn, objInfo, callback) {
     var objUserReturn;
 
-    return Auth.findOne({ 'profile.username': { $regex: objSignIn.username, $options: 'i' } }, (objErr, objUser) => {
+    return Auth.findOne({ 'profile.username':
+            { $regex: objSignIn.username, $options: 'i' } },
+            (objErr, objUser) => {
+        
         if (objErr) {
             return callback(objErrors.signIn.generalError);
         }
@@ -35,9 +42,19 @@ function signIn(objSignIn, callback) {
         else if (!objUser.compare(objSignIn.password)) {
             return callback(settingsErrors.signIn.userOrPasswordWrong);
         }
-        return _generateAccessToken(objUser._id.toString(), (strAccessToken) => {
-            return callback(null, objUser.profile, strAccessToken);
+
+        var strUserId = objUser._id.toString();
+
+        return _generateRedisSession(strUserId, (objErr, strToken) => {
+            if (objErr) {
+                return callback(objErrors.signIn.generalError);
+            }
+
+            return _generateAccessToken(strUserId, strToken, (strAccessToken) => {
+                return callback(null, objUser.profile, strAccessToken);
+            });
         });
+
     });
 }
 
@@ -178,21 +195,76 @@ function _indexOfEmailInArray(arrEmails, strEmail) {
 
 // *****************************************************************************
 
-function _generateAccessToken(strUserId, callback) {
-    var objInfo    = { userId   : strUserId };
-    var objOptions = { algorithm: settingsAuth.accessToken.algorithm };
-    var secret     = settingsAuth.accessToken.secret;
+/**
+ * Helper function to generate the redis session if it doesn't exist, yet.
+ * 
+ * @param  {String}   strUserId  string of user id
+ * @param  {Function} callback   function for callback
+ */
+function _generateRedisSession(strUserId, callback) {
+    var objTokens = {};
 
-    return jwt.sign(objInfo, secret, objOptions, callback);
+    return async.parallel([
+        
+        // generate the access token
+        _callback => {
+            _generateAccessToken(strUserId, strToken => {
+                objTokens.accessToken = strToken;
+            });
+        },
+        
+        // generate the refresh token
+        _callback => {
+            _generateRefreshToken(strUserId, strToken => {
+                objTokens.refreshToken = strToken;
+            });
+        },
+    
+    ], objErr => {
+        if (objErr) {
+            return callback(objErr);
+        }
+
+        return global.redisSession.create({
+            app: global.appName,
+            id : strUserId,
+            ttl: 3600,
+            d: { 
+                userId      : strUserId,
+                accessToken : objTokens.accessToken,
+                refreshToken: objTokens.refreshToken,
+            }
+        }, (objErr, objResult) => {
+            callback(objErr, objResult && objResult.token);
+        });
+    });
 }
 
 // *****************************************************************************
 
-function _generateRefreshToken() {}
+/**
+ * Helper function to generate an access token.
+ * 
+ * @param  {String}   strUserId  string of the user id in the MongoDB database
+ * @param  {Function} callback   function for callback
+ */
+function _generateAccessToken(strUserId, callback) {
+    var objInfo    = { userId   : strUserId };
+    var objOptions = { algorithm: settingsAuth.accessToken.algorithm };
+    var strSecret  = settingsAuth.accessToken.secret;
+
+    return jwt.sign(objInfo, strSecret, objOptions, callback);
+}
 
 // *****************************************************************************
 
-function _storeRefreshToken() {}
+function _generateRefreshToken(strUserId, callback) {
+    var objInfo    = { userId   : strUserId };
+    var objOptions = { algorithm: settingsAuth.refreshToken.algorithm };
+    var strSecret  = settingsAuth.refreshToken.secret;
+
+    return jwt.sign(objInfo, strSecret, objOptions, callback);
+}
 
 // *****************************************************************************
 // Exports

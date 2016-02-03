@@ -1,7 +1,7 @@
 (function() { 'use strict';
 
 // ********************************************************************************
-// Requires and setup
+// Includes and definitions
 // ********************************************************************************
 
 // requires
@@ -14,7 +14,7 @@ var path            = require('path');
 var connectRedist   = require('connect-redis');
 var childProcess    = require('child_process');
 var bodyParser      = require('body-parser');
-var RedisSession    = require('redis-session');
+var RedisSessions   = require('redis-sessions');
 
 // setup
 var env             = (process.env.NODE_ENV || 'dev');
@@ -29,15 +29,22 @@ var objSettingsDatabase = require('./settings/database.settings.js');
 var objSettingsPaths    = require('./settings/paths.settings.js');
 
 // global variables
-global.paths   = objSettingsPaths;
-global.appName = 'coursarIo';
+global.paths        = objSettingsPaths;
+global.appName      = 'coursarIo';
+global.redisSession = new RedisSessions({ port: objSettingsDatabase.redis.port });
 
 // *****************************************************************************
-// Settings
+// Redis and MongoDB setup
 // *****************************************************************************
+
+// clientRedis = redis.createClient({ port: objSettingsDatabase.redis.port });
+// clientRedis.on('error', (err) => {
+//     console.log(err);
+// });
 
 // var objSettingsRedisSession          = {};
 // objSettingsRedisSession.client       = clientRedis;
+// objSettingsRedisSession.port         = objSettingsDatabase.redis.port;
 
 // var objSettingsSession               = {};
 // objSettingsSession.resave            = false;
@@ -45,41 +52,16 @@ global.appName = 'coursarIo';
 // objSettingsSession.store             = new RedisStore(objSettingsRedisSession);
 // objSettingsSession.secret            = 'too5tup!tToF!ndMy0wn5ecret';
 
-// *****************************************************************************
-// Connections
-// *****************************************************************************
-
-// connect redis sessions
-var connectionRedisSession = new RedisSession({
-    host: objSettingsDatabase.redis.host,
-    port: objSettingsDatabase.redis.port,
-});
-
 // connect mongoose
 mongoose.connect(objSettingsDatabase.mongoDb.uri);
 
 // *****************************************************************************
-// Config
+// App configuration
 // *****************************************************************************
 
 app.use(express.static(strStaticFolder));
 // app.use(session(objSettingsSession));
 app.use(bodyParser.json());
-
-connectionRedisSession.create({
-    app: global.appName,
-    id: 'myId',
-    ip: '127.0.0.1',
-    ttl: 3600,
-    d: { 
-        foo: "bar",
-        unread_msgs: 34
-    }
-}, (objErr, objRes) => {
-    console.log(">>> Debug ====================; objRes:", objRes, '\n\n');
-    // resp should be something like 
-    // {token: "r30kKwv3sA6ExrJ9OmLSm4Wo3nt9MQA1yG94wn6ByFbNrVWhcwAyOM7Zhfxqh8fe"}
-});
 
 // ********************************************************************************
 // Routing
@@ -99,13 +81,6 @@ require('./components/auth/auth.routes.js')(app);
 app.listen(port, () => {
     console.log(`Node-Server running on port ${port}!`);
 });
-
-// *****************************************************************************
-
-// clientRedis = redis.createClient({ port: port+2 });
-// clientRedis.on('error', (err) => {
-//     console.log(err);
-// });
 
 // *****************************************************************************
 // Helper functions

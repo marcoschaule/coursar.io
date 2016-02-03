@@ -14,24 +14,31 @@ var AuthService = require('./auth.service.js');
 /**
  * Controller function to sign in a user.
  * 
- * @param {Object}   req                  object of Express request
- * @param {Object}   req.body             object of request body
- * @param {Object}   req.body.username    string of new user's username
- * @param {Object}   req.body.password    string of new user's password
- * @param {Boolean}  req.body.isReminded  true if user wants to be reminded
- * @param {Object}   res                  object of Express response
- * @param {Function} next                 function of callback for next middleware
+ * @param {Object}   req                    object of Express request
+ * @param {Object}   req.body               object of request body
+ * @param {Object}   req.body.username      string of new user's username
+ * @param {Object}   req.body.password      string of new user's password
+ * @param {Boolean}  req.body.isRemembered  true if user wants to be reminded
+ * @param {Object}   res                    object of Express response
+ * @param {Function} next                   function of callback for next middleware
  */
 function signIn(req, res, next) {
 
     // create user object
     var objUser = {
-        username  : req.body.username,
-        password  : req.body.password,
-        isReminded: !!req.body.isReminded,
+        username    : req.body.username,
+        password    : req.body.password,
+        isRemembered: !!req.body.isRemembered,
     };
 
-    return AuthService.signIn(objUser, (objErr, objProfile, strAccessToken) => {
+    // create object for additional (user) information
+    var objInfo = {
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    };
+
+    console.log(">>> Debug ====================; objInfo:", objInfo, '\n\n');
+
+    return AuthService.signIn(objUser, objInfo, (objErr, objProfile, strAccessToken) => {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
