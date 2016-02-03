@@ -396,7 +396,7 @@ gulp.task('server-express', (callback) => {
     if (serverExpress && 'function' === typeof serverExpress.kill) {
         serverExpress.kill();
     }
-    serverExpress = exec('NODE_ENV=' + env + ' PORT=' + numPortExpress + ' node server/server.js', (objErr) => {
+    serverExpress = exec('NODE_ENV=' + env + ' PORT=' + numPortExpress + ' node server/server.js', (objErr, stdOut, stdErr) => {
         return ('function' === typeof callback && callback(objErr));
     });
     serverExpress.stdout.on('data', (buffer) => {
