@@ -11,6 +11,7 @@ var childProcess  = require('child_process');
 var async         = require('async');
 
 var gulp          = require('gulp');
+var nodemon       = require('gulp-nodemon');
 var stylus        = require('gulp-stylus');
 var jade          = require('gulp-jade');
 var flatten       = require('gulp-flatten');
@@ -392,18 +393,13 @@ gulp.task('server-mongodb', (callback) => {
  * spawn version: "serverExpress = spawn('node', ['server/server.js'], { NODE_ENV: env, PORT: port });"
  */
 gulp.task('server-express', (callback) => {
-    var numPortExpress = port;
-    if (serverExpress && 'function' === typeof serverExpress.kill) {
-        serverExpress.kill();
-    }
-    serverExpress = exec('NODE_ENV=' + env + ' PORT=' + numPortExpress + ' node server/server.js', (objErr, stdOut, stdErr) => {
-        return ('function' === typeof callback && callback(objErr));
-    });
-    serverExpress.stdout.on('data', (buffer) => {
-        console.log(buffer.toString());
-    });
-    serverExpress.on('exit', () => {
-        console.log('Express killed!');
+    return nodemon({
+        script: 'server/server.js',
+        ignore: ['nodemon.json', 'build/*', 'client/*'],
+        env   : {
+            'NODE_ENV': env,
+            'PORT'    : port,
+        }
     });
 });
 
