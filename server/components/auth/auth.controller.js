@@ -23,30 +23,29 @@ var AuthService = require('./auth.service.js');
  * @param {Function} next                   function of callback for next middleware
  */
 function signIn(req, res, next) {
+    var objReturn, objUser, objInfo;
 
     // create user object
-    var objUser = {
+    objUser = {
         username    : req.body.username,
         password    : req.body.password,
         isRemembered: !!req.body.isRemembered,
     };
 
     // create object for additional (user) information
-    var objInfo = {
+    objInfo = {
         ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
     };
 
-    console.log(">>> Debug ====================; objInfo:", objInfo, '\n\n');
-
-    return AuthService.signIn(objUser, objInfo, (objErr, objProfile, strAccessToken) => {
+    return AuthService.signIn(objUser, objJWTSession, (objErr, objProfile, strToken) => {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
 
-        var objReturn = {
-            err        : null,
-            user       : objProfile,
-            accessToken: strAccessToken
+        objReturn = {
+            err  : null,
+            user : objProfile,
+            token: strToken
         };
 
         return res.status(200).json(objReturn);

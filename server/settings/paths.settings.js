@@ -29,7 +29,7 @@ objPaths.server   = objPaths.basepath;
  * General settings path.
  * @type {String}
  */
-objPaths.settings.general = path.join(objPaths.basepath, 'settings', 'general.settings.js');
+objPaths.general = path.join(objPaths.basepath, 'settings', 'general.settings.js');
 
 // *****************************************************************************
 
@@ -37,7 +37,8 @@ objPaths.settings.general = path.join(objPaths.basepath, 'settings', 'general.se
  * Database settings path.
  * @type {String}
  */
-objPaths.settings.database = path.join(objPaths.basepath, 'settings', 'database.settings.js');
+objPaths.database = path.join(objPaths.basepath, 'settings', 'database.settings.js');
+objPaths.db       = objPaths.database;
 
 // *****************************************************************************
 
@@ -45,7 +46,7 @@ objPaths.settings.database = path.join(objPaths.basepath, 'settings', 'database.
  * Errors settings path.
  * @type {String}
  */
-objPaths.settings.errors = path.join(objPaths.basepath, 'settings', 'errors.settings.js');
+objPaths.errors = path.join(objPaths.basepath, 'settings', 'errors.settings.js');
 
 // *****************************************************************************
 
@@ -53,7 +54,7 @@ objPaths.settings.errors = path.join(objPaths.basepath, 'settings', 'errors.sett
  * Paths settings path.
  * @type {String}
  */
-objPaths.settings.paths = path.join(objPaths.basepath, 'settings', 'paths.settings.js');
+objPaths.paths = path.join(objPaths.basepath, 'settings', 'paths.settings.js');
 
 // *****************************************************************************
 
@@ -61,13 +62,21 @@ objPaths.settings.paths = path.join(objPaths.basepath, 'settings', 'paths.settin
  * Authentication settings path.
  * @type {String}
  */
-objPaths.settings.auth = path.join(objPaths.basepath, 'settings', 'auth.settings.js');
+objPaths.auth = path.join(objPaths.basepath, 'settings', 'auth.settings.js');
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports = objPaths;
+module.exports.setup = function() {
+    if (!global.settings) {
+        global.settings = {};
+    }
+    
+    global.settings.paths = objPaths;
+};
+
+// module.exports = objPaths;
 
 // *****************************************************************************
 

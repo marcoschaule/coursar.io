@@ -154,7 +154,15 @@ objErrors.checkAuthentication.refreshTokenInvalid = {
 // Exports
 // *****************************************************************************
 
-module.exports = objErrors;
+module.exports.setup = function() {
+    if (!global.settings) {
+        global.settings = {};
+    }
+
+    global.settings.errors = objErrors;
+};
+
+// module.exports = objErrors;
 
 // ********************************************************************************
 

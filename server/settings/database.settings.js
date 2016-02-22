@@ -96,7 +96,15 @@ objDatabase.mongoDb.uri = [
 // Exports
 // *****************************************************************************
 
-module.exports = objDatabase;
+module.exports.setup = function() {
+    if (!global.settings) {
+        global.settings = {};
+    }
+
+    global.settings.db = objDatabase;
+};
+
+// module.exports = objDatabase;
 
 // *****************************************************************************
 

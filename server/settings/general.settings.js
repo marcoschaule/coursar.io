@@ -43,7 +43,15 @@ objSecrets.refreshToken.secret = 'Some secret for the refresh token!';
 // Exports
 // *****************************************************************************
 
-module.exports = objGeneral;
+module.exports.setup = function() {
+    if (!global.settings) {
+        global.settings = {};
+    }
+
+    global.settings.general = objGeneral;
+};
+
+// module.exports = objGeneral;
 
 // *****************************************************************************
 

@@ -5,7 +5,47 @@
 // *****************************************************************************
 
 // object of secrets for the export
-var objAuth = { accessToken: {}, refreshToken: {} };
+var objAuth = { session: {}, accessToken: {}, refreshToken: {} };
+
+// *****************************************************************************
+// Session settings
+// *****************************************************************************
+
+/**
+ * Session Redis keyspace.
+ * @type {String}
+ */
+objAuth.session.keyspace = 'sess:'; // prefix in Redis
+
+/**
+ * Session encryption algorithm.
+ * @type {String}
+ */
+objAuth.session.algorithm = 'HS256:';
+
+/**
+ * Session request key.
+ * @type {String}
+ */
+objAuth.session.requestKey = 'jwtSession';
+
+/**
+ * Session request key.
+ * @type {String}
+ */
+objAuth.session.requestArg = 'jwtToken';
+
+/**
+ * Session expiration time.
+ * @type {Number}
+ */
+objAuth.session.maxAge = 7*24*60*60; // one week in seconds
+
+/**
+ * Session secret
+ * @type {String}
+ */
+objAuth.session.secret = 'too5tup!tToF!ndMy0wn5ecret';
 
 // *****************************************************************************
 // Access token settings
@@ -13,7 +53,7 @@ var objAuth = { accessToken: {}, refreshToken: {} };
 
 /**
  * General settings for access token expiring date.
- * @type {String}
+ * @type {Number}
  */
 objAuth.accessToken.expiresIn = 5*60; // five minutes in seconds
 
@@ -35,9 +75,9 @@ objAuth.accessToken.secret = 'Some secret for the access token!';
 
 /**
  * General settings for refresh token expiring date.
- * @type {String}
+ * @type {Number}
  */
-objAuth.refreshToken.expiresIn = 7*24*60*60; // one week in seconds
+objAuth.refreshToken.expiresIn = objAuth.session.expiresIn;
 
 /**
  * General settings for refresh token secret.
@@ -49,7 +89,11 @@ objAuth.refreshToken.secret = 'Some secret for the refresh token!';
 // Exports
 // *****************************************************************************
 
-module.exports = objAuth;
+module.exports.setup = function() {
+    global.settings.auth = objAuth;
+};
+
+// module.exports = objAuth;
 
 // *****************************************************************************
 

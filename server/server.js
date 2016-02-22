@@ -1,50 +1,59 @@
 (function() { 'use strict';
 
+// *****************************************************************************
+// Constants
+// *****************************************************************************
+
+const APPNAME = 'coursar.io';
+const APPURL  = 'coursar.io';
+
 // ********************************************************************************
 // Includes and definitions
 // ********************************************************************************
 
 // requires
-var express         = require('express');
-var session         = require('express-session');
-var morgan          = require('morgan');
-var mongoose        = require('mongoose');
-var redis           = require('redis');
-var path            = require('path');
-var connectRedist   = require('connect-redis');
-var childProcess    = require('child_process');
-var bodyParser      = require('body-parser');
-var RedisSessions   = require('redis-sessions');
+var express             = require('express');
+var redis               = require('redis');
+var mongoose            = require('mongoose');
+var morgan              = require('morgan');
+var path                = require('path');
+var childProcess        = require('child_process');
+var bodyParser          = require('body-parser');
+var JWTRedisSession     = require('jwt-redis-session');
+// var session          = require('express-session');
+// var connectRedist    = require('connect-redis');
+// var RedisSessions    = require('redis-sessions');
 
 // setup
-var env             = (process.env.NODE_ENV || 'dev');
-var port            = (process.env.PORT     || 3000)*1;
-var app             = express();
-var RedisStore      = connectRedist(session);
-var strStaticFolder = path.join(__dirname, '../build/', env);
-var clientRedis;
+var env                 = (process.env.NODE_ENV || 'dev');
+var port                = (process.env.PORT     || 3000)*1;
+var app                 = express();
+// var RedisStore       = connectRedist(session);
+var strStaticFolder     = path.join(__dirname, '../.build/', env);
+var objRedisClient, objRedisSettings;
 
-// settings
-var objSettingsDatabase = require('./settings/database.settings.js');
-var objSettingsPaths    = require('./settings/paths.settings.js');
-
-// global variables
-global.paths        = objSettingsPaths;
-global.appName      = 'coursarIo';
-global.redisSession = new RedisSessions({ port: objSettingsDatabase.redis.port });
+// setup settings
+require('./settings/database.settings.js').setup();
+require('./settings/auth.settings.js').setup();
+require('./settings/paths.settings.js').setup();
 
 // *****************************************************************************
 // Redis and MongoDB setup
 // *****************************************************************************
 
-// clientRedis = redis.createClient({ port: objSettingsDatabase.redis.port });
-// clientRedis.on('error', (err) => {
-//     console.log(err);
-// });
+// create redis client based on settings
+objRedisClient = redis.createClient({ port: settings.db.redis.port });
+
+// set redis client error messages
+objRedisClient.on('error', err => { console.log(err); });
+
+// set JWT Redis session settings
+objRedisSettings = settings.auth.session;
+objRedisSettings.client = objRedisClient;
 
 // var objSettingsRedisSession          = {};
 // objSettingsRedisSession.client       = clientRedis;
-// objSettingsRedisSession.port         = objSettingsDatabase.redis.port;
+// objSettingsRedisSession.port         = settings.db.redis.port;
 
 // var objSettingsSession               = {};
 // objSettingsSession.resave            = false;
@@ -53,13 +62,14 @@ global.redisSession = new RedisSessions({ port: objSettingsDatabase.redis.port }
 // objSettingsSession.secret            = 'too5tup!tToF!ndMy0wn5ecret';
 
 // connect mongoose
-mongoose.connect(objSettingsDatabase.mongoDb.uri);
+mongoose.connect(settings.db.mongoDb.uri);
 
 // *****************************************************************************
 // App configuration
 // *****************************************************************************
 
 app.use(express.static(strStaticFolder));
+app.use(JWTRedisSession(objRedisSettings));
 // app.use(session(objSettingsSession));
 app.use(bodyParser.json());
 

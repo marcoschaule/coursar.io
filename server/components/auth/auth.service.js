@@ -8,8 +8,8 @@ var async          = require('async');
 var jwt            = require('jsonwebtoken');
 var uuid           = require('node-uuid');
 var Auth           = require('./auth.schema.js').Auth;
-var settingsAuth   = require(global.paths.settings.auth);
-var settingsErrors = require(global.paths.settings.errors);
+var settingsAuth   = require(settings.paths.auth);
+var settingsErrors = require(settings.paths.errors);
 
 // *****************************************************************************
 // Service functions
@@ -26,7 +26,7 @@ var settingsErrors = require(global.paths.settings.errors);
  * @param  {Object}   objInfo.ip              string of the current user's IP address
  * @param  {Function} callback                function for callback
  */
-function signIn(objSignIn, objInfo, callback) {
+function signIn(objSignIn, objJWTSession, callback) {
     var objUserReturn;
 
     return Auth.findOne({ 'profile.username':
@@ -45,14 +45,12 @@ function signIn(objSignIn, objInfo, callback) {
 
         var strUserId = objUser._id.toString();
 
-        return _generateRedisSession(strUserId, (objErr, strToken) => {
+        return _generateRedisSession(objUser, objJWTSession, (objErr, strToken) => {
             if (objErr) {
                 return callback(objErrors.signIn.generalError);
             }
 
-            return _generateAccessToken(strUserId, strToken, (strAccessToken) => {
-                return callback(null, objUser.profile, strAccessToken);
-            });
+            return callback(null, objUser.profile, { token: strToken });
         });
 
     });
@@ -201,43 +199,58 @@ function _indexOfEmailInArray(arrEmails, strEmail) {
  * @param  {String}   strUserId  string of user id
  * @param  {Function} callback   function for callback
  */
-function _generateRedisSession(strUserId, callback) {
-    var objTokens = {};
+function _generateRedisSession(objUser, objJWTSession, callback) {
 
-    return async.parallel([
-        
-        // generate the access token
-        _callback => {
-            _generateAccessToken(strUserId, strToken => {
-                objTokens.accessToken = strToken;
-            });
-        },
-        
-        // generate the refresh token
-        _callback => {
-            _generateRefreshToken(strUserId, strToken => {
-                objTokens.refreshToken = strToken;
-            });
-        },
-    
-    ], objErr => {
+    // this will be stored in redis
+    objJwtSession.userId = objUser._id.toString(); 
+
+    // this will be attached to the JWT
+    var claims = {
+        iss: APPNAME,
+        aud: APPURL,
+    };
+
+    return objJwtSession.create(claims, function(objErr, objToken){
         if (objErr) {
             return callback(objErr);
         }
-
-        return global.redisSession.create({
-            app: global.appName,
-            id : strUserId,
-            ttl: 3600,
-            d: { 
-                userId      : strUserId,
-                accessToken : objTokens.accessToken,
-                refreshToken: objTokens.refreshToken,
-            }
-        }, (objErr, objResult) => {
-            callback(objErr, objResult && objResult.token);
-        });
+        return callback(null, { token: objToken });
     });
+
+    // return async.parallel([
+        
+    //     // generate the access token
+    //     _callback => {
+    //         _generateAccessToken(strUserId, strToken => {
+    //             objTokens.accessToken = strToken;
+    //         });
+    //     },
+        
+    //     // generate the refresh token
+    //     _callback => {
+    //         _generateRefreshToken(strUserId, strToken => {
+    //             objTokens.refreshToken = strToken;
+    //         });
+    //     },
+    
+    // ], objErr => {
+    //     if (objErr) {
+    //         return callback(objErr);
+    //     }
+
+    //     // return global.redisSession.create({
+    //     //     app: global.appName,
+    //     //     id : strUserId,
+    //     //     ttl: 3600,
+    //     //     d: { 
+    //     //         userId      : strUserId,
+    //     //         accessToken : objTokens.accessToken,
+    //     //         refreshToken: objTokens.refreshToken,
+    //     //     }
+    //     // }, (objErr, objResult) => {
+    //     //     callback(objErr, objResult && objResult.token);
+    //     // });
+    // });
 }
 
 // *****************************************************************************
