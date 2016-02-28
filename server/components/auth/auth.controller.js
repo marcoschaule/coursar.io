@@ -37,7 +37,7 @@ function signIn(req, res, next) {
         ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
     };
 
-    return AuthService.signIn(objUser, objJWTSession, (objErr, objProfile, strToken) => {
+    return AuthService.signIn(objUser, req.session, (objErr, objProfile, strToken) => {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
@@ -88,11 +88,47 @@ function signUp(req, res, next) {
 }
 
 // *****************************************************************************
+
+function signOut(req, res, next) {
+    return AuthService.signOut(req.session, objErr => {
+        if (objErr) {
+            return res.status(objErr.status || 500).json({ err: objErr });
+        }
+        return res.status(200).json({ isRedirect: true });
+    });
+}
+
+// *****************************************************************************
+
+function isSignedIn(req, res, next) {
+    var _isSignedIn = AuthService.isSignedIn(req.session);
+    return res.status(200).json({ isSignedIn: _isSignedIn });
+}
+
+// *****************************************************************************
+
+function checkSignedIn(req, res, next) {
+    return AuthService.checkSignedIn(req.session, next);
+}
+
+// *****************************************************************************
+
+function touchSignedIn(req, res, next) {
+    return AuthService.touchSignedIn(req.session, objErr => {
+        next();
+    });
+}
+
+// *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.signIn = signIn;
-module.exports.signUp = signUp;
+module.exports.signIn        = signIn;
+module.exports.signUp        = signUp;
+module.exports.signOut       = signOut;
+module.exports.isSignedIn    = isSignedIn;
+module.exports.checkSignedIn = checkSignedIn;
+module.exports.touchSignedIn = touchSignedIn;
 
 // *****************************************************************************
 // Helpers

@@ -6,7 +6,6 @@
 
 var CryptoJS = require('crypto-js');
 var sha1     = require('crypto-js/sha1');
-var jwt      = require('jsonwebtoken');
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
@@ -21,19 +20,27 @@ var Schema   = mongoose.Schema;
  */
 var objAuth = {
     profile            : {
-        username       : { type: String, required: true },
-        emails         : [{
-            address    : { type: String },
-            isValidated: { type: Boolean, default: false },
-        }],    
-    },
-    private            : {
-        password       : {
-            salt       : { type: String, required: true },
-            hash       : { type: String, required: true },
+        name           : {
+            first      : { type: String },
+            last       : { type: String },
         },
-        isAdmin        : { type: Boolean, default: false },
+        address        : {
+            street     : { type: String },
+            city       : { type: String },
+            postalCode : { type: String },
+        },
+        dateOfBitrh    : { type: Date },
     },
+    emails         : [{
+        address    : { type: String },
+        isValidated: { type: Boolean, default: false },
+    }],    
+    username           : { type: String, required: true },
+    password           : {
+        salt           : { type: String, required: true },
+        hash           : { type: String, required: true },
+    },
+    isAdmin            : { type: Boolean, default: false },
 };
 var schemaAuth = new Schema(objAuth, { collection: 'users' });
 
@@ -166,7 +173,7 @@ function _compare(strPassword) {
     /*jshint validthis: true */
 
     // test if password and salt generate the same key
-    return (this.private.password.hash === CryptoJS.PBKDF2(strPassword, this.private.password.salt, { keySize: 512/32 })).toString();
+    return (this.password.hash === CryptoJS.PBKDF2(strPassword, this.password.salt, { keySize: 512/32 })).toString();
 }
 
 // *****************************************************************************

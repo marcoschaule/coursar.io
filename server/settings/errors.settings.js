@@ -6,10 +6,11 @@
 
 // object of errors for the export
 var objErrors = {
-    signIn: {},
-    signUp: {},
-    resetPassword: {},
-    checkAuthentication: {}
+    signIn             : {},
+    signUp             : {},
+    signOut            : {},
+    resetPassword      : {},
+    checkAuthentication: {},
 };
 
 // *****************************************************************************
@@ -97,7 +98,7 @@ objErrors.signIn.userOrPasswordWrong = {
 objErrors.signUp.generalError = {
     status : 500,
     code   : 1100,
-    message: 'General error with sign in!',
+    message: 'General error with sign up!',
 };
 
 // *****************************************************************************
@@ -122,6 +123,32 @@ objErrors.signUp.emailNotAvailable = {
     status : 401,
     code   : 1102,
     message: 'Email not available!',
+};
+
+// *****************************************************************************
+// Errors for "sign out"
+// *****************************************************************************
+
+/**
+ * Error object for "sign out" scenario "general error".
+ * @type {Object}
+ */
+objErrors.signOut.generalError = {
+    status : 500,
+    code   : 1200,
+    message: 'General error with sign out!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for "sign out" scenario "general error".
+ * @type {Object}
+ */
+objErrors.signOut.tokenMissing = {
+    status : 401,
+    code   : 1201,
+    message: 'Access token missing!',
 };
 
 // *****************************************************************************

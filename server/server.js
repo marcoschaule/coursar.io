@@ -1,15 +1,22 @@
 (function() { 'use strict';
 
 // *****************************************************************************
-// Constants
+// global constants
 // *****************************************************************************
 
-const APPNAME = 'coursar.io';
-const APPURL  = 'coursar.io';
+global.APPNAME = 'coursar.io';
+global.APPURL  = 'coursar.io';
 
 // ********************************************************************************
 // Includes and definitions
 // ********************************************************************************
+
+// setup settings
+require('./settings/general.settings.js').setup();
+require('./settings/database.settings.js').setup();
+require('./settings/auth.settings.js').setup();
+require('./settings/errors.settings.js').setup();
+require('./settings/paths.settings.js').setup();
 
 // requires
 var express             = require('express');
@@ -20,22 +27,19 @@ var path                = require('path');
 var childProcess        = require('child_process');
 var bodyParser          = require('body-parser');
 var JWTRedisSession     = require('jwt-redis-session');
-// var session          = require('express-session');
-// var connectRedist    = require('connect-redis');
-// var RedisSessions    = require('redis-sessions');
 
 // setup
 var env                 = (process.env.NODE_ENV || 'dev');
 var port                = (process.env.PORT     || 3000)*1;
 var app                 = express();
-// var RedisStore       = connectRedist(session);
 var strStaticFolder     = path.join(__dirname, '../.build/', env);
 var objRedisClient, objRedisSettings;
 
-// setup settings
-require('./settings/database.settings.js').setup();
-require('./settings/auth.settings.js').setup();
-require('./settings/paths.settings.js').setup();
+// Controllers
+var AuthCtrl = require('./components/auth/auth.controller.js');
+
+// route setters
+var setupRoutesAuthPublic = require('./components/auth/auth.routes.js').public;
 
 // *****************************************************************************
 // Redis and MongoDB setup
@@ -51,16 +55,6 @@ objRedisClient.on('error', err => { console.log(err); });
 objRedisSettings = settings.auth.session;
 objRedisSettings.client = objRedisClient;
 
-// var objSettingsRedisSession          = {};
-// objSettingsRedisSession.client       = clientRedis;
-// objSettingsRedisSession.port         = settings.db.redis.port;
-
-// var objSettingsSession               = {};
-// objSettingsSession.resave            = false;
-// objSettingsSession.saveUninitialized = false;
-// objSettingsSession.store             = new RedisStore(objSettingsRedisSession);
-// objSettingsSession.secret            = 'too5tup!tToF!ndMy0wn5ecret';
-
 // connect mongoose
 mongoose.connect(settings.db.mongoDb.uri);
 
@@ -69,20 +63,38 @@ mongoose.connect(settings.db.mongoDb.uri);
 // *****************************************************************************
 
 app.use(express.static(strStaticFolder));
-app.use(JWTRedisSession(objRedisSettings));
-// app.use(session(objSettingsSession));
 app.use(bodyParser.json());
+app.use(JWTRedisSession(objRedisSettings));
 
-// ********************************************************************************
-// Routing
-// ********************************************************************************
+// *****************************************************************************
+// Routing - public routes
+// *****************************************************************************
 
-app.get('/', (req, res, next) => {
+app.get('/', AuthCtrl.touchSignedIn, (req, res, next) => {
     res.sendFile(path.join(strStaticFolder, 'index.html'));
 });
 
 // initialize component routes
-require('./components/auth/auth.routes.js')(app);
+setupRoutesAuthPublic(app, AuthCtrl.touchSignedIn);
+
+// set auth barrier for all following routes
+app.use(AuthCtrl.checkSignedIn);
+
+// test route
+app.post('/test', (req, res, next) => {
+    res.send('isSingedIn');
+});
+
+// *****************************************************************************
+// Error handling
+// *****************************************************************************
+
+app.use((err, req, res, next) => {
+    if (err) {
+        return res.json({ err: err });
+    }
+    return res.json({});
+});
 
 // *****************************************************************************
 // Startup

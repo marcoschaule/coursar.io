@@ -4,12 +4,8 @@
 // Includes and definitions
 // *****************************************************************************
 
-var async          = require('async');
-var jwt            = require('jsonwebtoken');
-var uuid           = require('node-uuid');
-var Auth           = require('./auth.schema.js').Auth;
-var settingsAuth   = require(settings.paths.auth);
-var settingsErrors = require(settings.paths.errors);
+var async = require('async');
+var Auth  = require('./auth.schema.js').Auth;
 
 // *****************************************************************************
 // Service functions
@@ -26,31 +22,31 @@ var settingsErrors = require(settings.paths.errors);
  * @param  {Object}   objInfo.ip              string of the current user's IP address
  * @param  {Function} callback                function for callback
  */
-function signIn(objSignIn, objJWTSession, callback) {
-    var objUserReturn;
+function signIn(objSignIn, objSession, callback) {
+    var objUserReturn = {};
 
-    return Auth.findOne({ 'profile.username':
+    return Auth.findOne({ 'username':
             { $regex: objSignIn.username, $options: 'i' } },
             (objErr, objUser) => {
         
         if (objErr) {
             return callback(objErrors.signIn.generalError);
         }
-        else if (!objUser) {
-            return callback(settingsErrors.signIn.userNotFound);
-        }
-        else if (!objUser.compare(objSignIn.password)) {
-            return callback(settingsErrors.signIn.userOrPasswordWrong);
+        else if (!objUser || !objUser.compare(objSignIn.password)) {
+            return callback(settings.errors.signIn.usernameOrPasswordWrong);
         }
 
         var strUserId = objUser._id.toString();
 
-        return _generateRedisSession(objUser, objJWTSession, (objErr, strToken) => {
+        return _generateRedisSession(objUser, objSession, objSignIn.isRemembered, (objErr, objResult) => {
             if (objErr) {
                 return callback(objErrors.signIn.generalError);
             }
 
-            return callback(null, objUser.profile, { token: strToken });
+            objUserReturn._id      = objUser._id;
+            objUserReturn.username = objUser.username;
+
+            return callback(null, objUserReturn, objResult.token);
         });
 
     });
@@ -72,36 +68,33 @@ function signUp(objSignUp, callback) {
     var objUserReturn;
 
     return Auth.findOne({ $or: [
-            { 'profile.username': { $regex: objSignUp.username, $options: 'i' } },
-            { 'profile.emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
+            { 'username': { $regex: objSignUp.username, $options: 'i' } },
+            { 'emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
     ] }, (objErr, objUser) => {
         if (objErr) {
             return callback(objErrors.signUp.generalError);
         }
         else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
-            return callback(settingsErrors.signUp.usernameNotAvailable);
+            return callback(settings.errors.signUp.usernameNotAvailable);
         }
-        else if (objUser && objUser.profile && _indexOfEmailInArray(objUser.profile.emails, objSignUp.email) >= 0) {
-            return callback(settingsErrors.signUp.emailNotAvailable);
+        else if (objUser && objUser.profile && _indexOfEmailInArray(objUser.emails, objSignUp.email) >= 0) {
+            return callback(settings.errors.signUp.emailNotAvailable);
         }
 
+        // create a new authenticated user
         var objAuth = new Auth({
-            profile: {
-                username: objSignUp.username,
-                emails  : [{
-                    address : objSignUp.email,
-                    verified: false,
-                }],
-            },
-            private: {
-                password: {
-                    hash: objPassword.hash,
-                    salt: objPassword.salt,
-                },
+            username: objSignUp.username,
+            emails  : [{
+                address : objSignUp.email,
+                verified: false,
+            }],
+            password: {
+                hash: objPassword.hash,
+                salt: objPassword.salt,
             },
         });
 
-        return objAuth.save((objErr) => {
+        return objAuth.save(objErr => {
             if (objErr) {
                 return callback(objErrors.signUp.generalError);
             }
@@ -113,8 +106,27 @@ function signUp(objSignUp, callback) {
 // *****************************************************************************
 
 /**
+ * Service function to sign out. It destroys the session in redis
+ * and the JWToken.
+ * 
+ * @param {Object}   objJWTSession  object of session
+ * @param {Function} callback       function for callback
+ */
+function signOut(objJWTSession, callback) {
+    return objJWTSession.destroy(objErr => {
+        if (objErr) {
+            console.log(objErr);
+            // return callback(settings.errors.signOut.generalError);
+        }
+        return callback(null);
+    });
+}
+
+// *****************************************************************************
+
+/**
  * Service function to set a given email to be the main email.
- * Either the email already exists within the "profile.emails" array,
+ * Either the email already exists within the "emails" array,
  * then it is moved to position 0. Or it doesn't exist, then it is
  * just inserted at position 0.
  * 
@@ -128,32 +140,32 @@ function setEmail(strUserId, strEmailNew, callback) {
     var numPosition = -1;
 
     return Auth.findOne({ _id: strUserId }, (objErr, objUser) => {
-        if (objErr || !objUser || !objUser.profile || !objUser.profile.emails) {
+        if (objErr || !objUser || !objUser.profile || !objUser.emails) {
             return callback(true);
         }
 
         // Check existing emails, if given email is already saved.
         // If yes, use field "isValidated" for re-ordering the emails.
-        numPosition = _indexOfEmailInArray(objUser.profile.emails, strEmailNew);
-        objEmailNew = objUser.profile.emails[numPosition];
+        numPosition = _indexOfEmailInArray(objUser.emails, strEmailNew);
+        objEmailNew = objUser.emails[numPosition];
 
         return async.series([
 
             // remove email from array if available
-            (_callback) => {
+            _callback => {
                 if (numPosition < 0) {
                     return _callback(null);
                 }
 
                 return Auth.update({ _id: strUserId }, { $pull: 
-                        { 'profile.emails': { _id: objEmailNew._id } } },
+                        { 'emails': { _id: objEmailNew._id } } },
                         _callback);
             },
 
             // add email to position 0
-            (_callback) => {
+            _callback => {
                 return Auth.update({ _id: strUserId }, { $push:
-                        { 'profile.emails': { $each: [objEmailNew], $position: 0 } } },
+                        { 'emails': { $each: [objEmailNew], $position: 0 } } },
                         _callback);
             },
 
@@ -166,8 +178,100 @@ function setEmail(strUserId, strEmailNew, callback) {
 
 // *****************************************************************************
 
-function isSignedIn() {}
-function isUsernameAvailable() {}
+/**
+ * Service function to test whether a user is signed in.
+ * 
+ * @param  {Object}   objSession  object of JWT session
+ * @param  {Function} [callback]  (optional) function for callback
+ * @return {Boolean}              true if user is singed in
+ */
+function isSignedIn(objSession, callback) {
+    if (objSession && objSession.id) {
+        return callback && callback(null, true) || true;
+    }
+    return callback && callback(null, false) || false;
+}
+
+// *****************************************************************************
+
+function checkSignedIn(objSession, callback) {
+    var _isSignedIn = isSignedIn(objSession);
+
+    // if user is not signed in (anymore), return that info
+    if (!_isSignedIn) {
+        return callback({ isSignedIn: false });
+    }
+
+    // test if session is older than "sessionAge" or "maxAge" plus "sessionAge"
+    var isSessionOlderThanSessionAge = 
+        objSession.updatedAt + settings.auth.session.sessionAge * 1000 < Date.now();
+    var isSessionOlderThanMaxAge =
+        objSession.createdAt + settings.auth.session.maxAge * 1000 < Date.now();
+    var isSessionNotRememberedAndOlderThanSessionAge =
+        !objSession.isRemembered &&
+        isSessionOlderThanSessionAge;
+    var isSessionRememberedAndOlderThanMaxAge =
+        !!objSession.isRemembered &&
+        isSessionOlderThanMaxAge &&
+        isSessionOlderThanSessionAge;
+
+    console.log(">>> Debug ====================; objSession.isRemembered:", objSession.isRemembered);
+    console.log(">>> Debug ====================; isSessionOlderThanSessionAge:", isSessionOlderThanSessionAge);
+    console.log(">>> Debug ====================; isSessionOlderThanMaxAge:", isSessionOlderThanMaxAge);
+    console.log(">>> Debug ====================; isSessionNotRememberedAndOlderThanSessionAge:", isSessionNotRememberedAndOlderThanSessionAge);
+    console.log(">>> Debug ====================; isSessionRememberedAndOlderThanMaxAge:", isSessionRememberedAndOlderThanMaxAge, '\n\n');
+
+    // set a new "updatedAt" date
+    objSession.updatedAt = Date.now();
+
+    // if session is not remembered and older than "sessionAge", destroy it
+    // or if session is remembered but older than "maxAge" and "sessionage"
+    if (isSessionNotRememberedAndOlderThanSessionAge ||
+            isSessionRememberedAndOlderThanMaxAge) {
+        return objSession.destroy(objErr => {
+            return callback({ isSignedIn: false });
+        });
+    }
+
+    return objSession.update(objErr => {
+        return callback(objErr);
+    });
+}
+
+// *****************************************************************************
+
+function touchSignedIn(objSession, callback) {
+
+    // set a new "updatedAt" date
+    objSession.updatedAt = Date.now();
+    
+    return objSession.update(objErr => {
+        return callback(objErr);
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to test if username is available.
+ * 
+ * @param {String}   strUsername  string of username needs to be tested
+ * @param {Function} callback     function for callback
+ */
+function isUsernameAvailable(strUsername, callback) {
+    return Auth.findOne({ 'username':
+            { $regex: objSignIn.username, $options: 'i' } },
+            (objErr, objUser) => {
+        
+        if (objErr) {
+            return callback(objErrors.signIn.generalError);
+        }
+        if (objUser.username && strUsername === objUser.username) {
+            return callback(null, false);
+        }
+        return callback(null, true);
+    });
+}
 
 // *****************************************************************************
 // Helper functions
@@ -196,96 +300,46 @@ function _indexOfEmailInArray(arrEmails, strEmail) {
 /**
  * Helper function to generate the redis session if it doesn't exist, yet.
  * 
- * @param  {String}   strUserId  string of user id
- * @param  {Function} callback   function for callback
+ * @param  {Object}   objUser        object of user info
+ * @param  {Object}   objJWTSession  object of JWT session
+ * @param  {Boolean}  isRemembered   true if user clicked "remember me"
+ * @param  {Function} callback       function for callback
  */
-function _generateRedisSession(objUser, objJWTSession, callback) {
-
-    // this will be stored in redis
-    objJwtSession.userId = objUser._id.toString(); 
+function _generateRedisSession(objUser, objSession, isRemembered, callback) {
 
     // this will be attached to the JWT
-    var claims = {
-        iss: APPNAME,
-        aud: APPURL,
+    var objClaims = {
+        appName     : APPNAME,
+        appUrl      : APPURL,
     };
 
-    return objJwtSession.create(claims, function(objErr, objToken){
+    // this will be stored in redis
+    objSession.userId       = objUser._id.toString();
+    objSession.createdAt    = Date.now();
+    objSession.updatedAt    = Date.now();
+    objSession.sessionAge   = settings.auth.session.sessionAge;
+    objSession.isRemembered = isRemembered;
+
+    return objSession.create(objClaims, function(objErr, objToken){
         if (objErr) {
             return callback(objErr);
         }
         return callback(null, { token: objToken });
     });
-
-    // return async.parallel([
-        
-    //     // generate the access token
-    //     _callback => {
-    //         _generateAccessToken(strUserId, strToken => {
-    //             objTokens.accessToken = strToken;
-    //         });
-    //     },
-        
-    //     // generate the refresh token
-    //     _callback => {
-    //         _generateRefreshToken(strUserId, strToken => {
-    //             objTokens.refreshToken = strToken;
-    //         });
-    //     },
-    
-    // ], objErr => {
-    //     if (objErr) {
-    //         return callback(objErr);
-    //     }
-
-    //     // return global.redisSession.create({
-    //     //     app: global.appName,
-    //     //     id : strUserId,
-    //     //     ttl: 3600,
-    //     //     d: { 
-    //     //         userId      : strUserId,
-    //     //         accessToken : objTokens.accessToken,
-    //     //         refreshToken: objTokens.refreshToken,
-    //     //     }
-    //     // }, (objErr, objResult) => {
-    //     //     callback(objErr, objResult && objResult.token);
-    //     // });
-    // });
-}
-
-// *****************************************************************************
-
-/**
- * Helper function to generate an access token.
- * 
- * @param  {String}   strUserId  string of the user id in the MongoDB database
- * @param  {Function} callback   function for callback
- */
-function _generateAccessToken(strUserId, callback) {
-    var objInfo    = { userId   : strUserId };
-    var objOptions = { algorithm: settingsAuth.accessToken.algorithm };
-    var strSecret  = settingsAuth.accessToken.secret;
-
-    return jwt.sign(objInfo, strSecret, objOptions, callback);
-}
-
-// *****************************************************************************
-
-function _generateRefreshToken(strUserId, callback) {
-    var objInfo    = { userId   : strUserId };
-    var objOptions = { algorithm: settingsAuth.refreshToken.algorithm };
-    var strSecret  = settingsAuth.refreshToken.secret;
-
-    return jwt.sign(objInfo, strSecret, objOptions, callback);
 }
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.signIn   = signIn;
-module.exports.signUp   = signUp;
-module.exports.setEmail = setEmail;
+module.exports.signIn              = signIn;
+module.exports.signUp              = signUp;
+module.exports.signOut             = signOut;
+module.exports.setEmail            = setEmail;
+module.exports.isSignedIn          = isSignedIn;
+module.exports.checkSignedIn       = checkSignedIn;
+module.exports.touchSignedIn       = touchSignedIn;
+module.exports.isUsernameAvailable = isUsernameAvailable;
 
 // *****************************************************************************
 
