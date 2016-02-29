@@ -6,7 +6,6 @@
 
 var Auth        = require('./auth.schema.js').Auth;
 var AuthService = require('./auth.service.js');
-var Recaptcha   = require('recaptcha').Recaptcha;
 
 // *****************************************************************************
 // Controller functions
@@ -108,6 +107,23 @@ function isSignedIn(req, res, next) {
 
 // *****************************************************************************
 
+function isAvailable(req, res, next) {
+    var strWhich  = req.body.email ? 'email' : 'username';
+    var strValue  = req.body[strWhich];
+    var strMethod = 'email' === strWhich ?
+            'isEmailAvailable' :
+            'isUsernameAvailable';
+
+    return AuthService[strMethod](strValue, (objErr, isAvailable) => {
+        if (objErr) {
+            return next(objErr);
+        }
+        return res.status(200).json({ isAvailable: isAvailable });
+    });
+}
+
+// *****************************************************************************
+
 function checkSignedIn(req, res, next) {
     return AuthService.checkSignedIn(req.session, next);
 }
@@ -118,24 +134,6 @@ function touchSignedIn(req, res, next) {
     return AuthService.touchSignedIn(req.session, objErr => {
         return next();
     });
-}
-
-// *****************************************************************************
-
-function generateCaptcha(req, res, next) {
-    return AuthService.generateCaptcha(req.session, (objErr, strCaptcha) => {
-        console.log(">>> Debug ====================; objErr:", objErr, '\n\n');
-        if (objErr) {
-            return next(objErr);
-        }
-
-        // send captcha back to frontend
-        return res.status(200).json({ captcha: strCaptcha });
-    });
-
-    // res.set('Content-Type', 'image/svg+xml');
-    // res.send(genCaptcha.svg);
-    // res.send(genCaptcha.captchaValue);
 }
 
 // *****************************************************************************
@@ -172,9 +170,9 @@ module.exports.signIn          = signIn;
 module.exports.signUp          = signUp;
 module.exports.signOut         = signOut;
 module.exports.isSignedIn      = isSignedIn;
+module.exports.isAvailable     = isAvailable;
 module.exports.checkSignedIn   = checkSignedIn;
 module.exports.touchSignedIn   = touchSignedIn;
-module.exports.generateCaptcha = generateCaptcha;
 module.exports.idle            = idle;
 module.exports.middlewareAll   = middlewareAll;
 

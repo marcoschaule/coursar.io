@@ -6,7 +6,6 @@
 
 var async   = require('async');
 var Auth    = require('./auth.schema.js').Auth;
-var captcha = require('node-svgcaptcha');
 
 // *****************************************************************************
 // Service functions
@@ -26,8 +25,7 @@ var captcha = require('node-svgcaptcha');
 function signIn(objSignIn, objSession, callback) {
     var objUserReturn = {};
 
-    return Auth.findOne({ 'username':
-            { $regex: objSignIn.username, $options: 'i' } },
+    return Auth.findOne({ 'username': objSignIn.username.toLowerCase() },
             (objErr, objUser) => {
         
         if (objErr) {
@@ -279,17 +277,32 @@ function isSignedIn(objSession, callback) {
  * @param {Function} callback     function for callback
  */
 function isUsernameAvailable(strUsername, callback) {
-    return Auth.findOne({ 'username':
-            { $regex: objSignIn.username, $options: 'i' } },
-            (objErr, objUser) => {
+    var regexUsername = new RegExp('^' + strUsername + '$', 'i');
+
+    return Auth.find({ 'username': regexUsername },
+            (objErr, arrUsers) => {
+
+        if (objErr) {
+            console.error(objErr);
+            return callback(settings.errors.signIn.generalError);
+        }
+        return callback(null, Object.keys(arrUsers).length <= 0);
+    });
+}
+
+// *****************************************************************************
+
+function isEmailAvailable(strEmail, callback) {
+    var regexEmail = new RegExp('^' + strEmail + '$', 'i');
+
+    return Auth.find({ 'emails': { $elemMatch: { 'address': regexEmail } } },
+            (objErr, arrUsers) => {
         
         if (objErr) {
-            return callback(objErrors.signIn.generalError);
+            console.error(objErr);
+            return callback(settings.errors.signIn.generalError);
         }
-        if (objUser.username && strUsername === objUser.username) {
-            return callback(null, false);
-        }
-        return callback(null, true);
+        return callback(null, Object.keys(arrUsers).length <= 0);
     });
 }
 
@@ -319,23 +332,6 @@ function generateSession(objSession, callback) {
         }
         return callback(null, strToken);
     });
-}
-
-// *****************************************************************************
-
-function generateCaptcha(objSession, callback) {
-
-    // build captcha from settings
-    var genCaptcha = captcha(settings.captcha.svgCaptcha);
-
-    // add captcha to session
-    objSession.captcha = genCaptcha.captchaValue;
-
-    return objSession.update(objErr => callback(objErr, genCaptcha.svg));
-
-    // res.set('Content-Type', 'image/svg+xml');
-    // res.send(genCaptcha.svg);
-    // res.send(genCaptcha.captchaValue);
 }
 
 // *****************************************************************************
@@ -373,8 +369,8 @@ module.exports.checkSignedIn       = checkSignedIn;
 module.exports.touchSignedIn       = touchSignedIn;
 module.exports.isSignedIn          = isSignedIn;
 module.exports.isUsernameAvailable = isUsernameAvailable;
+module.exports.isEmailAvailable    = isEmailAvailable;
 module.exports.generateSession     = generateSession;
-module.exports.generateCaptcha     = generateCaptcha;
 
 // *****************************************************************************
 

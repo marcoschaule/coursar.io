@@ -29,12 +29,18 @@ function init(app) {
     });
 
     // POST routes
-    app.post('/',             AuthCtrl.idle);
-    app.post('/sign-in',      AuthCtrl.signIn);
-    app.post('/sign-up',      AuthCtrl.signUp);
-    app.post('/sign-out',     AuthCtrl.signOut);
-    app.post('/is-signed-in', AuthCtrl.isSignedIn);
-    app.post('/captcha',      AuthCtrl.generateCaptcha);
+    app.post('/',            
+            AuthCtrl.idle);
+    app.post('/sign-in',     
+            AuthCtrl.signIn);
+    app.post('/sign-up',     
+            AuthCtrl.signUp);
+    app.post('/sign-out',    
+            AuthCtrl.signOut);
+    app.post('/is-signed-in',
+            AuthCtrl.isSignedIn);
+    app.post('/is-available',
+            AuthCtrl.isAvailable);
 }
 
 // *****************************************************************************

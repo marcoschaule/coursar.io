@@ -21,58 +21,72 @@ angular
 // Controller definition function
 // *****************************************************************************
 
-function Controller($sce, $http) {
+function Controller($http, $q) {
     var vm = this;
-
-    // $httpProvider.defaults.headers.common = { 'X-Access-Token': '' };
-
-    // var objRequest = {
-    //     method: 'POST',
-    //     url: '/',
-    // };
-
-    // $http(objRequest).then(function(objResponse) {
-    //     $http.defaults.headers.common['X-Access-Token'] = objResponse.headers('X-Access-Token');
-    // });
-
 
     // *****************************************************************************
     // Private variables
     // *****************************************************************************
+    
+    var _objCanceler;
 
     // *****************************************************************************
     // Public variables
     // *****************************************************************************
 
+    vm.isUsernameAvailable;
+    vm.isEmailAvailable;
+
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
+
+    vm.init        = init;
+    vm.isAvailable = isAvailable;
 
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
 
-    // function loadCaptcha() {
-    //     $http.post('/captcha').then(function(objResponse) {
-    //         vm.strCaptcha = $sce.trustAsHtml(objResponse.data.captcha);
-    //         console.log(">>> Debug ====================; objResponse.data:", objResponse.data, '\n\n');
-    //     });
-    // }
+    function isAvailable(strWhich, strValue) {
+        var objRequestBody, objOptions;
+
+        // cancel the request if necessary
+        _objCanceler &&
+            _objCanceler.resolve &&
+            _objCanceler.resolve('restart');
+
+        _objCanceler             = $q.defer();
+        objRequestBody           = {};
+        objRequestBody[strWhich] = strValue;
+        objOptions               = { timeout: _objCanceler.promise };
+
+        strWhich === 'email' ?
+            (vm.isEmailAvailable = undefined) :
+            (vm.isUsernameAvailable = undefined);
+
+        $http.post('/is-available', objRequestBody, objOptions)
+            .then(function(objResult) {
+                strWhich === 'email' ?
+                    (vm.isEmailAvailable = !!objResult.data.isAvailable) :
+                    (vm.isUsernameAvailable = !!objResult.data.isAvailable);
+            });
+    }
+
+    function init() {
+
+    } init();
 
     // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
-
-    function _init() {
-        loadCaptcha();
-    } _init();
 
     // *****************************************************************************
 }
 
 // *****************************************************************************
 
-Controller.$inject = ['$sce', '$http'];
+Controller.$inject = ['$http', '$q'];
 
 // *****************************************************************************
 

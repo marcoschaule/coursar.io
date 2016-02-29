@@ -1,16 +1,20 @@
 mixin confirmationText(strName)
     .right.text-muted(
             data-ng-if="!signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === undefined")
-        |not confirmed yet
+        i.fa.fa-times
+        |&nbsp;not confirmed yet
     .right.text-muted(
             data-ng-if="signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === undefined")
-        |pending...
+        i.fa.fa-spinner.fa-spin
+        |&nbsp;pending...
     .right.text-success(
             data-ng-if="signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === true")
-        |not available
+        i.fa.fa-check
+        |&nbsp;is available
     .right.text-danger(
             data-ng-if="signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === false")
-        |not available
+        i.fa.fa-ban
+        |&nbsp;not available
 
 form(name="signUp")
 
@@ -35,6 +39,7 @@ form(name="signUp")
                     type="text",
                     name="signUpUsername",
                     placeholder="Username",
+                    data-ng-change="vm.isAvailable('username', vm.signUp.username)",
                     data-ng-model="vm.signUp.username")
         +confirmationText('Username')
         
@@ -44,6 +49,7 @@ form(name="signUp")
                     type="text",
                     name="signUpEmail",
                     placeholder="Email",
+                    data-ng-change="vm.isAvailable('email', vm.signUp.email)",
                     data-ng-model="vm.signUp.email")
         +confirmationText('Email')
         
