@@ -1,1 +1,59 @@
-h1 Sign in
+form(name="signIn")
+
+    .btn-set
+        a.btn.btn-link.no-hpadding(
+                data-ui-sref="signUp",
+                alt="Sign Up")
+            |Sign Up
+        |&nbsp;&nbsp;|&nbsp;&nbsp;
+        a.btn.btn-link.no-hpadding(
+                data-ui-sref="home",
+                alt="Back to Homepage")
+            |Back to Homepage
+    
+    .vmargin-2rem
+    fieldset
+        legend: h1 Sign In
+        
+        .form-group
+            label(for="sign-in-username") Username:
+            input#sign-in-username.form-control(
+                    type="text",
+                    name="signInUsername",
+                    placeholder="Username",
+                    data-ng-model="vm.signIn.username")
+        
+        .form-group(data-ng-if="!vm.isSignInPasswordVisible")
+            label(for="sign-in-password-hidden") Password:
+            input#sign-in-password-hidden.form-control(
+                    type="password",
+                    name="signInPassword",
+                    placeholder="Password",
+                    data-ng-model="vm.signIn.password")
+        
+        .form-group(data-ng-if="vm.isSignInPasswordVisible")
+            label(for="sign-in-password-visible") Password:
+            input#sign-in-password-visible.form-control(
+                    type="text",
+                    name="signInPassword",
+                    placeholder="Password",
+                    data-ng-model="vm.signIn.password")
+
+        a.btn.btn-link.float-right.no-padding(
+                data-ng-click="vm.isSignInPasswordVisible = !vm.isSignInPasswordVisible")
+            span(data-ng-if="!vm.isSignInPasswordVisible")
+                i.fa.fa-eye
+                |&nbsp;Show Password
+            span(data-ng-if="vm.isSignInPasswordVisible")
+                i.fa.fa-eye-slash
+                |&nbsp;Hide Password
+    
+    .vmargin-1rem
+    fieldset
+        .btn-set
+            button.btn.btn-primary(
+                    alt="Sign In")
+                |Sign In
+            a.btn.btn-link(
+                    alt="Forgot Password?")
+                |Forgot password?

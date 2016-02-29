@@ -3,9 +3,24 @@ html(land="en")
     head
         title Title
         meta(charset="utf-8")
+        base(href="/")
         // {styles} 
+        script(type="text/javascript").
+            var onloadCallback = function() {
+                grecaptcha.render('sign-up-captcha', {
+                    sitekey: '6LcXlhkTAAAAALxiFu69thW-i15n4b9S0iu8aUM8',
+                });
+            };
 
     body(data-ng-app="cio")
-        h1 Welcome1
-        // {scripts} 
+
+        #view-common
+            div(data-ui-view="common")
+
+        #view-simple
+            div(data-ui-view="simple")
+        
+        // {scripts}
+        script(src="https://www.google.com/recaptcha/api.js?hl=en&onload=onloadCallback&render=explicit", async, defer)
+
     

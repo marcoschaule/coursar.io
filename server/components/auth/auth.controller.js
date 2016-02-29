@@ -6,6 +6,8 @@
 
 var Auth        = require('./auth.schema.js').Auth;
 var AuthService = require('./auth.service.js');
+var Recaptcha   = require('recaptcha').Recaptcha;
+var captcha     = require('node-svgcaptcha');
 
 // *****************************************************************************
 // Controller functions
@@ -115,7 +117,44 @@ function checkSignedIn(req, res, next) {
 
 function touchSignedIn(req, res, next) {
     return AuthService.touchSignedIn(req.session, objErr => {
-        next();
+        return next();
+    });
+}
+
+// *****************************************************************************
+
+function generateCaptcha(req, res, next) {
+    return AuthService.generateCaptcha(objErr => {
+        if (objErr) {
+            return next(objErr);
+        }
+
+        // send captcha back to frontend
+        return res.status(200).json({ captcha: genCaptcha.svg });
+    });
+
+    // res.set('Content-Type', 'image/svg+xml');
+    // res.send(genCaptcha.svg);
+    // res.send(genCaptcha.captchaValue);
+}
+
+// *****************************************************************************
+// Middleware functions
+// *****************************************************************************
+
+function middlewareAll(req, res, next) {
+    return AuthService.generateSession(req.session, (objErr, strToken) => {
+        if (objErr) {
+            return next(objErr);
+        }
+
+        // set access token in response header; this will be used for
+        // session management and authentication
+        res.set('X-Access-Token', strToken);
+
+        return AuthService.touchSignedIn(req.session, objErr => {
+            return next();
+        });
     });
 }
 
@@ -123,12 +162,14 @@ function touchSignedIn(req, res, next) {
 // Exports
 // *****************************************************************************
 
-module.exports.signIn        = signIn;
-module.exports.signUp        = signUp;
-module.exports.signOut       = signOut;
-module.exports.isSignedIn    = isSignedIn;
-module.exports.checkSignedIn = checkSignedIn;
-module.exports.touchSignedIn = touchSignedIn;
+module.exports.signIn          = signIn;
+module.exports.signUp          = signUp;
+module.exports.signOut         = signOut;
+module.exports.isSignedIn      = isSignedIn;
+module.exports.checkSignedIn   = checkSignedIn;
+module.exports.touchSignedIn   = touchSignedIn;
+module.exports.generateCaptcha = generateCaptcha;
+module.exports.middlewareAll   = middlewareAll;
 
 // *****************************************************************************
 // Helpers

@@ -21,8 +21,13 @@ angular
 // Controller definition function
 // *****************************************************************************
 
-function Controller() {
+function Controller($http) {
     var vm = this;
+
+    // $httpProvider.defaults.headers.common = { 'X-Access-Token': '' };
+    $http.head();
+    $http.defaults.headers.common['X-Access-Token'] = '';
+
 
     // *****************************************************************************
     // Private variables
@@ -40,12 +45,24 @@ function Controller() {
     // Controller function definitions
     // *****************************************************************************
 
+    function loadCaptcha() {
+        // $http.get();
+    }
+
     // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
 
+    function _init() {
+        loadCaptcha();
+    } _init();
+
     // *****************************************************************************
 }
+
+// *****************************************************************************
+
+Controller.$inject = ['$http'];
 
 // *****************************************************************************
 

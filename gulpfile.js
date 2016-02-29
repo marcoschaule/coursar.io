@@ -62,9 +62,11 @@ var objTemplateCacheSettings  = {
 };
 var arrStyleFiles = [
     'styles/vendor/bootstrap.css',
+    'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css',
     'styles/layout.css',
 ];
 var arrScriptFiles = [
+    // 'https://www.google.com/recaptcha/api.js',
     'scripts/vendor/angular.js',
     'scripts/vendor/angular-sanitize.js',
     'scripts/vendor/angular-ui-router.js',
@@ -132,7 +134,7 @@ gulp.task('layout:dev', () => {
         .pipe(jade())
         .pipe(replace(regexStylesReplacer, arrStyleFilesMapped.join('\n')))
         .pipe(replace(regexScriptsReplacer, arrScriptFilesMapped.join('\n')))
-        .pipe(rename('index.html'))
+        .pipe(rename('layout.html'))
         .pipe(prettify({ indent_size: 4 }))
         .pipe(gulp.dest(strPathBuild + '/dev/'));
 });
@@ -150,7 +152,7 @@ gulp.task('layout:prod', () => {
             .replace('{path}',  strStylesMinFileName)))
         .pipe(replace(regexScriptsReplacer, strScriptsTag
             .replace('{path}', strScriptsMinFileName)))
-        .pipe(rename('index.html'))
+        .pipe(rename('layout.html'))
         .pipe(gulp.dest(strPathBuild + '/prod/'));
 });
 
@@ -173,7 +175,7 @@ gulp.task('templates', () => {
 // *****************************************************************************
 
 /**
- * Task to build css from stylus from layout and
+ * Task to build CSS from stylus from layout and
  * components folders for development.
  */
 gulp.task('styles:dev', (callback) => {
@@ -186,7 +188,7 @@ gulp.task('styles:dev', (callback) => {
 // *****************************************************************************
 
 /**
- * Task to build user css from stylus from layout and
+ * Task to build user CSS from stylus from layout and
  * components folders for development.
  */
 gulp.task('styles-user:dev', () => {
@@ -203,13 +205,19 @@ gulp.task('styles-user:dev', () => {
 // *****************************************************************************
 
 /**
- * Task to build vendor css from stylus from layout and
+ * Task to build vendor CSS from stylus of the layout and
  * components folders for development.
  */
 gulp.task('styles-vendor:dev', () => {
     return gulp
         .src([
             strPathBuild + '/vendor/bootstrap/bootstrap.css',
+            // strPathBuild + '/vendor/font-awesome/font-awesome.css',
+            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.eot',
+            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.svg',
+            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.ttf',
+            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.woff',
+            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.woff2',
         ])
         .pipe(flatten())
         .pipe(gulp.dest(strPathBuild + '/dev/styles/vendor'));
@@ -218,7 +226,7 @@ gulp.task('styles-vendor:dev', () => {
 // *****************************************************************************
 
 /**
- * Task to build css from stylus from layout and
+ * Task to build CSS from stylus from layout and
  * components folders for production.
  */
 gulp.task('styles:prod', ['styles:dev'], () => {

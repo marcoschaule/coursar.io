@@ -20,7 +20,7 @@ angular
     .module('cio')
     .config(function($urlRouterProvider, $stateProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
-        $urlRouterProvider.otherwise('/');
+        $urlRouterProvider.otherwise('/sign-in');
     });
 
 // *****************************************************************************

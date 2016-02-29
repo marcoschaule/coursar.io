@@ -17,22 +17,23 @@ require('./settings/database.settings.js').setup();
 require('./settings/auth.settings.js').setup();
 require('./settings/errors.settings.js').setup();
 require('./settings/paths.settings.js').setup();
+require('./settings/captcha.settings.js').setup();
 
 // requires
-var express             = require('express');
-var redis               = require('redis');
-var mongoose            = require('mongoose');
-var morgan              = require('morgan');
-var path                = require('path');
-var childProcess        = require('child_process');
-var bodyParser          = require('body-parser');
-var JWTRedisSession     = require('jwt-redis-session');
+var express         = require('express');
+var redis           = require('redis');
+var mongoose        = require('mongoose');
+var morgan          = require('morgan');
+var path            = require('path');
+var childProcess    = require('child_process');
+var bodyParser      = require('body-parser');
+var JWTRedisSession = require('jwt-redis-session');
 
 // setup
-var env                 = (process.env.NODE_ENV || 'dev');
-var port                = (process.env.PORT     || 3000)*1;
-var app                 = express();
-var strStaticFolder     = path.join(__dirname, '../.build/', env);
+var env             = (process.env.NODE_ENV || 'dev');
+var port            = (process.env.PORT     || 3000)*1;
+var app             = express();
+var strStaticFolder = path.join(__dirname, '../.build/', env);
 var objRedisClient, objRedisSettings;
 
 // Controllers
@@ -65,24 +66,32 @@ mongoose.connect(settings.db.mongoDb.uri);
 app.use(express.static(strStaticFolder));
 app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
+// app.use(AuthCtrl.generateSession);
+
+// *****************************************************************************
+// Routing - admin routes
+// *****************************************************************************
+
+// *****************************************************************************
+// Routing - privates routes
+// *****************************************************************************
+
 
 // *****************************************************************************
 // Routing - public routes
 // *****************************************************************************
 
-app.get('/', AuthCtrl.touchSignedIn, (req, res, next) => {
-    res.sendFile(path.join(strStaticFolder, 'index.html'));
-});
-
 // initialize component routes
-setupRoutesAuthPublic(app, AuthCtrl.touchSignedIn);
+setupRoutesAuthPublic(app);
 
-// set auth barrier for all following routes
-app.use(AuthCtrl.checkSignedIn);
-
-// test route
-app.post('/test', (req, res, next) => {
-    res.send('isSingedIn');
+app.get('/test', (req, res, next) => { // TODO: remove
+    res.send('isSingedIn: ' + !!req.session.isSingedIn);
+});
+app.post('/test', (req, res, next) => { // TODO: remove
+    res.send({ isSingedIn: !!req.session.isSingedIn });
+});
+app.get('/*?', (req, res, next) => {
+    res.sendFile(path.join(strStaticFolder, 'layout.html'));
 });
 
 // *****************************************************************************
@@ -101,7 +110,7 @@ app.use((err, req, res, next) => {
 // *****************************************************************************
 
 app.listen(port, () => {
-    console.log(`Node-Server running on port ${port}!`);
+    console.log(`Node-Server running on port ${port} in environment ${env}!`);
 });
 
 // *****************************************************************************

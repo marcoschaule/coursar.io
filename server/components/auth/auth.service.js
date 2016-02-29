@@ -36,19 +36,28 @@ function signIn(objSignIn, objSession, callback) {
             return callback(settings.errors.signIn.usernameOrPasswordWrong);
         }
 
+        // get MongoDB user id
         var strUserId = objUser._id.toString();
 
-        return _generateRedisSession(objUser, objSession, objSignIn.isRemembered, (objErr, objResult) => {
+        // this will be stored in redis
+        objSession.userId       = strUserId;
+        objSession.createdAt    = Date.now();
+        objSession.updatedAt    = Date.now();
+        objSession.sessionAge   = settings.auth.session.sessionAge;
+        objSession.isRemembered = objSignIn.isRemembered;
+        objSession.isSignedIn   = true;
+
+        return objSession.update(objErr => {
             if (objErr) {
-                return callback(objErrors.signIn.generalError);
+                return callback(objErr);
             }
 
-            objUserReturn._id      = objUser._id;
-            objUserReturn.username = objUser.username;
+            // this will be send back to the user
+            objUserReturn._id       = strUserId;
+            objUserReturn.username  = objUser.username;
 
-            return callback(null, objUserReturn, objResult.token);
+            return callback(null, objUserReturn, objSession.jwt);
         });
-
     });
 }
 
@@ -109,17 +118,21 @@ function signUp(objSignUp, callback) {
  * Service function to sign out. It destroys the session in redis
  * and the JWToken.
  * 
- * @param {Object}   objJWTSession  object of session
- * @param {Function} callback       function for callback
+ * @param {Object}   objSession  object of session
+ * @param {Function} callback    function for callback
  */
-function signOut(objJWTSession, callback) {
-    return objJWTSession.destroy(objErr => {
-        if (objErr) {
-            console.log(objErr);
-            // return callback(settings.errors.signOut.generalError);
-        }
-        return callback(null);
-    });
+function signOut(objSession, callback) {
+    objSession.isSignedIn = false;
+
+    return objSession.update(objErr => callback(null));
+
+    // return objSession.destroy(objErr => {
+    //     if (objErr) {
+    //         console.log(objErr);
+    //         // return callback(settings.errors.signOut.generalError);
+    //     }
+    //     return callback(null);
+    // });
 }
 
 // *****************************************************************************
@@ -178,28 +191,14 @@ function setEmail(strUserId, strEmailNew, callback) {
 
 // *****************************************************************************
 
-/**
- * Service function to test whether a user is signed in.
- * 
- * @param  {Object}   objSession  object of JWT session
- * @param  {Function} [callback]  (optional) function for callback
- * @return {Boolean}              true if user is singed in
- */
-function isSignedIn(objSession, callback) {
-    if (objSession && objSession.id) {
-        return callback && callback(null, true) || true;
-    }
-    return callback && callback(null, false) || false;
-}
-
-// *****************************************************************************
-
 function checkSignedIn(objSession, callback) {
     var _isSignedIn = isSignedIn(objSession);
+    var objReturn   = null;
 
     // if user is not signed in (anymore), return that info
     if (!_isSignedIn) {
-        return callback({ isSignedIn: false });
+        objReturn = { isSignedIn: false };
+        return callback(objReturn);
     }
 
     // test if session is older than "sessionAge" or "maxAge" plus "sessionAge"
@@ -215,11 +214,11 @@ function checkSignedIn(objSession, callback) {
         isSessionOlderThanMaxAge &&
         isSessionOlderThanSessionAge;
 
-    console.log(">>> Debug ====================; objSession.isRemembered:", objSession.isRemembered);
-    console.log(">>> Debug ====================; isSessionOlderThanSessionAge:", isSessionOlderThanSessionAge);
-    console.log(">>> Debug ====================; isSessionOlderThanMaxAge:", isSessionOlderThanMaxAge);
-    console.log(">>> Debug ====================; isSessionNotRememberedAndOlderThanSessionAge:", isSessionNotRememberedAndOlderThanSessionAge);
-    console.log(">>> Debug ====================; isSessionRememberedAndOlderThanMaxAge:", isSessionRememberedAndOlderThanMaxAge, '\n\n');
+    // console.log(">>> Debug ====================; objSession.isRemembered:", objSession.isRemembered);
+    // console.log(">>> Debug ====================; isSessionOlderThanSessionAge:", isSessionOlderThanSessionAge);
+    // console.log(">>> Debug ====================; isSessionOlderThanMaxAge:", isSessionOlderThanMaxAge);
+    // console.log(">>> Debug ====================; isSessionNotRememberedAndOlderThanSessionAge:", isSessionNotRememberedAndOlderThanSessionAge);
+    // console.log(">>> Debug ====================; isSessionRememberedAndOlderThanMaxAge:", isSessionRememberedAndOlderThanMaxAge, '\n\n');
 
     // set a new "updatedAt" date
     objSession.updatedAt = Date.now();
@@ -228,13 +227,16 @@ function checkSignedIn(objSession, callback) {
     // or if session is remembered but older than "maxAge" and "sessionage"
     if (isSessionNotRememberedAndOlderThanSessionAge ||
             isSessionRememberedAndOlderThanMaxAge) {
-        return objSession.destroy(objErr => {
-            return callback({ isSignedIn: false });
-        });
+        objSession.isSignedIn = false;
+        objReturn             = { isSignedIn: false };
+        
+        // return objSession.destroy(objErr => {
+        //     return callback({ isSignedIn: false });
+        // });
     }
 
     return objSession.update(objErr => {
-        return callback(objErr);
+        return callback(objErr || objReturn);
     });
 }
 
@@ -245,9 +247,23 @@ function touchSignedIn(objSession, callback) {
     // set a new "updatedAt" date
     objSession.updatedAt = Date.now();
     
-    return objSession.update(objErr => {
-        return callback(objErr);
-    });
+    return objSession.update(objErr => callback(objErr));
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to test whether a user is signed in.
+ * 
+ * @param  {Object}   objSession  object of JWT session
+ * @param  {Function} [callback]  (optional) function for callback
+ * @return {Boolean}              true if user is singed in
+ */
+function isSignedIn(objSession, callback) {
+    if (objSession && objSession.isSignedIn) {
+        return callback && callback(null, true) || true;
+    }
+    return callback && callback(null, false) || false;
 }
 
 // *****************************************************************************
@@ -274,12 +290,58 @@ function isUsernameAvailable(strUsername, callback) {
 }
 
 // *****************************************************************************
+
+/**
+ * Service function to generate the Redis session if it doesn't exist, yet.
+ * 
+ * @param  {Object}   objJWTSession  object of JWT session
+ * @param  {Function} callback       function for callback
+ */
+function generateSession(objSession, callback) {
+    if (objSession && objSession.id && objSession.jwt) {
+        return callback(null, objSession.jwt);
+    }
+
+    // this will be attached to the JWT
+    var objClaims = {
+        appName     : APPNAME,
+        appUrl      : APPURL,
+    };
+
+    // generate the session
+    return objSession.create(objClaims, (objErr, strToken) => {
+        if (objErr) {
+            return callback(objErr);
+        }
+        return callback(null, strToken);
+    });
+}
+
+// *****************************************************************************
+
+function generateCaptcha(objSession, callback) {
+
+    // build captcha from settings
+    var genCaptcha = captcha(settings.captcha.svgCaptcha);
+
+    // add captcha to session
+    objSession.captcha = genCaptcha.captchaValue;
+
+    return objSession.update(objErr => callback(objErr));
+
+    // res.set('Content-Type', 'image/svg+xml');
+    // res.send(genCaptcha.svg);
+    // res.send(genCaptcha.captchaValue);
+}
+
+// *****************************************************************************
 // Helper functions
 // *****************************************************************************
 
 /**
  * Helper function to get the index of a given array,
  * if it appears in the given array of emails.
+ * @private
  * 
  * @param  {Array}  arrEmails  array of emails
  * @param  {String} strEmail   string of email
@@ -296,39 +358,6 @@ function _indexOfEmailInArray(arrEmails, strEmail) {
 }
 
 // *****************************************************************************
-
-/**
- * Helper function to generate the redis session if it doesn't exist, yet.
- * 
- * @param  {Object}   objUser        object of user info
- * @param  {Object}   objJWTSession  object of JWT session
- * @param  {Boolean}  isRemembered   true if user clicked "remember me"
- * @param  {Function} callback       function for callback
- */
-function _generateRedisSession(objUser, objSession, isRemembered, callback) {
-
-    // this will be attached to the JWT
-    var objClaims = {
-        appName     : APPNAME,
-        appUrl      : APPURL,
-    };
-
-    // this will be stored in redis
-    objSession.userId       = objUser._id.toString();
-    objSession.createdAt    = Date.now();
-    objSession.updatedAt    = Date.now();
-    objSession.sessionAge   = settings.auth.session.sessionAge;
-    objSession.isRemembered = isRemembered;
-
-    return objSession.create(objClaims, function(objErr, objToken){
-        if (objErr) {
-            return callback(objErr);
-        }
-        return callback(null, { token: objToken });
-    });
-}
-
-// *****************************************************************************
 // Exports
 // *****************************************************************************
 
@@ -336,10 +365,12 @@ module.exports.signIn              = signIn;
 module.exports.signUp              = signUp;
 module.exports.signOut             = signOut;
 module.exports.setEmail            = setEmail;
-module.exports.isSignedIn          = isSignedIn;
 module.exports.checkSignedIn       = checkSignedIn;
 module.exports.touchSignedIn       = touchSignedIn;
+module.exports.isSignedIn          = isSignedIn;
 module.exports.isUsernameAvailable = isUsernameAvailable;
+module.exports.generateSession     = generateSession;
+module.exports.generateCaptcha     = generateCaptcha;
 
 // *****************************************************************************
 
