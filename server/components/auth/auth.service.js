@@ -4,8 +4,9 @@
 // Includes and definitions
 // *****************************************************************************
 
-var async = require('async');
-var Auth  = require('./auth.schema.js').Auth;
+var async   = require('async');
+var Auth    = require('./auth.schema.js').Auth;
+var captcha = require('node-svgcaptcha');
 
 // *****************************************************************************
 // Service functions
@@ -243,6 +244,9 @@ function checkSignedIn(objSession, callback) {
 // *****************************************************************************
 
 function touchSignedIn(objSession, callback) {
+    if (!isSignedIn(objSession)) {
+        return callback();
+    }
 
     // set a new "updatedAt" date
     objSession.updatedAt = Date.now();
@@ -327,7 +331,7 @@ function generateCaptcha(objSession, callback) {
     // add captcha to session
     objSession.captcha = genCaptcha.captchaValue;
 
-    return objSession.update(objErr => callback(objErr));
+    return objSession.update(objErr => callback(objErr, genCaptcha.svg));
 
     // res.set('Content-Type', 'image/svg+xml');
     // res.send(genCaptcha.svg);

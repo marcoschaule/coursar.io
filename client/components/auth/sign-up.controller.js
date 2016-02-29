@@ -21,12 +21,19 @@ angular
 // Controller definition function
 // *****************************************************************************
 
-function Controller($http) {
+function Controller($sce, $http) {
     var vm = this;
 
     // $httpProvider.defaults.headers.common = { 'X-Access-Token': '' };
-    $http.head();
-    $http.defaults.headers.common['X-Access-Token'] = '';
+
+    // var objRequest = {
+    //     method: 'POST',
+    //     url: '/',
+    // };
+
+    // $http(objRequest).then(function(objResponse) {
+    //     $http.defaults.headers.common['X-Access-Token'] = objResponse.headers('X-Access-Token');
+    // });
 
 
     // *****************************************************************************
@@ -45,9 +52,12 @@ function Controller($http) {
     // Controller function definitions
     // *****************************************************************************
 
-    function loadCaptcha() {
-        // $http.get();
-    }
+    // function loadCaptcha() {
+    //     $http.post('/captcha').then(function(objResponse) {
+    //         vm.strCaptcha = $sce.trustAsHtml(objResponse.data.captcha);
+    //         console.log(">>> Debug ====================; objResponse.data:", objResponse.data, '\n\n');
+    //     });
+    // }
 
     // *****************************************************************************
     // Helper function definitions
@@ -62,7 +72,7 @@ function Controller($http) {
 
 // *****************************************************************************
 
-Controller.$inject = ['$http'];
+Controller.$inject = ['$sce', '$http'];
 
 // *****************************************************************************
 

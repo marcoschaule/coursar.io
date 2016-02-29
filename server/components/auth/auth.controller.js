@@ -7,7 +7,6 @@
 var Auth        = require('./auth.schema.js').Auth;
 var AuthService = require('./auth.service.js');
 var Recaptcha   = require('recaptcha').Recaptcha;
-var captcha     = require('node-svgcaptcha');
 
 // *****************************************************************************
 // Controller functions
@@ -124,18 +123,25 @@ function touchSignedIn(req, res, next) {
 // *****************************************************************************
 
 function generateCaptcha(req, res, next) {
-    return AuthService.generateCaptcha(objErr => {
+    return AuthService.generateCaptcha(req.session, (objErr, strCaptcha) => {
+        console.log(">>> Debug ====================; objErr:", objErr, '\n\n');
         if (objErr) {
             return next(objErr);
         }
 
         // send captcha back to frontend
-        return res.status(200).json({ captcha: genCaptcha.svg });
+        return res.status(200).json({ captcha: strCaptcha });
     });
 
     // res.set('Content-Type', 'image/svg+xml');
     // res.send(genCaptcha.svg);
     // res.send(genCaptcha.captchaValue);
+}
+
+// *****************************************************************************
+
+function idle(req, res, next) {
+    return res.status(201).json({});
 }
 
 // *****************************************************************************
@@ -169,6 +175,7 @@ module.exports.isSignedIn      = isSignedIn;
 module.exports.checkSignedIn   = checkSignedIn;
 module.exports.touchSignedIn   = touchSignedIn;
 module.exports.generateCaptcha = generateCaptcha;
+module.exports.idle            = idle;
 module.exports.middlewareAll   = middlewareAll;
 
 // *****************************************************************************

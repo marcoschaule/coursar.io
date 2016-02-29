@@ -21,7 +21,6 @@ function init(app) {
 
     // Middlewares
     app.use((req, res, next) => {
-        console.log(">>> Debug ====================; req.method:", req.method, '\n\n');
         if ('GET' === req.method) {
             return next();
         }
@@ -30,11 +29,12 @@ function init(app) {
     });
 
     // POST routes
-    app.post('/captcha',      AuthCtrl.generateCaptcha);
+    app.post('/',             AuthCtrl.idle);
     app.post('/sign-in',      AuthCtrl.signIn);
     app.post('/sign-up',      AuthCtrl.signUp);
     app.post('/sign-out',     AuthCtrl.signOut);
     app.post('/is-signed-in', AuthCtrl.isSignedIn);
+    app.post('/captcha',      AuthCtrl.generateCaptcha);
 }
 
 // *****************************************************************************

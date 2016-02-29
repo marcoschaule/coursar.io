@@ -54,7 +54,7 @@ objCaptcha.svgCaptcha.height = 50;
  * SVG Captcha's color enabler.
  * @type {String}
  */
-objCaptcha.svgCaptcha.color = true;
+objCaptcha.svgCaptcha.color = false;
 
 /**
  * SVG Captcha's number of lines.
