@@ -29,17 +29,17 @@ function init(app) {
     });
 
     // POST routes
-    app.post('/',            
+    app.put('/',            
             AuthCtrl.idle);
-    app.post('/sign-in',     
+    app.put('/sign-in',     
             AuthCtrl.signIn);
-    app.post('/sign-up',     
+    app.put('/sign-up',     
             AuthCtrl.signUp);
-    app.post('/sign-out',    
+    app.put('/sign-out',    
             AuthCtrl.signOut);
-    app.post('/is-signed-in',
+    app.put('/is-signed-in',
             AuthCtrl.isSignedIn);
-    app.post('/is-available',
+    app.put('/is-available',
             AuthCtrl.isAvailable);
 }
 

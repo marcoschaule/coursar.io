@@ -1,22 +1,22 @@
 mixin confirmationText(strName)
     .right.text-muted(
-            data-ng-if="!signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === undefined")
+            data-ng-if="'pristine' === vm.flags.isAvailable.#{strName}")
         i.fa.fa-times
-        |&nbsp;not confirmed yet
+        |&nbsp;Please enter text.
     .right.text-muted(
-            data-ng-if="signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === undefined")
+            data-ng-if="'pending' === vm.flags.isAvailable.#{strName}")
         i.fa.fa-spinner.fa-spin
         |&nbsp;pending...
     .right.text-success(
-            data-ng-if="signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === true")
+            data-ng-if="true === vm.flags.isAvailable.#{strName}")
         i.fa.fa-check
-        |&nbsp;is available
+        |&nbsp;Is available.
     .right.text-danger(
-            data-ng-if="signUp.signUp#{strName}.$dirty && vm.is#{strName}Available === false")
+            data-ng-if="false === vm.flags.isAvailable.#{strName}")
         i.fa.fa-ban
-        |&nbsp;not available
+        |&nbsp;Sorry, but is not available.
 
-form(name="signUp")
+form(name="vm.formSignUp")
 
     .btn-set
         a.btn.btn-link.no-hpadding(
@@ -39,9 +39,9 @@ form(name="signUp")
                     type="text",
                     name="signUpUsername",
                     placeholder="Username",
-                    data-ng-change="vm.isAvailable('username', vm.signUp.username)",
-                    data-ng-model="vm.signUp.username")
-        +confirmationText('Username')
+                    data-ng-change="vm.isAvailable('username', vm.modelSignUp.username)",
+                    data-ng-model="vm.modelSignUp.username")
+        +confirmationText('username')
         
         .form-group
             label(for="sign-up-email") Email:
@@ -49,9 +49,9 @@ form(name="signUp")
                     type="text",
                     name="signUpEmail",
                     placeholder="Email",
-                    data-ng-change="vm.isAvailable('email', vm.signUp.email)",
-                    data-ng-model="vm.signUp.email")
-        +confirmationText('Email')
+                    data-ng-change="vm.isAvailable('email', vm.modelSignUp.email)",
+                    data-ng-model="vm.modelSignUp.email")
+        +confirmationText('email')
         
         .form-group(data-ng-if="!vm.isSignInPasswordVisible")
             label(for="sign-up-password-hidden") Password:
@@ -59,7 +59,7 @@ form(name="signUp")
                     type="password",
                     name="signUpPassword",
                     placeholder="Password",
-                    data-ng-model="vm.signUp.password")
+                    data-ng-model="vm.modelSignUp.password")
         
         .form-group(data-ng-if="vm.isSignInPasswordVisible")
             label(for="sign-up-password-visible") Password:
@@ -67,7 +67,7 @@ form(name="signUp")
                     type="text",
                     name="signUpPassword",
                     placeholder="Password",
-                    data-ng-model="vm.signUp.password")
+                    data-ng-model="vm.modelSignUp.password")
 
         .form-group-addon.right
             a.btn.btn-link.no-padding(
