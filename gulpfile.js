@@ -72,6 +72,7 @@ var arrScriptFiles = [
     'scripts/vendor/angular-ui-router.js',
     'scripts/client.js',
     'scripts/templates.js',
+    'scripts/communication.service.js',
     'scripts/auth.service.js',
     'scripts/auth.router.js',
     'scripts/sign-in.controller.js',
@@ -419,10 +420,10 @@ gulp.task('server-express', (callback) => {
  * Task to watch development files.
  */
 gulp.task('watch:dev', () => {
-    gulp.watch(['.gulpfile.js', 'client/**/*.styl'], ['styles:dev']);
-    gulp.watch(['.gulpfile.js', 'client/**/*.js'],   ['scripts:dev']);
-    gulp.watch(['.gulpfile.js', 'client/**/*.jade'], ['layout:dev', 'templates']);
-    gulp.watch(['.gulpfile.js', 'server/**/*.js'],   ['server-express']);
+    gulp.watch(['./gulpfile.js', './client/**/*.styl'], ['styles:dev']);
+    gulp.watch(['./gulpfile.js', './client/**/*.js'],   ['scripts:dev']);
+    gulp.watch(['./gulpfile.js', './client/**/*.jade'], ['layout:dev', 'templates']);
+    gulp.watch(['./gulpfile.js', './server/**/*.js'],   ['server-express']);
 });
 
 // *****************************************************************************

@@ -15,13 +15,13 @@
 
 angular
     .module('cio-services')
-    .controller('CioComService', Service);
+    .factory('CioComService', Service);
 
 // *****************************************************************************
 // Service definition function
 // *****************************************************************************
 
-function Service($http) {
+function Service($http, $q) {
     var service = {};
 
     // *****************************************************************************
@@ -78,6 +78,10 @@ function Service($http) {
         var objCanceler   = _objCancelers[strIdentifier];
         var objRequest;
 
+        if ('function' === typeof objHeaders && !callback) {
+            callback = objHeaders;
+        }
+
         // cancel the request if necessary
         objCanceler &&
             objCanceler.resolve &&
@@ -93,13 +97,13 @@ function Service($http) {
         };
 
         objCanceler = $http(objRequest).then(
-            _requestCallback(strIdentifier, false), // false = is not error case
-            _requestCallback(strIdentifier, true)); // true  = is error case
+            _requestCallback(strIdentifier, false, callback), // false = is not error case
+            _requestCallback(strIdentifier, true, callback)); // true  = is error case
     }
 
     // *****************************************************************************
 
-    function _requestCallback(strIdentifier, isError) {
+    function _requestCallback(strIdentifier, isError, callback) {
 
         // return the "$http" success and error callback
         return function(mixData, numStatus, headers, objConfig, strStatusText) {
@@ -114,11 +118,15 @@ function Service($http) {
     }
 
     // *****************************************************************************
+
+    return service;
+
+    // *****************************************************************************
 }
 
 // *****************************************************************************
 
-Service.$inject = ['$http'];
+Service.$inject = ['$http', '$q'];
 
 // *****************************************************************************
 

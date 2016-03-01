@@ -17,17 +17,6 @@ var AuthCtrl = require('./auth.controller.js');
  */
 function init(app) {
 
-    // [AuthCtrl.generateSession, AuthCtrl.touchSignedIn]
-
-    // Middlewares
-    app.use((req, res, next) => {
-        if ('GET' === req.method) {
-            return next();
-        }
-
-        return AuthCtrl.middlewareAll(req, res, next);
-    });
-
     // POST routes
     app.put('/',            
             AuthCtrl.idle);
@@ -37,10 +26,11 @@ function init(app) {
             AuthCtrl.signUp);
     app.put('/sign-out',    
             AuthCtrl.signOut);
-    app.put('/is-signed-in',
-            AuthCtrl.isSignedIn);
     app.put('/is-available',
             AuthCtrl.isAvailable);
+    app.put('/is-signed-in',
+            AuthCtrl.middlewareAll,
+            AuthCtrl.isSignedIn);
 }
 
 // *****************************************************************************

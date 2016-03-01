@@ -20,9 +20,10 @@ var Auth    = require('./auth.schema.js').Auth;
  * @param  {String}   objSignIn.isRemembered  string of password, still unencrypted
  * @param  {Object}   objInfo                 object for additional (user) information
  * @param  {Object}   objInfo.ip              string of the current user's IP address
+ * @param  {Object}   objSession              object of request session object
  * @param  {Function} callback                function for callback
  */
-function signIn(objSignIn, objSession, callback) {
+function signIn(objSignIn, objInfo, objSession, callback) {
     var objUserReturn = {};
 
     return Auth.findOne({ 'username': objSignIn.username.toLowerCase() },
@@ -46,7 +47,7 @@ function signIn(objSignIn, objSession, callback) {
         objSession.isRemembered = objSignIn.isRemembered;
         objSession.isSignedIn   = true;
 
-        return objSession.update(objErr => {
+        return _generateSession(objSession, (objErr, strToken) => {
             if (objErr) {
                 return callback(objErr);
             }
@@ -55,7 +56,7 @@ function signIn(objSignIn, objSession, callback) {
             objUserReturn._id       = strUserId;
             objUserReturn.username  = objUser.username;
 
-            return callback(null, objUserReturn, objSession.jwt);
+            return callback(null, objUserReturn, strToken);
         });
     });
 }
@@ -121,17 +122,7 @@ function signUp(objSignUp, callback) {
  * @param {Function} callback    function for callback
  */
 function signOut(objSession, callback) {
-    objSession.isSignedIn = false;
-
-    return objSession.update(objErr => callback(null));
-
-    // return objSession.destroy(objErr => {
-    //     if (objErr) {
-    //         console.log(objErr);
-    //         // return callback(settings.errors.signOut.generalError);
-    //     }
-    //     return callback(null);
-    // });
+    return objSession.destroy(objErr => callback(null));
 }
 
 // *****************************************************************************
@@ -307,14 +298,16 @@ function isEmailAvailable(strEmail, callback) {
 }
 
 // *****************************************************************************
+// Helper functions
+// *****************************************************************************
 
 /**
- * Service function to generate the Redis session if it doesn't exist, yet.
+ * Helper function to generate the Redis session if it doesn't exist, yet.
  * 
- * @param  {Object}   objJWTSession  object of JWT session
- * @param  {Function} callback       function for callback
+ * @param  {Object}   objSession  object of JWT session
+ * @param  {Function} callback    function for callback
  */
-function generateSession(objSession, callback) {
+function _generateSession(objSession, callback) {
     if (objSession && objSession.id && objSession.jwt) {
         return callback(null, objSession.jwt);
     }
@@ -334,8 +327,6 @@ function generateSession(objSession, callback) {
     });
 }
 
-// *****************************************************************************
-// Helper functions
 // *****************************************************************************
 
 /**
@@ -370,7 +361,6 @@ module.exports.touchSignedIn       = touchSignedIn;
 module.exports.isSignedIn          = isSignedIn;
 module.exports.isUsernameAvailable = isUsernameAvailable;
 module.exports.isEmailAvailable    = isEmailAvailable;
-module.exports.generateSession     = generateSession;
 
 // *****************************************************************************
 

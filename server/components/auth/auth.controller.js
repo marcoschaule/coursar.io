@@ -27,25 +27,33 @@ function signIn(req, res, next) {
 
     // create user object
     objUser = {
-        username    : req.body.username,
-        password    : req.body.password,
+        username    :   req.body.username,
+        password    :   req.body.password,
         isRemembered: !!req.body.isRemembered,
     };
 
     // create object for additional (user) information
     objInfo = {
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+        ip: req.headers['x-forwarded-for'] ||
+            req.headers['X-Forwarded-For'] ||
+            req.connection.remoteAddress,
     };
 
-    return AuthService.signIn(objUser, req.session, (objErr, objProfile, strToken) => {
+    return AuthService.signIn(objUser, objInfo, req.session, (objErr, objProfile, strToken) => {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
 
+        console.log(">>> Debug ====================; strToken:", strToken, '\n\n');
+
+        // set token in header; from now on,
+        // header needs to be set for every request
+        res.set('X-Access-Token', strToken);
+
+        // this will go to the client
         objReturn = {
             err  : null,
             user : objProfile,
-            token: strToken
         };
 
         return res.status(200).json(objReturn);
@@ -147,19 +155,11 @@ function idle(req, res, next) {
 // *****************************************************************************
 
 function middlewareAll(req, res, next) {
-    return AuthService.generateSession(req.session, (objErr, strToken) => {
-        if (objErr) {
-            return next(objErr);
-        }
-
-        // set access token in response header; this will be used for
-        // session management and authentication
-        res.set('X-Access-Token', strToken);
-
-        return AuthService.touchSignedIn(req.session, objErr => {
-            return next();
-        });
-    });
+    if (req.session && req.session.jwt) {
+        res.set('X-Access-Token', req.session.jwt);
+        return touchSignedIn(req, res, next);
+    }
+    return next();
 }
 
 // *****************************************************************************

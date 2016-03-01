@@ -39,13 +39,13 @@ objAuth.session.requestArg = 'accessToken';
  * Session expiration time.
  * @type {Number}
  */
-objAuth.session.sessionAge = 1*60; // 1*1*60*60; // one hour in seconds
+objAuth.session.sessionAge = 1*1*60*60; // one hour in seconds
 
 /**
  * Session remember time.
  * @type {Number}
  */
-objAuth.session.maxAge = 2*60; // 7*24*60*60; // one week in seconds
+objAuth.session.maxAge = 7*24*60*60; // one week in seconds
 
 /**
  * Session secret

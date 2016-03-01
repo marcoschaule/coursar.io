@@ -66,7 +66,7 @@ mongoose.connect(settings.db.mongoDb.uri);
 app.use(express.static(strStaticFolder));
 app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
-// app.use(AuthCtrl.generateSession);
+app.disable('x-powered-by');
 
 // *****************************************************************************
 // Routing - admin routes
@@ -87,7 +87,7 @@ setupRoutesAuthPublic(app);
 app.get('/test', (req, res, next) => { // TODO: remove
     res.send('isSingedIn: ' + !!req.session.isSingedIn);
 });
-app.post('/test', (req, res, next) => { // TODO: remove
+app.put('/test', (req, res, next) => { // TODO: remove
     res.send({ isSingedIn: !!req.session.isSingedIn });
 });
 app.get('/*?', (req, res, next) => {

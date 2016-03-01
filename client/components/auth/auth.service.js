@@ -15,7 +15,7 @@
 
 angular
     .module('cio-services')
-    .controller('CioAuthService', Service);
+    .factory('CioAuthService', Service);
 
 // *****************************************************************************
 // Service definition function
