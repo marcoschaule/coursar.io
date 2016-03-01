@@ -74,29 +74,36 @@ function Service($http, $q) {
     // *****************************************************************************
 
     function _request(strMethod, strUrl, objData, objHeaders, callback) {     
-        var strIdentifier = strMethod + '-' + strUrl;
-        var objCanceler   = _objCancelers[strIdentifier];
-        var objRequest;
+        var strIdentifier, objRequest;
+
+        strIdentifier = strMethod.toLowerCase() + '-' + strUrl.replace(/\//g, '');
+
+        if (objData.username) {
+            strIdentifier += '-username';
+        }
+        if (objData.email) {
+            strIdentifier += '-email';
+        }
 
         if ('function' === typeof objHeaders && !callback) {
             callback = objHeaders;
         }
 
         // cancel the request if necessary
-        objCanceler &&
-            objCanceler.resolve &&
-            objCanceler.resolve('restart');
+        _objCancelers[strIdentifier] &&
+            _objCancelers[strIdentifier].resolve &&
+            _objCancelers[strIdentifier].resolve('restart');
 
-        objCanceler = $q.defer();
+        _objCancelers[strIdentifier] = $q.defer();
         objRequest  = {
             method : strMethod.toUpperCase(),
             url    : strUrl,
             data   : objData,
             headers: objHeaders,
-            timeout: objCanceler.promise,
+            timeout: _objCancelers[strIdentifier].promise,
         };
 
-        objCanceler = $http(objRequest).then(
+        return $http(objRequest).then(
             _requestCallback(strIdentifier, false, callback), // false = is not error case
             _requestCallback(strIdentifier, true, callback)); // true  = is error case
     }
@@ -110,7 +117,7 @@ function Service($http, $q) {
             var objErr = isError ? { statusCode: numStatus, message: strStatusText } : null;
 
             // delete canceler of HTTP request
-            delete _objCancelers[strIdentifier];
+            // delete _objCancelers[strIdentifier];
 
             // call a "normal" callback where first element is the error object
             return callback(objErr, mixData, numStatus);

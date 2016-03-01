@@ -21,7 +21,7 @@ angular
 // Controller definition function
 // *****************************************************************************
 
-function Controller($http, $timeout, $q, CioComService) {
+function Controller($timeout, CioComService) {
     var vm = this;
 
     // *****************************************************************************
@@ -30,7 +30,6 @@ function Controller($http, $timeout, $q, CioComService) {
     
     var _objTimeouts       = {};
     var _numTimeoutDefault = 400; // timeout in milliseconds
-    var _objCanceler;             // TODO: replace by "request provider"
 
     // *****************************************************************************
     // Public variables
@@ -140,7 +139,7 @@ function Controller($http, $timeout, $q, CioComService) {
 
 // *****************************************************************************
 
-Controller.$inject = ['$http', '$timeout', '$q', 'CioComService'];
+Controller.$inject = ['$timeout', 'CioComService'];
 
 // *****************************************************************************
 
