@@ -22,12 +22,15 @@ var replace       = require('gulp-replace');
 var cssnano       = require('gulp-cssnano');
 var prettify      = require('gulp-prettify');
 var sourcemaps    = require('gulp-sourcemaps');
+var uglify        = require('gulp-uglify');
 var download      = require('gulp-download');
 var git           = require('gulp-git');
 var bump          = require('gulp-bump');
 var filter        = require('gulp-filter');
 var tagVersion    = require('gulp-tag-version');
 var templateCache = require('gulp-angular-templatecache');
+var useref        = require('gulp-useref');
+var gulpif        = require('gulp-if');
 var runSequence   = require('run-sequence');
 
 var vendor        = require('./client/vendor.json');
@@ -45,6 +48,7 @@ var regexScriptsReplacer      = new RegExp('<\\!--\\s*\\{scripts\\}\\s*--\\>');
 // *****************************************************************************
 
 var strPathBuild              = '.build';
+var strPathSrcLayout          = 'client/layout/layout.jade';
 var strTemplateChacheFileName = 'templates.js';
 var strStylesMinFileName      = 'styles.min.css';
 var strScriptsMinFileName     = 'scripts.min.js';
@@ -132,7 +136,7 @@ gulp.task('clean:prod', () => {
  */
 gulp.task('layout:dev', () => {
     return gulp
-        .src(['client/layout/layout.jade'])
+        .src([strPathSrcLayout])
         .pipe(jade())
         .pipe(replace(regexStylesReplacer, arrStyleFilesMapped.join('\n')))
         .pipe(replace(regexScriptsReplacer, arrScriptFilesMapped.join('\n')))
@@ -143,20 +147,20 @@ gulp.task('layout:dev', () => {
 
 // *****************************************************************************
 
-/**
- * Task to build the layout HTML file for production.
- */
-gulp.task('layout:prod', () => {
-    return gulp
-        .src(['client/layout/layout.jade'])
-        .pipe(jade())
-        .pipe(replace(regexStylesReplacer, strStylesTag
-            .replace('{path}',  strStylesMinFileName)))
-        .pipe(replace(regexScriptsReplacer, strScriptsTag
-            .replace('{path}', strScriptsMinFileName)))
-        .pipe(rename('layout.html'))
-        .pipe(gulp.dest(strPathBuild + '/prod/'));
-});
+// /**
+//  * Task to build the layout HTML file for production.
+//  */
+// gulp.task('layout:prod', () => {
+//     return gulp
+//         .src([strPathSrcLayout])
+//         .pipe(jade())
+//         .pipe(replace(regexStylesReplacer, strStylesTag
+//             .replace('{path}',  strStylesMinFileName)))
+//         .pipe(replace(regexScriptsReplacer, strScriptsTag
+//             .replace('{path}', strScriptsMinFileName)))
+//         .pipe(rename('layout.html'))
+//         .pipe(gulp.dest(strPathBuild + '/prod/'));
+// });
 
 // *****************************************************************************
 
@@ -165,7 +169,7 @@ gulp.task('layout:prod', () => {
  */
 gulp.task('templates', () => {
     return gulp
-        .src(['client/components/**/*.template.jade'])
+        .src(['./client/components/**/*.template.jade'])
         .pipe(jade())
         .pipe(flatten())
         .pipe(templateCache(strTemplateChacheFileName, objTemplateCacheSettings))
@@ -180,7 +184,7 @@ gulp.task('templates', () => {
  * Task to build CSS from stylus from layout and
  * components folders for development.
  */
-gulp.task('styles:dev', (callback) => {
+gulp.task('styles:dev', callback => {
     return runSequence(
         'styles-vendor:dev',
         'styles-user:dev',
@@ -212,34 +216,26 @@ gulp.task('styles-user:dev', () => {
  */
 gulp.task('styles-vendor:dev', () => {
     return gulp
-        .src([
-            strPathBuild + '/vendor/bootstrap/bootstrap.css',
-            // strPathBuild + '/vendor/font-awesome/font-awesome.css',
-            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.eot',
-            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.svg',
-            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.ttf',
-            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.woff',
-            // strPathBuild + '/vendor/font-awesome/fontawesome-webfont.woff2',
-        ])
+        .src([strPathBuild + '/vendor/**/*.css', '!' + strPathBuild + '/vendor/**/*.min.css'])
         .pipe(flatten())
         .pipe(gulp.dest(strPathBuild + '/dev/styles/vendor'));
 });
 
 // *****************************************************************************
 
-/**
- * Task to build CSS from stylus from layout and
- * components folders for production.
- */
-gulp.task('styles:prod', ['styles:dev'], () => {
-    return gulp
-        .src(arrStyleFilesExtended)
-        .pipe(concat(strStylesMinFileName))
-        .pipe(sourcemaps.init())
-        .pipe(cssnano({ discardComments: { removeAll: true } }))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(strPathBuild + '/prod/'));
-});
+// /**
+//  * Task to build CSS from stylus from layout and
+//  * components folders for production.
+//  */
+// gulp.task('styles:prod', ['styles:dev'], () => {
+//     return gulp
+//         .src(strPathSrcLayout)
+//         .pipe(sourcemaps.init())
+//         .pipe(cssnano({ discardComments: { removeAll: true } }))
+//         .pipe(sourcemaps.write('.'))
+//         .pipe(concat(strStylesMinFileName))
+//         .pipe(gulp.dest(strPathBuild + '/prod/'));
+// });
 
 // *****************************************************************************
 // Basic tasks - scripts
@@ -249,7 +245,7 @@ gulp.task('styles:prod', ['styles:dev'], () => {
  * Task to copy user and vendor scripts
  * for development.
  */
-gulp.task('scripts:dev', (callback) => {
+gulp.task('scripts:dev', callback => {
     return runSequence(
         'scripts-vendor:dev',
         'scripts-user:dev',
@@ -281,22 +277,43 @@ gulp.task('scripts-user:dev', () => {
  */
 gulp.task('scripts-vendor:dev', () => {
     return gulp
-        .src(arrScriptVendorFiles)
+        .src([strPathBuild + '/vendor/**/*.js', '!' + strPathBuild + '/vendor/**/*.min.js'])
         .pipe(flatten())
         .pipe(gulp.dest(strPathBuild + '/dev/scripts/vendor'));
 });
 
 // *****************************************************************************
 
-gulp.task('scripts:prod',  () => {
-    return gulp
-        .src(arrScriptFilesExtended)
-        .pipe(concat(strScriptsMinFileName))
-        .pipe(sourcemaps.init())
-        .pipe(cssnano({ discardComments: { removeAll: true } }))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(strPathBuild + '/prod/'));
-});
+// /**
+//  * Task to build the production scripts.
+//  */
+// gulp.task('scripts:prod',  () => {
+//     return gulp
+//         .src(arrScriptFilesExtended)
+//         .pipe(concat(strScriptsMinFileName))
+//         .pipe(sourcemaps.init())
+//         .pipe(cssnano({ discardComments: { removeAll: true } }))
+//         .pipe(sourcemaps.write('.'))
+//         .pipe(gulp.dest(strPathBuild + '/prod/'));
+// });
+
+// *****************************************************************************
+// Basic tasks - production
+// *****************************************************************************
+
+/**
+ * Task to create production layout, scripts and styles. Needs the development
+ * build task to run before.
+ */
+gulp.task('create:prod', () => gulp
+    .src(strPathSrcLayout)
+    .pipe(jade())
+    .pipe(prettify({ indent_size: 4 }))
+    .pipe(useref())
+    .pipe(gulpif('*.js', uglify()))
+    .pipe(gulpif('*.css', cssnano()))
+    .pipe(gulp.dest(strPathBuild + '/prod/'))
+);
 
 // *****************************************************************************
 // Basic tasks - vendor
@@ -305,7 +322,7 @@ gulp.task('scripts:prod',  () => {
 /**
  * Task to delete all vendor files.
  */
-gulp.task('vendor', (callback) => {
+gulp.task('vendor', callback => {
     return runSequence(
         'vendor:clean',
         'vendor:download',
@@ -327,7 +344,7 @@ gulp.task('vendor:clean', () => {
  * Task to download vendor files into vendor folder
  * defined in "vendor.json" file.
  */
-gulp.task('vendor:download', (callback) => {
+gulp.task('vendor:download', callback => {
     var streamWriteFile, objRequest;
 
     return async.forEachOf(vendor.dependencies, function(arrVendor, strFolder, _callbackOuter) {
@@ -357,7 +374,7 @@ gulp.task('vendor:download', (callback) => {
  * 
  * spawn version: "serverRedis = spawn('redis-server');"
  */
-gulp.task('server-redis', (callback) => {
+gulp.task('server-redis', callback => {
     var numPortRedis = port+2;
     if (serverRedis && 'function' === typeof serverRedis.kill) {
         serverRedis.kill();
@@ -379,7 +396,7 @@ gulp.task('server-redis', (callback) => {
  * 
  * spawn version: "serverMongo = spawn('mongo-server');"
  */
-gulp.task('server-mongodb', (callback) => {
+gulp.task('server-mongodb', callback => {
     var numPortMongoDB = port+1;
     if (serverMongoDB && 'function' === typeof serverMongoDB.kill) {
         serverMongoDB.kill();
@@ -402,7 +419,7 @@ gulp.task('server-mongodb', (callback) => {
  * 
  * spawn version: "serverExpress = spawn('node', ['server/server.js'], { NODE_ENV: env, PORT: port });"
  */
-gulp.task('server-express', (callback) => {
+gulp.task('server-express', callback => {
     return nodemon({
         script: 'server/server.js',
         ignore: ['nodemon.json', 'build/*', 'client/*'],
@@ -432,23 +449,36 @@ gulp.task('watch:dev', () => {
 // *****************************************************************************
 
 /**
- * Task to build the dev files.
+ * Task to build the development files.
  */
-gulp.task('build:dev', (callback) => {
-    return runSequence(
+gulp.task('build:dev', callback => runSequence(
         'clean:dev', [
             'scripts:dev',
             'styles:dev',
             'layout:dev',
             'templates',
         ],
-        callback);
-});
+        callback)
+);
+
+// *****************************************************************************
+
+/**
+ * Task to build the production files.
+ */
+gulp.task('build:prod', callback => runSequence(
+    'build:dev',
+    'clean:prod',
+    'create:prod',
+    callback
+));
+
+// *****************************************************************************
 
 /**
  * Task to run all development tasks.
  */
-gulp.task('run:dev', (callback) => {
+gulp.task('run:dev', callback => {
     env  = 'dev';
     port = 3000;
 
@@ -458,6 +488,8 @@ gulp.task('run:dev', (callback) => {
         ['server-redis', 'server-mongodb', 'server-express'],
         callback);
 });
+
+// *****************************************************************************
 
 /**
  * Default task.

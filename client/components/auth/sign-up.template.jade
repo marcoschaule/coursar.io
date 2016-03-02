@@ -39,7 +39,6 @@ form(name="vm.formSignUp")
                     type="text",
                     name="signUpUsername",
                     placeholder="Username",
-                    data-ng-change="vm.isAvailable('username')",
                     data-ng-keydown="vm.isAvailable('username')",
                     data-ng-model="vm.modelSignUp.username")
         +confirmationText('username')
@@ -50,7 +49,6 @@ form(name="vm.formSignUp")
                     type="email",
                     name="signUpEmail",
                     placeholder="Email",
-                    data-ng-change="vm.isAvailable('email')",
                     data-ng-keydown="vm.isAvailable('email')",
                     data-ng-model="vm.modelSignUp.email")
         +confirmationText('email')

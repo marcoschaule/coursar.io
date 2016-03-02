@@ -5,11 +5,15 @@ html(land="en")
         meta(charset="utf-8")
         base(href="/")
 
-        //- styles(href="styles/vendor/bootstrap.css")
-        //- styles(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css")
-        //- styles(href="styles/layout.css")
+        // build:css(.build/dev/) styles/vendor.min.css 
+        link(href="styles/vendor/bootstrap.css")
+        link(href="styles/vendor/font-awesome.css")
+        // endbuild
 
-        // {styles} 
+        // build:css(.build/dev/) styles/styles.min.css 
+        link(href="styles/layout.css")
+        // endbuild
+
         //- script(type="text/javascript").
         //-     var onloadCallback = function() {
         //-         grecaptcha.render('sign-up-captcha', {
@@ -25,20 +29,24 @@ html(land="en")
         #view-simple
             div(data-ui-view="simple")
         
-        //- script(src="scripts/vendor/angular.js")
-        //- script(src="scripts/vendor/angular-sanitize.js")
-        //- script(src="scripts/vendor/angular-ui-router.js")
-        //- script(src="scripts/client.js")
-        //- script(src="scripts/templates.js")
-        //- script(src="scripts/communication.service.js")
-        //- script(src="scripts/auth.service.js")
-        //- script(src="scripts/sign-in.controller.js")
-        //- script(src="scripts/sign-up.controller.js")
-        //- script(src="scripts/public.router.js")
-        //- script(src="scripts/auth.router.js")
-        //- script(src="scripts/reset-password.controller.js")
+        // build:js(.build/dev/) scripts/vendor.min.js 
+        script(src="scripts/vendor/angular.js")
+        script(src="scripts/vendor/angular-sanitize.js")
+        script(src="scripts/vendor/angular-ui-router.js")
+        // endbuild
+            
+        // build:js(.build/dev/) scripts/scripts.min.js 
+        script(src="scripts/client.js")
+        script(src="scripts/templates.js")
+        script(src="scripts/communication.service.js")
+        script(src="scripts/auth.service.js")
+        script(src="scripts/sign-in.controller.js")
+        script(src="scripts/sign-up.controller.js")
+        script(src="scripts/public.router.js")
+        script(src="scripts/auth.router.js")
+        script(src="scripts/reset-password.controller.js")
+        // endbuild
 
-        // {scripts}
         //- script(src="https://www.google.com/recaptcha/api.js?hl=en&onload=onloadCallback&render=explicit", async, defer)
 
     
