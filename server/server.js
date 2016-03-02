@@ -12,12 +12,12 @@ global.APPURL  = 'coursar.io';
 // ********************************************************************************
 
 // setup settings
-require('./settings/general.settings.js').setup();
-require('./settings/database.settings.js').setup();
-require('./settings/auth.settings.js').setup();
-require('./settings/errors.settings.js').setup();
-require('./settings/paths.settings.js').setup();
-require('./settings/captcha.settings.js').setup();
+require('./settings/general.settings.js');
+require('./settings/database.settings.js');
+require('./settings/auth.settings.js');
+require('./settings/errors.settings.js');
+require('./settings/paths.settings.js');
+require('./settings/captcha.settings.js');
 
 // requires
 var express         = require('express');

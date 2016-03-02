@@ -4,21 +4,14 @@
 // Settings object
 // *****************************************************************************
 
-var objGeneral = {};
+if (!global.settings) {
+    global.settings = {};
+}
+settings.general = {};
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
-
-module.exports.setup = function() {
-    if (!global.settings) {
-        global.settings = {};
-    }
-
-    global.settings.general = objGeneral;
-};
-
-// module.exports = objGeneral;
 
 // *****************************************************************************
 

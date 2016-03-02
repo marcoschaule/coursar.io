@@ -4,8 +4,11 @@
 // Requires and definitions
 // *****************************************************************************
 
-var Auth        = require('./auth.schema.js').Auth;
 var AuthService = require('./auth.service.js');
+var AuthRessources = require('./auth.schema.js');
+
+// Schemata
+var schemaSignUp   = AuthRessources.schemaSignUp;
 
 // *****************************************************************************
 // Controller functions
@@ -44,8 +47,6 @@ function signIn(req, res, next) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
 
-        console.log(">>> Debug ====================; strToken:", strToken, '\n\n');
-
         // set token in header; from now on,
         // header needs to be set for every request
         res.set('X-Access-Token', strToken);
@@ -78,10 +79,8 @@ function signUp(req, res, next) {
     // create user object
     var objUser = {
         email             : req.body.email,
-        emailValidation   : req.body.emailValidation,
         username          : req.body.username,
         password          : req.body.password,
-        passwordValidation: req.body.passwordValidation,
     };
 
     // validate user data

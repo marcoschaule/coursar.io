@@ -4,8 +4,14 @@
 // Includes and definitions
 // *****************************************************************************
 
-var async   = require('async');
-var Auth    = require('./auth.schema.js').Auth;
+var async          = require('async');
+var AuthRessources = require('./auth.schema.js');
+
+// Models
+var Auth           = AuthRessources.Auth;
+
+// Schemata
+var schemaSignUp   = AuthRessources.schemaSignUp;
 
 // *****************************************************************************
 // Service functions
@@ -24,10 +30,13 @@ var Auth    = require('./auth.schema.js').Auth;
  * @param  {Function} callback                function for callback
  */
 function signIn(objSignIn, objInfo, objSession, callback) {
+    var regexUsername = new RegExp('^' + objSignIn.username + '$', 'i');
     var objUserReturn = {};
 
-    return Auth.findOne({ 'username': objSignIn.username.toLowerCase() },
-            (objErr, objUser) => {
+    return Auth.findOne({ $or: [
+            { 'username'          : regexUsername },
+            { 'emails.0.address'  : regexUsername },
+        ] }, (objErr, objUser) => {
         
         if (objErr) {
             return callback(objErrors.signIn.generalError);

@@ -4,8 +4,10 @@
 // Settings object
 // *****************************************************************************
 
-// object of secrets for the export
-var objAuth = { session: {} };
+if (!global.settings) {
+    global.settings = {};
+}
+settings.auth = { session: {} };
 
 // *****************************************************************************
 // Session settings
@@ -15,53 +17,47 @@ var objAuth = { session: {} };
  * Session Redis keyspace.
  * @type {String}
  */
-objAuth.session.keyspace = 'sess:'; // prefix in Redis
+settings.auth.session.keyspace = 'sess:'; // prefix in Redis
 
 /**
  * Session encryption algorithm.
  * @type {String}
  */
-objAuth.session.algorithm = 'HS256';
+settings.auth.session.algorithm = 'HS256';
 
 /**
  * Session request key.
  * @type {String}
  */
-objAuth.session.requestKey = 'session';
+settings.auth.session.requestKey = 'session';
 
 /**
  * Session request key.
  * @type {String}
  */
-objAuth.session.requestArg = 'accessToken';
+settings.auth.session.requestArg = 'accessToken';
 
 /**
  * Session expiration time.
  * @type {Number}
  */
-objAuth.session.sessionAge = 1*1*60*60; // one hour in seconds
+settings.auth.session.sessionAge = 1*1*60*60; // one hour in seconds
 
 /**
  * Session remember time.
  * @type {Number}
  */
-objAuth.session.maxAge = 7*24*60*60; // one week in seconds
+settings.auth.session.maxAge = 7*24*60*60; // one week in seconds
 
 /**
  * Session secret
  * @type {String}
  */
-objAuth.session.secret = 'too5tup!tToF!ndMy0wn5ecret';
+settings.auth.session.secret = 'too5tup!tToF!ndMy0wn5ecret';
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
-
-module.exports.setup = function() {
-    global.settings.auth = objAuth;
-};
-
-// module.exports = objAuth;
 
 // *****************************************************************************
 

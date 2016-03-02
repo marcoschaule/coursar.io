@@ -19,43 +19,54 @@ var Schema   = mongoose.Schema;
  * @type {Schema}
  */
 var objAuth = {
-    profile            : {
-        name           : {
-            first      : { type: String },
-            last       : { type: String },
+    profile: {
+        dateOfBitrh: Date,
+        name: {
+            first: String,
+            last : String,
         },
-        address        : {
-            street     : { type: String },
-            city       : { type: String },
-            postalCode : { type: String },
+        address: {
+            street    : String,
+            city      : String,
+            postalCode: String,
         },
-        dateOfBitrh    : { type: Date },
     },
-    emails         : [{
-        address    : { type: String },
-        isValidated: { type: Boolean, default: false },
+    emails: [{
+        address: {
+            type    : String,
+            validate: {
+                validator: _validateEmail,
+                message  : settings.errors.common.emailInvalid.message,
+            } 
+        },
+        isVerified: {
+            type   : Boolean,
+            default: false
+        },
     }],    
-    username           : { type: String, required: true },
-    password           : {
-        salt           : { type: String, required: true },
-        hash           : { type: String, required: true },
+    isAdmin : {
+        type   : Boolean,
+        default: false
     },
-    isAdmin            : { type: Boolean, default: false },
+    username: {
+        type    : String,
+        required: true,
+        min     : 3,
+        max     : 20
+    },
+    password: {
+        salt: {
+            type    : String,
+            required: true
+        },
+        hash: {
+            type    : String,
+            required: true
+        },
+    },
 };
 var schemaAuth = new Schema(objAuth, { collection: 'users' });
-
-// *****************************************************************************
-
-/**
- * schema object for sign in.
- * 
- * @type {Schema}
- */
-var objSignIn = {
-    username          : { type: String, required: true },
-    password          : { type: String, required: true },
-};
-var schemaSignIn = new Schema(objSignIn);
+var Auth       = mongoose.model('Auth', schemaAuth, 'users');
 
 // *****************************************************************************
 
@@ -65,11 +76,9 @@ var schemaSignIn = new Schema(objSignIn);
  * @type {Schema}
  */
 var objSignUp = {
-    username          : { type: String, required: true },
-    email             : { type: String, required: true },
-    emailValidation   : { type: String, required: true, validation: _validateEqual('email') },
-    password          : { type: String, required: true },
-    passwordValidation: { type: String, required: true, validation: _validateEqual('password') },
+    username: objAuth.username,
+    email   : objAuth.emails[0].address,
+    password: { type: String, required: true, min: 3, max: 20 },
 };
 var schemaSignUp = new Schema(objSignUp, {
     toObject: { virtuals: true },
@@ -83,6 +92,10 @@ var schemaSignUp = new Schema(objSignUp, {
 schemaAuth.statics.encrypt = _encrypt;
 schemaAuth.methods.encrypt = _encrypt;
 schemaAuth.methods.compare = _compare;
+
+// *****************************************************************************
+// Custom validators
+// *****************************************************************************
 
 // *****************************************************************************
 // Virtuals
@@ -100,29 +113,6 @@ schemaAuth.virtual('profile.email').get(() => {
 // *****************************************************************************
 
 /**
- * Helper function to generate the exports object
- * 
- * @return {Object}  object of all exports
- */
-function _getExports() {
-    var Auth = mongoose.model('Auth', schemaAuth, 'users');
-
-    var objExports = {
-        Auth        : Auth,
-        schemaAuth  : schemaAuth,
-        schemaSignIn: schemaSignIn,
-        schemaSignUp: schemaSignUp,
-        objAuth     : objAuth,
-        objSignIn   : objSignIn,
-        objSignUp   : objSignUp,
-    };
-
-    return objExports;
-}
-
-// *****************************************************************************
-
-/**
  * Helper function to validate a field of the given value object.
  * 
  * @param  {String}   strField              string of the field name
@@ -136,6 +126,19 @@ function _validateEqual(strField, strFieldValidation) {
     return (objValue) => {
         return (objValue[strField] === objValue[strFieldValidation]);
     };
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to validate an email.
+ * 
+ * @param  {String}  strEmail  string of email that needs to be validated
+ * @return {Boolean}           true if email is valid
+ */
+function _validateEmail(strEmail) {
+   var regexEmail = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+   return regexEmail.test(strEmail);
 }
 
 // *****************************************************************************
@@ -177,10 +180,14 @@ function _compare(strPassword) {
 }
 
 // *****************************************************************************
-// Export
+// Exports
 // *****************************************************************************
 
-module.exports = _getExports();
+module.exports.Auth         = Auth;
+module.exports.schemaAuth   = schemaAuth;
+module.exports.schemaSignUp = schemaSignUp;
+module.exports.objAuth      = objAuth;
+module.exports.objSignUp    = objSignUp;
 
 // ********************************************************************************
 

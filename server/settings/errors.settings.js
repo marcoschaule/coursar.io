@@ -4,13 +4,26 @@
 // Settings object
 // ********************************************************************************
 
-// object of errors for the export
-var objErrors = {
+if (!global.settings) {
+    global.settings = {};
+}
+settings.errors = {
+    common             : {},
     signIn             : {},
     signUp             : {},
     signOut            : {},
     resetPassword      : {},
     checkAuthentication: {},
+};
+
+// *****************************************************************************
+// Errors for "common" cases
+// *****************************************************************************
+
+settings.errors.common.emailInvalid = {
+    status : 400,
+    code   : 1000,
+    message: 'Email not valid!',
 };
 
 // *****************************************************************************
@@ -21,9 +34,9 @@ var objErrors = {
  * Error object for "sign in" scenario "general error".
  * @type {Object}
  */
-objErrors.signIn.generalError = {
+settings.errors.signIn.generalError = {
     status : 500,
-    code   : 1000,
+    code   : 2000,
     message: 'General error with sign in!',
 };
 
@@ -33,9 +46,9 @@ objErrors.signIn.generalError = {
  * Error object for "sign in" scenario "user not found".
  * @type {Object}
  */
-objErrors.signIn.userNotFound = {
+settings.errors.signIn.userNotFound = {
     status : 401,
-    code   : 1001,
+    code   : 2001,
     message: 'User not found!',
 };
 
@@ -45,9 +58,9 @@ objErrors.signIn.userNotFound = {
  * Error object for "sign in" scenario "password invalid".
  * @type {Object}
  */
-objErrors.signIn.passwordInvalid = {
+settings.errors.signIn.passwordInvalid = {
     status : 401,
-    code   : 1002,
+    code   : 2002,
     message: 'Password not valid!',
 };
 
@@ -57,9 +70,9 @@ objErrors.signIn.passwordInvalid = {
  * Error object for "sign in" scenario "username or password wrong".
  * @type {Object}
  */
-objErrors.signIn.usernameOrPasswordWrong = {
+settings.errors.signIn.usernameOrPasswordWrong = {
     status : 401,
-    code   : 1003,
+    code   : 2003,
     message: 'Username or password wrong!',
 };
 
@@ -69,9 +82,9 @@ objErrors.signIn.usernameOrPasswordWrong = {
  * Error object for "sign in" scenario "email or password wrong".
  * @type {Object}
  */
-objErrors.signIn.emailOrPasswordWrong = {
+settings.errors.signIn.emailOrPasswordWrong = {
     status : 401,
-    code   : 1004,
+    code   : 2004,
     message: 'Email or password wrong!',
 };
 
@@ -81,9 +94,9 @@ objErrors.signIn.emailOrPasswordWrong = {
  * Error object for "sign in" scenario "username/email or password wrong".
  * @type {Object}
  */
-objErrors.signIn.userOrPasswordWrong = {
+settings.errors.signIn.userOrPasswordWrong = {
     status : 401,
-    code   : 1005,
+    code   : 2005,
     message: 'Username/email or password wrong!',
 };
 
@@ -95,9 +108,9 @@ objErrors.signIn.userOrPasswordWrong = {
  * Error object for "sign up" scenario "general error".
  * @type {Object}
  */
-objErrors.signUp.generalError = {
+settings.errors.signUp.generalError = {
     status : 500,
-    code   : 1100,
+    code   : 2100,
     message: 'General error with sign up!',
 };
 
@@ -107,9 +120,9 @@ objErrors.signUp.generalError = {
  * Error object for "sign up" scenario "general error".
  * @type {Object}
  */
-objErrors.signUp.usernameNotAvailable = {
+settings.errors.signUp.usernameNotAvailable = {
     status : 401,
-    code   : 1101,
+    code   : 2101,
     message: 'Username not available!',
 };
 
@@ -119,9 +132,9 @@ objErrors.signUp.usernameNotAvailable = {
  * Error object for "sign up" scenario "general error".
  * @type {Object}
  */
-objErrors.signUp.emailNotAvailable = {
+settings.errors.signUp.emailNotAvailable = {
     status : 401,
-    code   : 1102,
+    code   : 2102,
     message: 'Email not available!',
 };
 
@@ -133,9 +146,9 @@ objErrors.signUp.emailNotAvailable = {
  * Error object for "sign out" scenario "general error".
  * @type {Object}
  */
-objErrors.signOut.generalError = {
+settings.errors.signOut.generalError = {
     status : 500,
-    code   : 1200,
+    code   : 2200,
     message: 'General error with sign out!',
 };
 
@@ -145,9 +158,9 @@ objErrors.signOut.generalError = {
  * Error object for "sign out" scenario "general error".
  * @type {Object}
  */
-objErrors.signOut.tokenMissing = {
+settings.errors.signOut.tokenMissing = {
     status : 401,
-    code   : 1201,
+    code   : 2201,
     message: 'Access token missing!',
 };
 
@@ -159,9 +172,9 @@ objErrors.signOut.tokenMissing = {
  * Error object for "check authentication" scenario "access token invalid".
  * @type {Object}
  */
-objErrors.checkAuthentication.accessTokenInvalid = {
+settings.errors.checkAuthentication.accessTokenInvalid = {
     status : 401,
-    code   : 1011,
+    code   : 2011,
     message: 'Access token invalid!',
 };
 
@@ -171,25 +184,15 @@ objErrors.checkAuthentication.accessTokenInvalid = {
  * Error object for "check authentication" scenario "refresh token expired".
  * @type {Object}
  */
-objErrors.checkAuthentication.refreshTokenInvalid = {
+settings.errors.checkAuthentication.refreshTokenInvalid = {
     status : 401,
-    code   : 1012,
+    code   : 2012,
     message: 'Refresh token expired!',
 };
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
-
-module.exports.setup = function() {
-    if (!global.settings) {
-        global.settings = {};
-    }
-
-    global.settings.errors = objErrors;
-};
-
-// module.exports = objErrors;
 
 // ********************************************************************************
 

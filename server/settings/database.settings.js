@@ -4,7 +4,11 @@
 // Settings object
 // *****************************************************************************
 
-var objDatabase = { redis: {}, mongoDb: {} };
+if (!global.settings) {
+    global.settings = {};
+}
+settings.database = { redis: {}, mongoDb: {} };
+settings.db       = settings.database;
 
 // *****************************************************************************
 // Redis settings
@@ -14,36 +18,36 @@ var objDatabase = { redis: {}, mongoDb: {} };
  * Redis protocol settings.
  * @type {String}
  */
-objDatabase.redis.secret = null;
+settings.database.redis.secret = null;
 
 /**
  * Redis protocol settings.
  * @type {String}
  */
-objDatabase.redis.protocol = 'redis';
+settings.database.redis.protocol = 'redis';
 
 /**
  * Redis host settings.
  * @type {String}
  */
-objDatabase.redis.host = 'localhost';
+settings.database.redis.host = 'localhost';
 
 /**
  * Redis port settings.
  * @type {Number}
  */
-objDatabase.redis.port = 3002;
+settings.database.redis.port = 3002;
 
 /**
  * Redis settings URI.
  * @type {Number}
  */
-objDatabase.redis.uri = [
-    objDatabase.redis.protocol + '://',
-    // objDatabase.redis.secret   + '@',
-    objDatabase.redis.host     + ':',
-    objDatabase.redis.port     + '/',
-    objDatabase.redis.name     + '/',
+settings.database.redis.uri = [
+    settings.database.redis.protocol + '://',
+    // settings.database.redis.secret   + '@',
+    settings.database.redis.host     + ':',
+    settings.database.redis.port     + '/',
+    settings.database.redis.name     + '/',
 ].join('');
 
 // *****************************************************************************
@@ -54,57 +58,47 @@ objDatabase.redis.uri = [
  * MongoDB protocol settings.
  * @type {String}
  */
-objDatabase.mongoDb.secret = null;
+settings.database.mongoDb.secret = null;
 
 /**
  * MongoDB protocol settings.
  * @type {String}
  */
-objDatabase.mongoDb.protocol = 'mongodb';
+settings.database.mongoDb.protocol = 'mongodb';
 
 /**
  * MongoDB host settings.
  * @type {String}
  */
-objDatabase.mongoDb.host = 'localhost';
+settings.database.mongoDb.host = 'localhost';
 
 /**
  * MongoDB port settings.
  * @type {String}
  */
-objDatabase.mongoDb.port = 3001;
+settings.database.mongoDb.port = 3001;
 
 /**
  * MongoDB database name settings.
  * @type {String}
  */
-objDatabase.mongoDb.name = 'coursar-io';
+settings.database.mongoDb.name = 'coursar-io';
 
 /**
  * MongoDB URI for connection.
  * @type {String}
  */
-objDatabase.mongoDb.uri = [
-    objDatabase.mongoDb.protocol + '://',
-    // objDatabase.mongoDb.secret   + '@',
-    objDatabase.mongoDb.host     + ':',
-    objDatabase.mongoDb.port     + '/',
-    objDatabase.mongoDb.name     + '/',
+settings.database.mongoDb.uri = [
+    settings.database.mongoDb.protocol + '://',
+    // settings.database.mongoDb.secret   + '@',
+    settings.database.mongoDb.host     + ':',
+    settings.database.mongoDb.port     + '/',
+    settings.database.mongoDb.name     + '/',
 ].join('');
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
-
-module.exports.setup = function() {
-    if (!global.settings) {
-        global.settings = {};
-    }
-
-    global.settings.db = objDatabase;
-};
-
-// module.exports = objDatabase;
 
 // *****************************************************************************
 

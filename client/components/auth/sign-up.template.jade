@@ -79,8 +79,15 @@ form(name="vm.formSignUp")
                     i.fa.fa-eye-slash
                     |&nbsp;Hide Password
 
-        #sign-up-captcha-cover
-        #sign-up-captcha
+        .form-group: .checkbox
+            label
+                input(type="checkbox",
+                        name="signUpIsRemembered",
+                        data-ng-model="vm.modelSignUp.isRemembered")
+                |Remember me for sign in
+
+        //- #sign-up-captcha-cover
+        //- #sign-up-captcha
 
     .vmargin-1rem  
     fieldset
