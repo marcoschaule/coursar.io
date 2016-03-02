@@ -1,0 +1,8 @@
+{
+    "errors.auth.username.invalid": "Your username is invalid!",
+    "errors.auth.username.missing": "Your username is missing!",
+    "errors.auth.email.invalid"   : "Your email is invalid!",
+    "errors.auth.email.missing"   : "Your email is missing!",
+
+    "endOfLine": "End of line"
+}

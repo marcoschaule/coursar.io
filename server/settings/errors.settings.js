@@ -1,5 +1,11 @@
 (function() { 'use strict';
 
+// *****************************************************************************
+// Includes
+// *****************************************************************************
+
+var async = require('async');
+
 // ********************************************************************************
 // Settings object
 // ********************************************************************************
@@ -22,7 +28,7 @@ settings.errors = {
 
 settings.errors.common.emailInvalid = {
     status : 400,
-    code   : 1000,
+    code   : '1000',
     message: 'Email not valid!',
 };
 
@@ -36,7 +42,7 @@ settings.errors.common.emailInvalid = {
  */
 settings.errors.signIn.generalError = {
     status : 500,
-    code   : 2000,
+    code   : '2000',
     message: 'General error with sign in!',
 };
 
@@ -48,7 +54,7 @@ settings.errors.signIn.generalError = {
  */
 settings.errors.signIn.userNotFound = {
     status : 401,
-    code   : 2001,
+    code   : '2001',
     message: 'User not found!',
 };
 
@@ -60,7 +66,7 @@ settings.errors.signIn.userNotFound = {
  */
 settings.errors.signIn.passwordInvalid = {
     status : 401,
-    code   : 2002,
+    code   : '2002',
     message: 'Password not valid!',
 };
 
@@ -72,7 +78,7 @@ settings.errors.signIn.passwordInvalid = {
  */
 settings.errors.signIn.usernameOrPasswordWrong = {
     status : 401,
-    code   : 2003,
+    code   : '2003',
     message: 'Username or password wrong!',
 };
 
@@ -84,7 +90,7 @@ settings.errors.signIn.usernameOrPasswordWrong = {
  */
 settings.errors.signIn.emailOrPasswordWrong = {
     status : 401,
-    code   : 2004,
+    code   : '2004',
     message: 'Email or password wrong!',
 };
 
@@ -96,7 +102,7 @@ settings.errors.signIn.emailOrPasswordWrong = {
  */
 settings.errors.signIn.userOrPasswordWrong = {
     status : 401,
-    code   : 2005,
+    code   : '2005',
     message: 'Username/email or password wrong!',
 };
 
@@ -110,7 +116,7 @@ settings.errors.signIn.userOrPasswordWrong = {
  */
 settings.errors.signUp.generalError = {
     status : 500,
-    code   : 2100,
+    code   : '2100',
     message: 'General error with sign up!',
 };
 
@@ -122,7 +128,7 @@ settings.errors.signUp.generalError = {
  */
 settings.errors.signUp.usernameNotAvailable = {
     status : 401,
-    code   : 2101,
+    code   : '2101',
     message: 'Username not available!',
 };
 
@@ -134,7 +140,7 @@ settings.errors.signUp.usernameNotAvailable = {
  */
 settings.errors.signUp.emailNotAvailable = {
     status : 401,
-    code   : 2102,
+    code   : '2102',
     message: 'Email not available!',
 };
 
@@ -148,7 +154,7 @@ settings.errors.signUp.emailNotAvailable = {
  */
 settings.errors.signOut.generalError = {
     status : 500,
-    code   : 2200,
+    code   : '2200',
     message: 'General error with sign out!',
 };
 
@@ -160,7 +166,7 @@ settings.errors.signOut.generalError = {
  */
 settings.errors.signOut.tokenMissing = {
     status : 401,
-    code   : 2201,
+    code   : '2201',
     message: 'Access token missing!',
 };
 
@@ -174,7 +180,7 @@ settings.errors.signOut.tokenMissing = {
  */
 settings.errors.checkAuthentication.accessTokenInvalid = {
     status : 401,
-    code   : 2011,
+    code   : '2011',
     message: 'Access token invalid!',
 };
 
@@ -186,14 +192,37 @@ settings.errors.checkAuthentication.accessTokenInvalid = {
  */
 settings.errors.checkAuthentication.refreshTokenInvalid = {
     status : 401,
-    code   : 2012,
+    code   : '2012',
     message: 'Refresh token expired!',
 };
+
+// *****************************************************************************
+// Helper functions
+// *****************************************************************************
+
+/**
+ * Helper function to map errors by their error code.
+ * @private
+ */
+function _mapErrosToCode() {
+    return async.each(settings.errors, (objErrorTypes, _callback) => {
+        return async.each(objErrorTypes, (objErr, __callback) => {
+            settings.errors[objErr.code] = objErr;
+            return __callback();
+        }, _callback);
+    
+    }, objErr => {
+        if (objErr) {
+            return console.error(objErr);
+        }
+    });
+
+} _mapErrosToCode();
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-// ********************************************************************************
+// *****************************************************************************
 
 })();

@@ -5,7 +5,7 @@
  * 
  * @copyright   (c) 2015 marcstark.com, Marc Stark <self@marcstark.com>
  * @license     https://github.com/marcstark/coursar.io/blob/master/LICENSE
- * @readme      https://github.com/marcstark/coursar.io/blob/master/README
+ * @readme      https://github.com/marcstark/coursar.io/blob/master/README.md
  */
 (function() { 'use strict';
 
@@ -35,6 +35,8 @@ function Controller($timeout, CioComService) {
     // Public variables
     // *****************************************************************************
 
+    vm.modelSignUp = {};
+    vm.formSignUp  = {};
     vm.flags = {
         isAvailable: {
             username: 'pristine',
@@ -75,6 +77,7 @@ function Controller($timeout, CioComService) {
         // set timeout not to send every key stroke to the backend
         return (_objTimeouts[strWhich] = $timeout(function() {
             return CioComService.put('/is-available', objData, function(objErr, objResult) {
+                    
                     // set text to "available" or "not available"
                     _setTextForAvailability(strWhich, !!objResult.data.isAvailable);
 
@@ -87,14 +90,16 @@ function Controller($timeout, CioComService) {
     // *****************************************************************************
 
     function init() {
-        _resetTimeouts();
+        _resetTimeoutsSync();
+        // isAvailable('username');
+        // isAvailable('email');
     } init();
 
     // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
 
-    function _resetTimeouts() {
+    function _resetTimeoutsSync() {
         $timeout.cancel(_objTimeouts.username);
         $timeout.cancel(_objTimeouts.email);
         _objTimeouts.username = null;
@@ -106,6 +111,8 @@ function Controller($timeout, CioComService) {
     function _setTextForAvailability(strWhich, mixValue) {
         var objFormField     = vm.formSignUp['signUp' + _capitalize(strWhich)];
         var isAvailableLocal = !!mixValue;
+        console.log(">>> Debug ====================; objFormField.$valid:", objFormField.$valid);
+        console.log(">>> Debug ====================; objFormField.$invalid:", objFormField.$invalid, '\n\n');
 
         if ('boolean' !== typeof mixValue) {
             return (vm.flags.isAvailable[strWhich] = mixValue);
@@ -125,7 +132,6 @@ function Controller($timeout, CioComService) {
 
             // default value
             false;
-
     }
 
     // *****************************************************************************

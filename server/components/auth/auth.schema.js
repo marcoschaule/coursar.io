@@ -66,7 +66,6 @@ var objAuth = {
     },
 };
 var schemaAuth = new Schema(objAuth, { collection: 'users' });
-var Auth       = mongoose.model('Auth', schemaAuth, 'users');
 
 // *****************************************************************************
 
@@ -77,7 +76,7 @@ var Auth       = mongoose.model('Auth', schemaAuth, 'users');
  */
 var objSignUp = {
     username: objAuth.username,
-    email   : objAuth.emails[0].address,
+    email   : Object.assign(objAuth.emails[0].address, { required: true }),
     password: { type: String, required: true, min: 3, max: 20 },
 };
 var schemaSignUp = new Schema(objSignUp, {
@@ -92,6 +91,13 @@ var schemaSignUp = new Schema(objSignUp, {
 schemaAuth.statics.encrypt = _encrypt;
 schemaAuth.methods.encrypt = _encrypt;
 schemaAuth.methods.compare = _compare;
+
+// *****************************************************************************
+// Model definitions
+// *****************************************************************************
+
+var Auth   = mongoose.model('Auth', schemaAuth, 'users');
+var SignUp = mongoose.model('SignUp', schemaSignUp, 'none');
 
 // *****************************************************************************
 // Custom validators
@@ -184,6 +190,7 @@ function _compare(strPassword) {
 // *****************************************************************************
 
 module.exports.Auth         = Auth;
+module.exports.SignUp       = SignUp;
 module.exports.schemaAuth   = schemaAuth;
 module.exports.schemaSignUp = schemaSignUp;
 module.exports.objAuth      = objAuth;

@@ -4,14 +4,13 @@
 // Includes and definitions
 // *****************************************************************************
 
+var mongoose       = require('mongoose');
 var async          = require('async');
 var AuthRessources = require('./auth.schema.js');
 
 // Models
 var Auth           = AuthRessources.Auth;
-
-// Schemata
-var schemaSignUp   = AuthRessources.schemaSignUp;
+var SignUp         = AuthRessources.SignUp;
 
 // *****************************************************************************
 // Service functions
@@ -39,7 +38,7 @@ function signIn(objSignIn, objInfo, objSession, callback) {
         ] }, (objErr, objUser) => {
         
         if (objErr) {
-            return callback(objErrors.signIn.generalError);
+            return callback(settings.errors.signIn.generalError);
         }
         else if (!objUser || !objUser.compare(objSignIn.password)) {
             return callback(settings.errors.signIn.usernameOrPasswordWrong);
@@ -82,15 +81,30 @@ function signIn(objSignIn, objInfo, objSession, callback) {
  * @param  {Function} callback            function for callback
  */
 function signUp(objSignUp, callback) {
-    var objPassword = Auth.encrypt(objSignUp.password);
-    var objUserReturn;
+    var objPassword, objUserReturn, docUser, objErrValidation;
+
+    // validate user data
+    docUser = new SignUp({
+        email    : objSignUp.email,
+        username : objSignUp.username,
+        password : objSignUp.password,
+    });
+    objErrValidation = docUser.validateSync();
+
+    if (objErrValidation) {
+        return callback(objErrValidation);
+    }
+
+    // encrypt password
+    objPassword = Auth.encrypt(objSignUp.password);
 
     return Auth.findOne({ $or: [
             { 'username': { $regex: objSignUp.username, $options: 'i' } },
             { 'emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
     ] }, (objErr, objUser) => {
         if (objErr) {
-            return callback(objErrors.signUp.generalError);
+            // console.log(">>> Debug ====================; 1: objErr:", objErr, '\n\n');
+            return callback(settings.errors.signUp.generalError);
         }
         else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
             return callback(settings.errors.signUp.usernameNotAvailable);
@@ -114,7 +128,8 @@ function signUp(objSignUp, callback) {
 
         return objAuth.save(objErr => {
             if (objErr) {
-                return callback(objErrors.signUp.generalError);
+                // console.log(">>> Debug ====================; 2: objErr:", objErr, '\n\n');
+                return callback(settings.errors.signUp.generalError);
             }
             return callback(null, objSignUp);
         });
@@ -294,6 +309,7 @@ function isUsernameAvailable(strUsername, callback) {
 
 function isEmailAvailable(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
+    var objSignUpValidation = _validateSignUp();
 
     return Auth.find({ 'emails': { $elemMatch: { 'address': regexEmail } } },
             (objErr, arrUsers) => {
@@ -308,6 +324,17 @@ function isEmailAvailable(strEmail, callback) {
 
 // *****************************************************************************
 // Helper functions
+// *****************************************************************************
+
+function _validateSignUp(objSignUp) {
+    var docUser = new SignUp({
+        email    : objSignUp.email,
+        username : objSignUp.username,
+        password : objSignUp.password,
+    });
+    return docUser.validateSync();
+}
+
 // *****************************************************************************
 
 /**

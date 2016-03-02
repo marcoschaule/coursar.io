@@ -5,10 +5,6 @@
 // *****************************************************************************
 
 var AuthService = require('./auth.service.js');
-var AuthRessources = require('./auth.schema.js');
-
-// Schemata
-var schemaSignUp   = AuthRessources.schemaSignUp;
 
 // *****************************************************************************
 // Controller functions
@@ -75,18 +71,7 @@ function signIn(req, res, next) {
  * @param {Function} next               function of callback for next middleware
  */
 function signUp(req, res, next) {
-
-    // create user object
-    var objUser = {
-        email             : req.body.email,
-        username          : req.body.username,
-        password          : req.body.password,
-    };
-
-    // validate user data
-    // -- validation --
-
-    return AuthService.signUp(objUser, (objErr, objUserResult) => {
+    return AuthService.signUp(req.body, (objErr, objUserResult) => {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }

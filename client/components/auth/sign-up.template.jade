@@ -39,17 +39,19 @@ form(name="vm.formSignUp")
                     type="text",
                     name="signUpUsername",
                     placeholder="Username",
-                    data-ng-change="vm.isAvailable('username', vm.modelSignUp.username)",
+                    data-ng-change="vm.isAvailable('username')",
+                    data-ng-keydown="vm.isAvailable('username')",
                     data-ng-model="vm.modelSignUp.username")
         +confirmationText('username')
-        
+
         .form-group
             label(for="sign-up-email") Email:
             input#sign-up-email.form-control(
-                    type="text",
+                    type="email",
                     name="signUpEmail",
                     placeholder="Email",
-                    data-ng-change="vm.isAvailable('email', vm.modelSignUp.email)",
+                    data-ng-change="vm.isAvailable('email')",
+                    data-ng-keydown="vm.isAvailable('email')",
                     data-ng-model="vm.modelSignUp.email")
         +confirmationText('email')
         
