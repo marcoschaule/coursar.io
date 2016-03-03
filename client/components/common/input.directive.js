@@ -38,7 +38,7 @@ function Directive() {
      * @param  {Array}  arrAttributes  array of attributes of the element
      */
     function link(objScope, objElement, arrAttributes) {
-        return element.on('input', function() {
+        return objElement.on('input', function() {
             return objScope.$apply(function() { objScope.onchange(); });
         });
     }

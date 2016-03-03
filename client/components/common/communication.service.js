@@ -113,14 +113,14 @@ function Service($http, $q) {
     function _requestCallback(strIdentifier, isError, callback) {
 
         // return the "$http" success and error callback
-        return function(mixData, numStatus, headers, objConfig, strStatusText) {
-            var objErr = isError ? { statusCode: numStatus, message: strStatusText } : null;
+        return function(objResult) {
+            var objErr = (isError ? { statusCode: objResult.status, message: objResult.statusText } : null);
 
             // delete canceler of HTTP request
-            // delete _objCancelers[strIdentifier];
+            _objCancelers[strIdentifier] = null;
 
             // call a "normal" callback where first element is the error object
-            return callback(objErr, mixData, numStatus);
+            return callback(objErr, objResult.data, objResult.status);
         };
     }
 

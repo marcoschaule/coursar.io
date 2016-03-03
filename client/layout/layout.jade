@@ -6,13 +6,15 @@ html(land="en")
         base(href="/")
 
         // build:css(.build/dev/) styles/vendor.min.css 
-        link(href="styles/vendor/bootstrap.css")
-        link(href="styles/vendor/font-awesome.css")
+        link(rel="stylesheet", href="styles/vendor/bootstrap.css")
         // endbuild
 
         // build:css(.build/dev/) styles/styles.min.css 
-        link(href="styles/layout.css")
+        link(rel="stylesheet", href="styles/layout.css")
         // endbuild
+
+        //- idependent styles
+        link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css")
 
         //- script(type="text/javascript").
         //-     var onloadCallback = function() {
@@ -36,15 +38,21 @@ html(land="en")
         // endbuild
             
         // build:js(.build/dev/) scripts/scripts.min.js 
+        //- Common
         script(src="scripts/client.js")
         script(src="scripts/templates.js")
+        //- Directives
+        script(src="scripts/input.directive.js")
+        //- Services
         script(src="scripts/communication.service.js")
         script(src="scripts/auth.service.js")
+        //- Controllers
         script(src="scripts/sign-in.controller.js")
         script(src="scripts/sign-up.controller.js")
+        script(src="scripts/reset-password.controller.js")
+        //- Routers
         script(src="scripts/public.router.js")
         script(src="scripts/auth.router.js")
-        script(src="scripts/reset-password.controller.js")
         // endbuild
 
         //- script(src="https://www.google.com/recaptcha/api.js?hl=en&onload=onloadCallback&render=explicit", async, defer)

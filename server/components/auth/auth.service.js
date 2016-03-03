@@ -103,7 +103,7 @@ function signUp(objSignUp, callback) {
             { 'emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
     ] }, (objErr, objUser) => {
         if (objErr) {
-            // console.log(">>> Debug ====================; 1: objErr:", objErr, '\n\n');
+            console.log(">>> Debug ====================; 1: objErr:", objErr, '\n\n');
             return callback(settings.errors.signUp.generalError);
         }
         else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
@@ -127,9 +127,9 @@ function signUp(objSignUp, callback) {
         });
 
         return objAuth.save(objErr => {
+            console.log(">>> Debug ====================; objErr:", objErr, '\n\n');
             if (objErr) {
-                // console.log(">>> Debug ====================; 2: objErr:", objErr, '\n\n');
-                return callback(settings.errors.signUp.generalError);
+                return callback(objErr);
             }
             return callback(null, objSignUp);
         });
@@ -206,13 +206,12 @@ function setEmail(strUserId, strEmailNew, callback) {
 // *****************************************************************************
 
 function checkSignedIn(objSession, callback) {
-    var _isSignedIn = isSignedIn(objSession);
-    var objReturn   = null;
+    var _isSignedIn      = isSignedIn(objSession);
+    var objIsNotSignedIn = { isSignedIn: false };
 
     // if user is not signed in (anymore), return that info
     if (!_isSignedIn) {
-        objReturn = { isSignedIn: false };
-        return callback(objReturn);
+        return callback(objIsNotSignedIn);
     }
 
     // test if session is older than "sessionAge" or "maxAge" plus "sessionAge"
@@ -241,16 +240,14 @@ function checkSignedIn(objSession, callback) {
     // or if session is remembered but older than "maxAge" and "sessionage"
     if (isSessionNotRememberedAndOlderThanSessionAge ||
             isSessionRememberedAndOlderThanMaxAge) {
-        objSession.isSignedIn = false;
-        objReturn             = { isSignedIn: false };
         
-        // return objSession.destroy(objErr => {
-        //     return callback({ isSignedIn: false });
-        // });
+        return objSession.destroy(objErr => {
+            return callback(objIsNotSignedIn);
+        });
     }
 
     return objSession.update(objErr => {
-        return callback(objErr || objReturn);
+        return callback(objErr || null);
     });
 }
 
@@ -309,16 +306,15 @@ function isUsernameAvailable(strUsername, callback) {
 
 function isEmailAvailable(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
-    var objSignUpValidation = _validateSignUp();
 
     return Auth.find({ 'emails': { $elemMatch: { 'address': regexEmail } } },
-            (objErr, arrUsers) => {
-        
+            (objErr, arrEmails) => {
+
         if (objErr) {
             console.error(objErr);
             return callback(settings.errors.signIn.generalError);
         }
-        return callback(null, Object.keys(arrUsers).length <= 0);
+        return callback(null, Object.keys(arrEmails).length <= 0);
     });
 }
 

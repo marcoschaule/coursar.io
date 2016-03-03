@@ -21,6 +21,22 @@ body, html
 // Common classes
 // *****************************************************************************
 
+// display and position
+.inline
+    display inline
+.block
+    display block
+.inline-block
+    display inline-block
+.static
+    position static
+.relative
+    position relative
+.absolute
+    position absolute
+.fixed
+    position fixed
+
 // text alignment
 .center
     text-align center
@@ -63,6 +79,14 @@ body, html
 .no-vmargin, .no-vertical-margin
     margin-bottom 0
     margin-top 0
+.no-margin-top
+    margin-top 0
+.no-margin-bottom
+    margin-bottom 0
+.no-margin-left
+    margin-left 0
+.no-margin-right
+    margin-right 0
 
 // no paddings
 .no-padding
@@ -73,21 +97,55 @@ body, html
 .no-vpadding, .no-vertical-padding
     padding-bottom 0
     padding-top 0
+.no-padding-top
+    padding-top 0
+.no-padding-bottom
+    padding-bottom 0
+.no-padding-left
+    padding-left 0
+.no-padding-right
+    padding-right 0
+
+// *****************************************************************************
+// Spinner
+// *****************************************************************************
+
+.spinner
+    position absolute
+    text-align center
+    width 100%
+    height 100%
+    top 0
+    bottom 0
+    left 0
+    right 0
+    background-color rgba(255,255,255,0.75)
+.spinner > i
+    color gray
+    position absolute
+    top 50%
+    left 50%
+    height 28px
+    width 28px
+    margin -14px 0 0 -14px
 
 // *****************************************************************************
 // Chrome hacks
 // *****************************************************************************
 
 input:-webkit-autofill, input:-webkit-autofill:focus
-    -webkit-box-shadow 0 0 0px 1000px white inset
+    -webkit-box-shadow 0 0 0px 1000px white inset !important
     // -webkit-text-fill-color yellow !important
 
 // *****************************************************************************
-// Bootstrap overrides
+// Bootstrap overrides and extensions
 // *****************************************************************************
 
 .btn-link
     outline none !important
+
+.form-group-addon
+    margin .5rem 0
 
 // *****************************************************************************
 // Google's reCaptcha overrides

@@ -73,7 +73,7 @@ function signIn(req, res, next) {
 function signUp(req, res, next) {
     return AuthService.signUp(req.body, (objErr, objUserResult) => {
         if (objErr) {
-            return res.status(objErr.status || 500).json({ err: objErr });
+            return res.status(400).json({ err: settings.errors.signUp.generalError });
         }
         return signIn(req, res, next);
     });
@@ -100,7 +100,7 @@ function isSignedIn(req, res, next) {
 // *****************************************************************************
 
 function isAvailable(req, res, next) {
-    var strWhich  = req.body.email ? 'email' : 'username';
+    var strWhich  = (req.body.email ? 'email' : 'username');
     var strValue  = req.body[strWhich];
     var strMethod = 'email' === strWhich ?
             'isEmailAvailable' :
@@ -110,7 +110,7 @@ function isAvailable(req, res, next) {
         if (objErr) {
             return next(objErr);
         }
-        return res.status(200).json({ isAvailable: isAvailable });
+        return res.status(200).json({ isAvailable: !!isAvailable });
     });
 }
 

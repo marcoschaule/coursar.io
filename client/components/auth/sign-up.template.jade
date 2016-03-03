@@ -1,100 +1,118 @@
 mixin confirmationText(strName)
-    .right.text-muted(
+    .text-danger(
+            data-ng-if="'invalid' === vm.flags.isAvailable.#{strName}")
+        i.fa.fa-ban
+        |&nbsp;Is not valid!
+    .text-muted(
             data-ng-if="'pristine' === vm.flags.isAvailable.#{strName}")
         i.fa.fa-times
         |&nbsp;Please enter text.
-    .right.text-muted(
+    .text-muted(
             data-ng-if="'pending' === vm.flags.isAvailable.#{strName}")
         i.fa.fa-spinner.fa-spin
         |&nbsp;pending...
-    .right.text-success(
+    .text-success(
             data-ng-if="true === vm.flags.isAvailable.#{strName}")
         i.fa.fa-check
         |&nbsp;Is available.
-    .right.text-danger(
+    .text-danger(
             data-ng-if="false === vm.flags.isAvailable.#{strName}")
         i.fa.fa-ban
         |&nbsp;Sorry, but is not available.
 
-form(name="vm.formSignUp")
+.wrapper.relative
+    form(name="vm.formSignUp")
 
-    .btn-set
-        a.btn.btn-link.no-hpadding(
-                data-ui-sref="signIn",
-                alt="Sign In")
-            |Sign In
-        |&nbsp;&nbsp;|&nbsp;&nbsp;
-        a.btn.btn-link.no-hpadding(
-                data-ui-sref="home",
-                alt="Back to Homepage")
-            |Back to Homepage
-    
-    .vmargin-2rem
-    fieldset
-        legend: h1 Sign Up
-        
-        .form-group
-            label(for="sign-up-username") Username:
-            input#sign-up-username.form-control(
-                    type="text",
-                    name="signUpUsername",
-                    placeholder="Username",
-                    data-ng-keydown="vm.isAvailable('username')",
-                    data-ng-model="vm.modelSignUp.username")
-        +confirmationText('username')
-
-        .form-group
-            label(for="sign-up-email") Email:
-            input#sign-up-email.form-control(
-                    type="email",
-                    name="signUpEmail",
-                    placeholder="Email",
-                    data-ng-keydown="vm.isAvailable('email')",
-                    data-ng-model="vm.modelSignUp.email")
-        +confirmationText('email')
-        
-        .form-group(data-ng-if="!vm.isSignInPasswordVisible")
-            label(for="sign-up-password-hidden") Password:
-            input#sign-up-password-hidden.form-control(
-                    type="password",
-                    name="signUpPassword",
-                    placeholder="Password",
-                    data-ng-model="vm.modelSignUp.password")
-        
-        .form-group(data-ng-if="vm.isSignInPasswordVisible")
-            label(for="sign-up-password-visible") Password:
-            input#sign-up-password-visible.form-control(
-                    type="text",
-                    name="signUpPassword",
-                    placeholder="Password",
-                    data-ng-model="vm.modelSignUp.password")
-
-        .form-group-addon.right
-            a.btn.btn-link.no-padding(
-                    data-ng-click="vm.isSignInPasswordVisible = !vm.isSignInPasswordVisible")
-                span(data-ng-if="!vm.isSignInPasswordVisible")
-                    i.fa.fa-eye
-                    |&nbsp;Show Password
-                span(data-ng-if="vm.isSignInPasswordVisible")
-                    i.fa.fa-eye-slash
-                    |&nbsp;Hide Password
-
-        .form-group: .checkbox
-            label
-                input(type="checkbox",
-                        name="signUpIsRemembered",
-                        data-ng-model="vm.modelSignUp.isRemembered")
-                |Remember me for sign in
-
-        //- #sign-up-captcha-cover
-        //- #sign-up-captcha
-
-    .vmargin-1rem  
-    fieldset
         .btn-set
-            button.btn.btn-primary(
-                    alt="Sign Up")
-                |Sign Up
-            a.btn.btn-link(
-                    alt="Forgot Password?")
-                |Forgot password?
+            a.btn.btn-link.no-hpadding(
+                    data-ui-sref="signIn",
+                    alt="Sign In")
+                |Sign In
+            |&nbsp;&nbsp;|&nbsp;&nbsp;
+            a.btn.btn-link.no-hpadding(
+                    data-ui-sref="home",
+                    alt="Back to Homepage")
+                |Back to Homepage
+        
+        .vmargin-2rem
+        fieldset
+            legend: h1 Sign Up
+            
+            .form-group.no-margin-bottom(data-ng-class="{ 'has-error': \
+                    vm.flags.isAvailable.username === 'invalid' ||\
+                    vm.flags.isAvailable.username === false }")
+                label(for="sign-up-username") Username:
+                input#sign-up-username.form-control(
+                        type="text",
+                        name="signUpUsername",
+                        placeholder="Username",
+                        data-ng-model="vm.modelSignUp.username",
+                        data-cio-input-change-event="vm.isAvailable('username', $viewValue)")
+            
+            .form-group-addon.right
+                +confirmationText('username')
+
+            .form-group.no-margin-bottom(data-ng-class="{ 'has-error': \
+                    vm.flags.isAvailable.email === 'invalid' ||\
+                    vm.flags.isAvailable.email === false }")
+                label(for="sign-up-email") Email:
+                input#sign-up-email.form-control(
+                        type="email",
+                        name="signUpEmail",
+                        placeholder="Email",
+                        data-ng-model="vm.modelSignUp.email",
+                        data-cio-input-change-event="vm.isAvailable('email', $viewValue)")
+            
+            .form-group-addon.right
+                +confirmationText('email')
+            
+            .form-group.no-margin-bottom(data-ng-if="!vm.isSignInPasswordVisible")
+                label(for="sign-up-password-hidden") Password:
+                input#sign-up-password-hidden.form-control(
+                        type="password",
+                        name="signUpPassword",
+                        placeholder="Password",
+                        data-ng-model="vm.modelSignUp.password")
+            
+            .form-group.no-margin-bottom(data-ng-if="vm.isSignInPasswordVisible")
+                label(for="sign-up-password-visible") Password:
+                input#sign-up-password-visible.form-control(
+                        type="text",
+                        name="signUpPassword",
+                        placeholder="Password",
+                        data-ng-model="vm.modelSignUp.password")
+            
+            .form-group-addon.right
+                a.btn.btn-link.no-padding(
+                        data-ng-click="vm.isSignInPasswordVisible = !vm.isSignInPasswordVisible")
+                    span(data-ng-if="!vm.isSignInPasswordVisible")
+                        i.fa.fa-eye
+                        |&nbsp;Show Password
+                    span(data-ng-if="vm.isSignInPasswordVisible")
+                        i.fa.fa-eye-slash
+                        |&nbsp;Hide Password
+
+            .form-group: .checkbox
+                label
+                    input(type="checkbox",
+                            name="signUpIsRemembered",
+                            data-ng-model="vm.modelSignUp.isRemembered")
+                    |Remember me for sign in
+
+            //- #sign-up-captcha-cover
+            //- #sign-up-captcha
+
+        .vmargin-1rem  
+        fieldset
+            .btn-set
+                button.btn.btn-primary(
+                        alt="Sign Up",
+                        data-ng-disabled="vm.formSignUp.$invalid",
+                        data-ng-click="vm.signUp()")
+                    |Sign Up
+                a.btn.btn-link(
+                        alt="Forgot Password?")
+                    |Forgot password?
+
+    .spinner(data-ng-if="vm.flags.isProcessing")
+        i.fa.fa-2x.fa-spinner.fa-spin

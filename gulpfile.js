@@ -275,12 +275,11 @@ gulp.task('scripts-user:dev', () => {
  * Task to copy the vendor scripts to the build
  * folder for development.
  */
-gulp.task('scripts-vendor:dev', () => {
-    return gulp
-        .src([strPathBuild + '/vendor/**/*.js', '!' + strPathBuild + '/vendor/**/*.min.js'])
-        .pipe(flatten())
-        .pipe(gulp.dest(strPathBuild + '/dev/scripts/vendor'));
-});
+gulp.task('scripts-vendor:dev', () => gulp
+    .src([strPathBuild + '/vendor/**/*.js', '!' + strPathBuild + '/vendor/**/*.min.js'])
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/dev/scripts/vendor'))
+);
 
 // *****************************************************************************
 
@@ -296,6 +295,42 @@ gulp.task('scripts-vendor:dev', () => {
 //         .pipe(sourcemaps.write('.'))
 //         .pipe(gulp.dest(strPathBuild + '/prod/'));
 // });
+
+// *****************************************************************************
+// Basic tasks - fonts
+// *****************************************************************************
+
+/**
+ * Task to copy all fonts to development folder.
+ */
+gulp.task('fonts:dev', () => gulp
+    .src([
+        strPathBuild + '/vendor/**/*.eot',
+        strPathBuild + '/vendor/**/*.svg',
+        strPathBuild + '/vendor/**/*.ttf',
+        strPathBuild + '/vendor/**/*.woff',
+        strPathBuild + '/vendor/**/*.woff2',
+    ])
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/dev/fonts'))
+);
+
+// *****************************************************************************
+
+/**
+ * Task to copy all fonts to development folder.
+ */
+gulp.task('fonts:prod', () => gulp
+    .src([
+        strPathBuild + '/vendor/**/*.eot',
+        strPathBuild + '/vendor/**/*.svg',
+        strPathBuild + '/vendor/**/*.ttf',
+        strPathBuild + '/vendor/**/*.woff',
+        strPathBuild + '/vendor/**/*.woff2',
+    ])
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/prod/fonts'))
+);
 
 // *****************************************************************************
 // Basic tasks - production
@@ -452,13 +487,14 @@ gulp.task('watch:dev', () => {
  * Task to build the development files.
  */
 gulp.task('build:dev', callback => runSequence(
-        'clean:dev', [
-            'scripts:dev',
-            'styles:dev',
-            'layout:dev',
-            'templates',
-        ],
-        callback)
+    'clean:dev', [
+        'scripts:dev',
+        'styles:dev',
+        'fonts:dev',
+        'layout:dev',
+        'templates',
+    ],
+    callback)
 );
 
 // *****************************************************************************
@@ -467,9 +503,11 @@ gulp.task('build:dev', callback => runSequence(
  * Task to build the production files.
  */
 gulp.task('build:prod', callback => runSequence(
-    'build:dev',
+    'scripts:dev',
+    'styles:dev',
     'clean:prod',
     'create:prod',
+    'fonts:prod',
     callback
 ));
 
