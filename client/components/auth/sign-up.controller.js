@@ -94,6 +94,7 @@ function Controller($timeout, $state, CioComService) {
                 vm.flags.isProcessing = false;
 
                 // redirect to the user defined entry page
+                $state.go('signIn');
 
             });
         }, _numTimeoutDefault));
