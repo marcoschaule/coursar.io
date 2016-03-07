@@ -48,6 +48,9 @@ function Controller($timeout, $state, CioAuthService) {
     // Controller function definitions
     // *****************************************************************************
 
+    /**
+     * Controller function to sign the user in.
+     */
     function signIn() {
         var objData;
 

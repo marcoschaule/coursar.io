@@ -38,10 +38,6 @@ function Controller($timeout, $state, CioAuthService) {
 
     vm.modelSignUp = {};
     vm.formSignUp  = {};
-    vm.flags = {
-        hasErrorsUsername: false,
-        hasErrorsEmail   : false,
-    };
     vm.states = {
         username: 'pristine',
         email   : 'pristine',
@@ -74,6 +70,7 @@ function Controller($timeout, $state, CioAuthService) {
             email       :   vm.modelSignUp.email,
             password    :   vm.modelSignUp.password,
             isRemembered: !!vm.modelSignUp.isRemembered,
+            isSpinner   :   true,
         };
 
         return CioAuthService.signUp(objData, function(objErr, objData) {
@@ -96,15 +93,11 @@ function Controller($timeout, $state, CioAuthService) {
     function isAvailable(strWhich) {
         var strWhichL      = strWhich.toLowerCase();
         var strFieldForm   = 'signUp' + strWhich;
-        var strFieldErrors = 'hasErrors' + strWhich;
         var objFormField   = vm.formSignUp[strFieldForm];
         var objData, objRequest;
 
-        // set manually the validity if each field to "false"
-        objFormField.$setValidity('isNotAvailable', false);
-
-        // set the "has errors" flag to "true" in case there is an error
-        vm.flags[strFieldErrors] = true;
+        // set manually the validity if each field to "true"
+        objFormField.$setValidity('isAvailable', true);
 
         // test if there are any errors in the form
         if (objFormField.$error.required) {
@@ -120,9 +113,6 @@ function Controller($timeout, $state, CioAuthService) {
             return (vm.states[strWhichL] = 'invalid');
         }
 
-        // set the "has errors" flag to "false" since there was no error so far
-        vm.flags[strFieldErrors] = false;
-
         // set the state of the field to "pending" since the request
         // is about to get fired
         vm.states[strWhichL] = 'pending';
@@ -130,13 +120,10 @@ function Controller($timeout, $state, CioAuthService) {
         objData            = {};
         objData[strWhichL] = objFormField.$viewValue;
 
-        return CioAuthService.testAvailability(strWhichL, objRequest, function(objErr, ObjData) {
+        return CioAuthService.testAvailability(strWhichL, objData, function(objErr, ObjData) {
 
             // set manually the validity if each field depending on result
-            objFormField.$setValidity('isNotAvailable', !ObjData.isAvailable);
-
-            // set the "has errors" flag of the field depending on result
-            vm.flags[strFieldErrors] = !ObjData.isAvailable;
+            objFormField.$setValidity('isAvailable', !!ObjData.isAvailable);
 
             // set the state of the field depending on result
             vm.states[strWhichL] = !!ObjData.isAvailable && 'available' || 'notAvailable';
