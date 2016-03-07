@@ -32,7 +32,6 @@ var templateCache = require('gulp-angular-templatecache');
 var useref        = require('gulp-useref');
 var gulpif        = require('gulp-if');
 var runSequence   = require('run-sequence');
-
 var vendor        = require('./client/vendor.json');
 
 var exec          = childProcess.exec;
@@ -47,7 +46,8 @@ var regexScriptsReplacer      = new RegExp('<\\!--\\s*\\{scripts\\}\\s*--\\>');
 
 // *****************************************************************************
 
-var strPathBuild              = '.build';
+var strPathBuild              = './.build';
+var strPathAssets             = './assets';
 var strPathSrcLayout          = 'client/layout/layout.jade';
 var strTemplateChacheFileName = 'templates.js';
 var strStylesMinFileName      = 'styles.min.css';
@@ -128,22 +128,43 @@ gulp.task('clean:prod', () => {
 });
 
 // *****************************************************************************
+// Basic tasks - assets
+// *****************************************************************************
+
+/**
+ * Task to copy the assets to the ".build" folder for development.
+ */
+gulp.task('assets:dev', () => gulp
+    .src([strPathAssets + '/**/*'])
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/dev/assets/')));
+
+// *****************************************************************************
+
+/**
+ * Task to copy the assets to the ".build" folder for production.
+ */
+gulp.task('assets:prod', () => gulp
+    .src([strPathAssets + '/**/*'])
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/prod/assets/')));
+
+// *****************************************************************************
 // Basic tasks - layout and templates
 // *****************************************************************************
 
 /**
  * Task to build the layout HTML file for development.
  */
-gulp.task('layout:dev', () => {
-    return gulp
-        .src([strPathSrcLayout])
-        .pipe(jade())
-        .pipe(replace(regexStylesReplacer, arrStyleFilesMapped.join('\n')))
-        .pipe(replace(regexScriptsReplacer, arrScriptFilesMapped.join('\n')))
-        .pipe(rename('layout.html'))
-        .pipe(prettify({ indent_size: 4 }))
-        .pipe(gulp.dest(strPathBuild + '/dev/'));
-});
+gulp.task('layout:dev', () => gulp
+    .src([strPathSrcLayout])
+    .pipe(jade())
+    .pipe(replace(regexStylesReplacer, arrStyleFilesMapped.join('\n')))
+    .pipe(replace(regexScriptsReplacer, arrScriptFilesMapped.join('\n')))
+    .pipe(rename('layout.html'))
+    .pipe(prettify({ indent_size: 4 }))
+    .pipe(gulp.dest(strPathBuild + '/dev/'))
+);
 
 // *****************************************************************************
 
@@ -167,14 +188,13 @@ gulp.task('layout:dev', () => {
 /**
  * Task to build the templates for angular's template cache.
  */
-gulp.task('templates', () => {
-    return gulp
-        .src(['./client/components/**/*.template.jade'])
-        .pipe(jade())
-        .pipe(flatten())
-        .pipe(templateCache(strTemplateChacheFileName, objTemplateCacheSettings))
-        .pipe(gulp.dest(strPathBuild + '/dev/scripts/'));
-});
+gulp.task('templates', () => gulp
+    .src(['./client/components/**/*.template.jade'])
+    .pipe(jade())
+    .pipe(flatten())
+    .pipe(templateCache(strTemplateChacheFileName, objTemplateCacheSettings))
+    .pipe(gulp.dest(strPathBuild + '/dev/scripts/'))
+);
 
 // *****************************************************************************
 // Basic tasks - styles
@@ -184,12 +204,11 @@ gulp.task('templates', () => {
  * Task to build CSS from stylus from layout and
  * components folders for development.
  */
-gulp.task('styles:dev', callback => {
-    return runSequence(
-        'styles-vendor:dev',
-        'styles-user:dev',
-        callback);
-});
+gulp.task('styles:dev', callback => runSequence(
+    'styles-vendor:dev',
+    'styles-user:dev',
+    callback)
+);
 
 // *****************************************************************************
 
@@ -197,16 +216,15 @@ gulp.task('styles:dev', callback => {
  * Task to build user CSS from stylus from layout and
  * components folders for development.
  */
-gulp.task('styles-user:dev', () => {
-    return gulp
-        .src([
-            'client/layout/layout.styl',
-            'client/components/**/*.styl',
-        ])
-        .pipe(stylus())
-        .pipe(flatten())
-        .pipe(gulp.dest(strPathBuild + '/dev/styles/'));
-});
+gulp.task('styles-user:dev', () => gulp
+    .src([
+        'client/layout/layout.styl',
+        'client/components/**/*.styl',
+    ])
+    .pipe(stylus())
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/dev/styles/'))
+);
 
 // *****************************************************************************
 
@@ -214,12 +232,11 @@ gulp.task('styles-user:dev', () => {
  * Task to build vendor CSS from stylus of the layout and
  * components folders for development.
  */
-gulp.task('styles-vendor:dev', () => {
-    return gulp
-        .src([strPathBuild + '/vendor/**/*.css', '!' + strPathBuild + '/vendor/**/*.min.css'])
-        .pipe(flatten())
-        .pipe(gulp.dest(strPathBuild + '/dev/styles/vendor'));
-});
+gulp.task('styles-vendor:dev', () => gulp
+    .src([strPathBuild + '/vendor/**/*.css', '!' + strPathBuild + '/vendor/**/*.min.css'])
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/dev/styles/vendor'))
+);
 
 // *****************************************************************************
 
@@ -245,12 +262,11 @@ gulp.task('styles-vendor:dev', () => {
  * Task to copy user and vendor scripts
  * for development.
  */
-gulp.task('scripts:dev', callback => {
-    return runSequence(
-        'scripts-vendor:dev',
-        'scripts-user:dev',
-        callback);
-});
+gulp.task('scripts:dev', callback => runSequence(
+    'scripts-vendor:dev',
+    'scripts-user:dev',
+    callback)
+);
 
 // *****************************************************************************
 
@@ -258,16 +274,15 @@ gulp.task('scripts:dev', callback => {
  * Task to copy the user scripts to the build
  * folder for development.
  */
-gulp.task('scripts-user:dev', () => {
-    return gulp
-        .src([
-            'client/libs/**/*.js',
-            'client/client.js',
-            'client/components/**/*.js'
-        ])
-        .pipe(flatten())
-        .pipe(gulp.dest(strPathBuild + '/dev/scripts/'));
-});
+gulp.task('scripts-user:dev', () => gulp
+    .src([
+        'client/libs/**/*.js',
+        'client/client.js',
+        'client/components/**/*.js'
+    ])
+    .pipe(flatten())
+    .pipe(gulp.dest(strPathBuild + '/dev/scripts/'))
+);
 
 // *****************************************************************************
 
@@ -357,21 +372,18 @@ gulp.task('create:prod', () => gulp
 /**
  * Task to delete all vendor files.
  */
-gulp.task('vendor', callback => {
-    return runSequence(
+gulp.task('vendor', callback => runSequence(
         'vendor:clean',
         'vendor:download',
-        callback);
-});
+        callback)
+);
 
 // *****************************************************************************
 
 /**
  * Task to delete all vendor files.
  */
-gulp.task('vendor:clean', () => {
-    return del([strPathBuild + '/vendor/**/*']);
-});
+gulp.task('vendor:clean', () => del([strPathBuild + '/vendor/**/*']));
 
 // *****************************************************************************
 
@@ -454,16 +466,15 @@ gulp.task('server-mongodb', callback => {
  * 
  * spawn version: "serverExpress = spawn('node', ['server/server.js'], { NODE_ENV: env, PORT: port });"
  */
-gulp.task('server-express', callback => {
-    return nodemon({
+gulp.task('server-express', callback => nodemon({
         script: 'server/server.js',
         ignore: ['nodemon.json', 'build/*', 'client/*'],
         env   : {
             'NODE_ENV': env,
             'PORT'    : port,
         }
-    });
-});
+    })
+);
 
 // *****************************************************************************
 // Watchers
@@ -491,6 +502,7 @@ gulp.task('build:dev', callback => runSequence(
         'scripts:dev',
         'styles:dev',
         'fonts:dev',
+        'assets:dev',
         'layout:dev',
         'templates',
     ],
@@ -508,6 +520,7 @@ gulp.task('build:prod', callback => runSequence(
     'clean:prod',
     'create:prod',
     'fonts:prod',
+    'assets:prod',
     callback
 ));
 

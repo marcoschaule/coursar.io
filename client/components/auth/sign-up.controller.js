@@ -21,7 +21,7 @@ angular
 // Controller definition function
 // *****************************************************************************
 
-function Controller($timeout, $state, CioComService) {
+function Controller($timeout, $state, CioAuthService) {
     var vm = this;
 
     // *****************************************************************************
@@ -63,7 +63,7 @@ function Controller($timeout, $state, CioComService) {
     // *****************************************************************************
 
     function signUp() {
-        var objData, objRequest;
+        var objData;
 
         // if form is (still) not valid, yet, do nothing
         if (vm.formSignUp.$invalid) {
@@ -76,14 +76,11 @@ function Controller($timeout, $state, CioComService) {
             password    :   vm.modelSignUp.password,
             isRemembered: !!vm.modelSignUp.isRemembered,
         };
-        objRequest = {
-            id       : 'sign-up',
-            url      : _strUrlSignUp,
-            data     : objData,
-            isTimeout: true,
-        };
 
-        return CioComService.put(objRequest, function(objErr, objData) {
+        return CioAuthService.signUp(objData, function(objErr, objData) {
+            if (objErr) {
+                return;
+            }
 
             // redirect to the user defined entry page
             $state.go(_strStateRedirect);

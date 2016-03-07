@@ -1,5 +1,10 @@
 //- header
-#header
+#header: .wrapper-content.center
+
+    //- sign in and sign up buttons
+    #sign
+        a.btn.btn-link(data-ui-sref="signIn") Sign In
+        a.btn.btn-primary(data-ui-sref="signUp") Sign Up
 
     //- logo and icon
     #logo: h1
@@ -15,10 +20,11 @@
         a.navigation Contact
 
 //- key visual intro area
-#keyvisual(data-ng-view="viewKeyvisual")
+#keyvisual
+    .wrapper-content-narrow(data-ui-view="keyvisual")
 
 //- main content
-#main
+#main: .wrapper-content
 
 //- footer
-#footer
+#footer: .wrapper-content
