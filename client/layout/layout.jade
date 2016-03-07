@@ -11,6 +11,7 @@ html(land="en")
 
         // build:css(.build/dev/) styles/styles.min.css 
         link(rel="stylesheet", href="styles/layout.css")
+        link(rel="stylesheet", href="styles/landing.css")
         // endbuild
 
         //- idependent styles
@@ -47,11 +48,12 @@ html(land="en")
         script(src="scripts/communication.service.js")
         script(src="scripts/auth.service.js")
         //- Controllers
+        script(src="scripts/landing.controller.js")
         script(src="scripts/sign-in.controller.js")
         script(src="scripts/sign-up.controller.js")
         script(src="scripts/reset-password.controller.js")
         //- Routers
-        script(src="scripts/public.router.js")
+        script(src="scripts/landing.router.js")
         script(src="scripts/auth.router.js")
         // endbuild
 

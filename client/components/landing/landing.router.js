@@ -13,7 +13,8 @@ angular
                 url  : '/',
                 views: {
                     simple: {
-                        templateUrl: 'home.template.html',
+                        // controller : 'landing.controller.js as vm',
+                        templateUrl: 'landing.template.html',
                     },
                 },
             })

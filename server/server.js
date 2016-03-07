@@ -66,7 +66,7 @@ mongoose.connect(settings.db.mongoDb.uri);
 app.use(express.static(strStaticFolder));
 app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
-app.disable('x-powered-by');
+app.disable('X-Powered-By');
 
 // *****************************************************************************
 // Routing - admin routes

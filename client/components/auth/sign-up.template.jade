@@ -21,7 +21,8 @@ mixin confirmationText(strName)
         |&nbsp;Sorry, but is not available.
 
 .wrapper.relative
-    form(name="vm.formSignUp")
+    form(name="vm.formSignUp",
+            data-ng-submit="vm.signUp()")
 
         .btn-set
             a.btn.btn-link.no-hpadding(
@@ -46,6 +47,8 @@ mixin confirmationText(strName)
                         type="text",
                         name="signUpUsername",
                         placeholder="Username",
+                        data-ng-required="true",
+                        data-ng-minlength="3",
                         data-ng-model="vm.modelSignUp.username",
                         data-cio-input-change-event="vm.isAvailable('username', $viewValue)")
             
@@ -60,6 +63,7 @@ mixin confirmationText(strName)
                         type="email",
                         name="signUpEmail",
                         placeholder="Email",
+                        data-ng-required="true",
                         data-ng-model="vm.modelSignUp.email",
                         data-cio-input-change-event="vm.isAvailable('email', $viewValue)")
             
@@ -72,6 +76,8 @@ mixin confirmationText(strName)
                         type="password",
                         name="signUpPassword",
                         placeholder="Password",
+                        data-ng-required="true",
+                        data-ng-minlength="3",
                         data-ng-model="vm.modelSignUp.password")
             
             .form-group.no-margin-bottom(data-ng-if="vm.isSignInPasswordVisible")
@@ -80,6 +86,8 @@ mixin confirmationText(strName)
                         type="text",
                         name="signUpPassword",
                         placeholder="Password",
+                        data-ng-required="true",
+                        data-ng-minlength="3",
                         data-ng-model="vm.modelSignUp.password")
             
             .form-group-addon.right
@@ -107,8 +115,7 @@ mixin confirmationText(strName)
             .btn-set
                 button.btn.btn-primary(
                         alt="Sign Up",
-                        data-ng-disabled="vm.formSignUp.$invalid",
-                        data-ng-click="vm.signUp()")
+                        data-ng-disabled="vm.formSignUp.$invalid")
                     |Sign Up
                 a.btn.btn-link(
                         alt="Forgot Password?")

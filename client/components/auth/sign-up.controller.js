@@ -30,6 +30,9 @@ function Controller($timeout, $state, CioComService) {
     
     var _objTimeouts       = {};
     var _numTimeoutDefault = 400; // timeout in milliseconds
+    var _strStateRedirect  = '/';
+    var _strUrlSignUp      = '/sign-up';
+    var _strUrlIsAvailable = '/is-available';
 
     // *****************************************************************************
     // Public variables
@@ -85,7 +88,7 @@ function Controller($timeout, $state, CioComService) {
         };
 
         return (_objTimeouts.signUp = $timeout(function() {
-            return CioComService.put('/sign-up', objData, function(objErr, objData) {
+            return CioComService.put(_strUrlSignUp, objData, function(objErr, objData) {
 
                 // delete timeout promise again
                 _objTimeouts.signUp = null;
@@ -94,7 +97,7 @@ function Controller($timeout, $state, CioComService) {
                 vm.flags.isProcessing = false;
 
                 // redirect to the user defined entry page
-                $state.go('signIn');
+                $state.go(_strStateRedirect);
 
             });
         }, _numTimeoutDefault));
@@ -134,7 +137,7 @@ function Controller($timeout, $state, CioComService) {
 
         // set timeout not to send every key stroke to the backend
         return (_objTimeouts[strWhich] = $timeout(function() {
-            return CioComService.put('/is-available', objData, function(objErr, ObjData) {
+            return CioComService.put(_strUrlIsAvailable, objData, function(objErr, ObjData) {
                     
                 // set text to "available" or "not available"
                 _setTextForAvailability(objFormField, strWhich,
