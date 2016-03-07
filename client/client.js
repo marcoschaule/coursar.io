@@ -37,4 +37,17 @@ angular
 
 // *****************************************************************************
 
+// running the app
+angular
+    .module('cio')
+    .run(function($rootScope) {
+
+        // global flags
+        $rootScope.flags = {
+            isProcessing: false,
+        };
+    });
+
+// *****************************************************************************
+
 })();

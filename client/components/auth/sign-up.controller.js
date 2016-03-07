@@ -28,8 +28,6 @@ function Controller($timeout, $state, CioComService) {
     // Private variables
     // *****************************************************************************
     
-    var _objTimeouts       = {};
-    var _numTimeoutDefault = 400; // timeout in milliseconds
     var _strStateRedirect  = '/';
     var _strUrlSignUp      = '/sign-up';
     var _strUrlIsAvailable = '/is-available';
@@ -41,7 +39,6 @@ function Controller($timeout, $state, CioComService) {
     vm.modelSignUp = {};
     vm.formSignUp  = {};
     vm.flags = {
-        isProcessing: false,
         isAvailable : {
             username: 'pristine',
             email   : 'pristine',
@@ -61,19 +58,12 @@ function Controller($timeout, $state, CioComService) {
     // *****************************************************************************
 
     function init() {
-        _resetTimeoutsSync();
     } init();
 
     // *****************************************************************************
 
     function signUp() {
-        var objData;
-
-        // activate processing to deactivate interaction with form
-        vm.flags.isProcessing = true;
-        
-        // cancel timeout of previous sign up request
-        $timeout.cancel(_objTimeouts.signUp);
+        var objData, objRequest;
 
         // if form is (still) not valid, yet, do nothing
         if (vm.formSignUp.$invalid) {
@@ -86,21 +76,18 @@ function Controller($timeout, $state, CioComService) {
             password    :   vm.modelSignUp.password,
             isRemembered: !!vm.modelSignUp.isRemembered,
         };
+        objRequest = {
+            id       : 'sign-up',
+            url      : _strUrlSignUp,
+            data     : objData,
+            isTimeout: true,
+        };
 
-        return (_objTimeouts.signUp = $timeout(function() {
-            return CioComService.put(_strUrlSignUp, objData, function(objErr, objData) {
+        return CioComService.put(objRequest, function(objErr, objData) {
 
-                // delete timeout promise again
-                _objTimeouts.signUp = null;
-
-                // activate interaction with form again
-                vm.flags.isProcessing = false;
-
-                // redirect to the user defined entry page
-                $state.go(_strStateRedirect);
-
-            });
-        }, _numTimeoutDefault));
+            // redirect to the user defined entry page
+            $state.go(_strStateRedirect);
+        });
     }
 
     // *****************************************************************************
@@ -109,10 +96,7 @@ function Controller($timeout, $state, CioComService) {
         var objFormField  = vm.formSignUp['signUp' + _capitalize(strWhich)];
         var strViewValue  = objFormField.$viewValue;
         var strModelValue = objFormField.$modelValue;
-        var objData;
-
-        // cancel timeout of previous availability test
-        $timeout.cancel(_objTimeouts[strWhich]);
+        var objData, objRequest;
 
         // set the validity of the form field to "invalid"
         objFormField.$setValidity('isNotAvailable', false);
@@ -131,37 +115,26 @@ function Controller($timeout, $state, CioComService) {
 
         objData           = {};
         objData[strWhich] = strViewValue;
+        objRequest = {
+            id       : 'is-available-' + strWhich,
+            url      : _strUrlIsAvailable,
+            data     : objData,
+            isTimeout: true,
+        };
 
         // set text to "pending"
         _setTextForAvailability(objFormField, strWhich, 'pending');
 
-        // set timeout not to send every key stroke to the backend
-        return (_objTimeouts[strWhich] = $timeout(function() {
-            return CioComService.put(_strUrlIsAvailable, objData, function(objErr, ObjData) {
-                    
-                // set text to "available" or "not available"
-                _setTextForAvailability(objFormField, strWhich,
-                        !!(ObjData && ObjData.isAvailable));
-
-                // delete timeout promise again
-                _objTimeouts[strWhich] = null;
-            });
-        }, _numTimeoutDefault));
+        return CioComService.put(objRequest, function(objErr, ObjData) {
+                
+            // set text to "available" or "not available"
+            _setTextForAvailability(objFormField, strWhich,
+                    !!(ObjData && ObjData.isAvailable));
+        });
     }
 
     // *****************************************************************************
     // Helper function definitions
-    // *****************************************************************************
-
-    function _resetTimeoutsSync() {
-        $timeout.cancel(_objTimeouts.signUp);
-        $timeout.cancel(_objTimeouts.username);
-        $timeout.cancel(_objTimeouts.email);
-        _objTimeouts.signUp   = null;
-        _objTimeouts.username = null;
-        _objTimeouts.email    = null;
-    }
-
     // *****************************************************************************
 
     function _setTextForAvailability(objFormField, strWhich, mixValue) {

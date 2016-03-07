@@ -55,14 +55,16 @@ function Service($rootScope, $window, $timeout, $http, $q) {
     /**
      * Function to send a "GET" request to the server.
      * @public
-     * 
-     * @param {String}   strUrl       string of the URL to be called
-     * @param {Object}   objHeaders   object of the headers to be added
-     * @param {Boolean}  [isTimeout]  (optional) true if request uses a timeout
-     * @param {Function} callback     function for callback
+     *
+     * @param {Object}   obRequest              object of request info and data
+     * @param {String}   obRequest.id           string of an unique identifier for the request
+     * @param {String}   obRequest.url          string of the URL to be called
+     * @param {Object}   obRequest.headers      object of the headers to be added
+     * @param {Boolean}  [obRequest.isTimeout]  (optional) true if request uses a timeout
+     * @param {Function} callback               function for callback
      */
-    function get(strUrl, objHeaders, isTimeout, callback) {
-        return _prepareRequest('GET', strUrl, null, objHeaders, isTimeout, callback);
+    function get(objRequest, callback) {
+        return _prepareRequest('GET', objRequest, callback);
     }
 
     // *****************************************************************************
@@ -71,13 +73,16 @@ function Service($rootScope, $window, $timeout, $http, $q) {
      * Function to send a "POST" request to the server.
      * @public
      * 
-     * @param {String}   strUrl       string of the URL to be called
-     * @param {Object}   objHeaders   object of the headers to be added
-     * @param {Boolean}  [isTimeout]  (optional) true if request uses a timeout
-     * @param {Function} callback     function for callback
+     * @param {Object}   obRequest              object of request info and data
+     * @param {String}   obRequest.id           string of an unique identifier for the request
+     * @param {String}   obRequest.url          string of the URL to be called
+     * @param {String}   obRequest.data         object of the user data to be added
+     * @param {Object}   obRequest.headers      object of the headers to be added
+     * @param {Boolean}  [obRequest.isTimeout]  (optional) true if request uses a timeout
+     * @param {Function} callback               function for callback
      */
-    function post(strUrl, objData, objHeaders, isTimeout, callback) {
-        return _prepareRequest('POST', strUrl, objData, objHeaders, isTimeout, callback);
+    function post(objRequest, callback) {
+        return _prepareRequest('POST', objRequest, callback);
     }
 
     // *****************************************************************************
@@ -86,14 +91,16 @@ function Service($rootScope, $window, $timeout, $http, $q) {
      * Function to send a "PUT" request to the server.
      * @public
      * 
-     * @param {String}   strUrl       string of the URL to be called
-     * @param {Object}   objData      object of user data to be added
-     * @param {Object}   objHeaders   object of the headers to be added
-     * @param {Boolean}  [isTimeout]  (optional) true if request uses a timeout
-     * @param {Function} callback     function for callback
+     * @param {Object}   obRequest              object of request info and data
+     * @param {String}   obRequest.id           string of an unique identifier for the request
+     * @param {String}   obRequest.url          string of the URL to be called
+     * @param {String}   obRequest.data         object of the user data to be added
+     * @param {Object}   obRequest.headers      object of the headers to be added
+     * @param {Boolean}  [obRequest.isTimeout]  (optional) true if request uses a timeout
+     * @param {Function} callback               function for callback
      */
-    function put(strUrl, objData, objHeaders, isTimeout, callback) {
-        return _prepareRequest('PUT', strUrl, objData, objHeaders, isTimeout, callback);
+    function put(objRequest, callback) {
+        return _prepareRequest('PUT', objRequest, callback);
     }
 
     // *****************************************************************************
@@ -102,14 +109,16 @@ function Service($rootScope, $window, $timeout, $http, $q) {
      * Function to send a "GET" request to the server.
      * @public
      * 
-     * @param {String}   strUrl       string of the URL to be called
-     * @param {Object}   objData      object of user data to be added
-     * @param {Object}   objHeaders   object of the headers to be added
-     * @param {Boolean}  [isTimeout]  (optional) true if request uses a timeout
-     * @param {Function} callback     function for callback
+     * @param {Object}   obRequest              object of request info and data
+     * @param {String}   obRequest.id           string of an unique identifier for the request
+     * @param {String}   obRequest.url          string of the URL to be called
+     * @param {String}   obRequest.data         object of the user data to be added
+     * @param {Object}   obRequest.headers      object of the headers to be added
+     * @param {Boolean}  [obRequest.isTimeout]  (optional) true if request uses a timeout
+     * @param {Function} callback               function for callback
      */
-    function patch(strUrl, objData, objHeaders, isTimeout, callback) {
-        return _prepareRequest('PATCH', strUrl, objData, objHeaders, isTimeout, callback);
+    function patch(objRequest, callback) {
+        return _prepareRequest('PATCH', objRequest, callback);
     }
 
     // *****************************************************************************
@@ -118,14 +127,16 @@ function Service($rootScope, $window, $timeout, $http, $q) {
      * Function to send a "DELETE" request to the server.
      * @public
      * 
-     * @param {String}   strUrl       string of the URL to be called
-     * @param {Object}   objData      object of user data to be added
-     * @param {Object}   objHeaders   object of the headers to be added
-     * @param {Boolean}  [isTimeout]  (optional) true if request uses a timeout
-     * @param {Function} callback     function for callback
+     * @param {Object}   obRequest              object of request info and data
+     * @param {String}   obRequest.id           string of an unique identifier for the request
+     * @param {String}   obRequest.url          string of the URL to be called
+     * @param {String}   obRequest.data         object of the user data to be added
+     * @param {Object}   obRequest.headers      object of the headers to be added
+     * @param {Boolean}  [obRequest.isTimeout]  (optional) true if request uses a timeout
+     * @param {Function} callback               function for callback
      */
-    function remove(strUrl, objData, objHeaders, isTimeout, callback) {
-        return _prepareRequest('DELETE', strUrl, objData, objHeaders, isTimeout, callback);
+    function remove(objRequest, callback) {
+        return _prepareRequest('DELETE', objRequest, callback);
     }
 
     // *****************************************************************************
@@ -134,23 +145,34 @@ function Service($rootScope, $window, $timeout, $http, $q) {
 
     /**
      * Helper function to prepare for request by choosing between request
-     * with or without timeout.
+     * with or without timeout. Also, the request object is checked if both the
+     * unique identifier and the URL is set. If not, the function throws an
+     * exception.
      * @private
      * 
-     * @param {String}   strUrl      string of the URL to be called
-     * @param {Object}   objData     object of user data to be added
-     * @param {Object}   objHeaders  object of the headers to be added
-     * @param {Boolean}  isTimeout   true if request uses a timeout
-     * @param {Function} callback    function for callback
+     * @param {Object}   obRequest              object of request info and data
+     * @param {String}   obRequest.id           string of an unique identifier for the request
+     * @param {String}   obRequest.url          string of the URL to be called
+     * @param {String}   obRequest.data         object of the user data to be added
+     * @param {Object}   obRequest.headers      object of the headers to be added
+     * @param {Boolean}  [obRequest.isTimeout]  (optional) true if request uses a timeout
+     * @param {Function} callback               function for callback
      */
-    function _prepareRequest(strMethod, strUrl, objData, objHeaders, isTimeout, callback) {
-        if (isTimeout && 'boolean' === typeof isTimeout) {
-            return _requestWithTimeout(strMethod, strUrl, objData, objHeaders, callback);
+    function _prepareRequest(strMethod, objRequest, callback) {
+        if (!objRequest.id) {
+            throw new Error('Request identifier is not set!');
         }
-        if (!callback && 'function' === typeof isTimeout) {
-            callback = isTimeout;
+        if (!objRequest.url) {
+            throw new Error('Request URL is not set!');
         }
-        return _request(strMethod, strUrl, objData, objHeaders, callback);
+
+        objRequest.data    = objRequest.data    || {};
+        objRequest.headers = objRequest.headers || {};
+
+        if (objRequest.isTimeout) {
+            return _requestWithTimeout(strMethod, objRequest, callback);
+        }
+        return _request(objRequest, callback);
     }
 
     // *****************************************************************************
@@ -161,34 +183,22 @@ function Service($rootScope, $window, $timeout, $http, $q) {
      * previous one is canceled.
      * @private
      * 
-     * @param {String}   strMethod   string of method to be used
-     * @param {String}   strUrl      string of the URL to be called
-     * @param {Object}   objData     object of user data to be added
-     * @param {Object}   objHeaders  object of the headers to be added
-     * @param {Function} callback    function for callback
+     * @param {Object}   strMethod          string of used HTTP method
+     * @param {Object}   obRequest          object of request info and data
+     * @param {String}   obRequest.id       string of an unique identifier for the request
+     * @param {String}   obRequest.url      string of the URL to be called
+     * @param {String}   obRequest.data     object of the user data to be added
+     * @param {Object}   obRequest.headers  object of the headers to be added
+     * @param {Function} callback           function for callback
      */
-    function _request(strMethod, strUrl, objData, objHeaders, callback) {     
-        var strIdentifier, objRequest;
+    function _request(strMethod, objRequest, callback) {
+        var strIdentifier = objRequest.id;
 
         // activate the processing to enable spinners and wait functions, etc.
         $rootScope.flags.isProcessing = true;
 
-        strIdentifier = strMethod.toLowerCase() + '-' + strUrl.replace(/\//g, '');
-
-        if (objData.username) {
-            strIdentifier += '-username';
-        }
-        if (objData.email) {
-            strIdentifier += '-email';
-        }
-
-        if ('function' === typeof objHeaders && !callback) {
-            callback   = objHeaders;
-            objHeaders = {};
-        }
-
         // extend header with tokens if they are available
-        _extendHeaders(objHeaders);
+        _extendHeaders(objRequest.headers);
 
         // cancel the request if necessary
         _objCancelers[strIdentifier] &&
@@ -198,14 +208,9 @@ function Service($rootScope, $window, $timeout, $http, $q) {
         // reset the canceler object with a promise
         _objCancelers[strIdentifier] = $q.defer();
 
-        // setup user data including timeout to cancel request if necessary
-        objRequest  = {
-            method : strMethod.toUpperCase(),
-            url    : strUrl,
-            data   : objData,
-            headers: objHeaders,
-            timeout: _objCancelers[strIdentifier].promise,
-        };
+        // extend the request object
+        objRequest.method  = strMethod.toUpperCase();
+        objRequest.timeout = _objCancelers[strIdentifier].promise;
 
         return $http(objRequest).then(
             _requestCallback(strIdentifier, false, callback), // false = is not error case
@@ -218,23 +223,26 @@ function Service($rootScope, $window, $timeout, $http, $q) {
      * Helper function to request with timeout the server.
      * @private
      * 
-     * @param {String}   strMethod   string of method to be used
-     * @param {String}   strUrl      string of the URL to be called
-     * @param {Object}   objData     object of user data to be added
-     * @param {Object}   objHeaders  object of the headers to be added
-     * @param {Function} callback    function for callback
+     * @param {Object}   strMethod          string of used HTTP method
+     * @param {Object}   obRequest          object of request info and data
+     * @param {String}   obRequest.id       string of an unique identifier for the request
+     * @param {String}   obRequest.url      string of the URL to be called
+     * @param {String}   obRequest.data     object of the user data to be added
+     * @param {Object}   obRequest.headers  object of the headers to be added
+     * @param {Function} callback           function for callback
      */
-    function _requestWithTimeout(strMethod, strUrl, objData, objHeaders, callback) {     
+    function _requestWithTimeout(strMethod, objRequest, callback) {
+        var strIdentifier = objRequest.id;
 
         // cancel timeout of previous sign up request
-        $timeout.cancel(_objTimeouts.signIn);
+        $timeout.cancel(_objTimeouts[strIdentifier]);
         
         // activate the processing to enable spinners and wait functions, etc.
         $rootScope.flags.isProcessing = true;
 
         // send request with timeout
-        return (_objTimeouts.signIn = $timeout(function() {
-            return _request(strMethod, strUrl, objData, objHeaders, callback);
+        return (_objTimeouts[strIdentifier] = $timeout(function() {
+            return _request(strMethod, objRequest, callback);
         }, _numTimeoutDefault));
     }
 
@@ -261,10 +269,13 @@ function Service($rootScope, $window, $timeout, $http, $q) {
 
             var objErr = (isError ? { statusCode: objResult.status, message: objResult.statusText } : null);
 
-            // delete canceler of HTTP request
+            // deactivate canceler of HTTP request
             _objCancelers[strIdentifier] = null;
 
-            // deactivate the processing again
+            // deactivate canceler of timeout 
+            _objTimeouts[strIdentifier] = null;
+
+            // deactivate the processing
             $rootScope.flags.isProcessing = false;
 
             // call a "normal" callback where first element is the error object

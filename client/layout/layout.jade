@@ -24,13 +24,16 @@ html(land="en")
         //-         });
         //-     };
 
-    body(data-ng-app="cio")
+    body(data-ng-app="cio").relative
 
         #view-common
             div(data-ui-view="common")
 
         #view-simple
             div(data-ui-view="simple")
+
+        .spinner(data-ng-if="flags.isProcessing")
+            i.fa.fa-2x.fa-spinner.fa-spin
         
         // build:js(.build/dev/) scripts/vendor.min.js 
         script(src="scripts/vendor/angular.js")
