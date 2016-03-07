@@ -28,8 +28,7 @@ function Controller($timeout, $state, CioAuthService) {
     // Private variables
     // *****************************************************************************
 
-    var _strStateRedirect  = 'home';
-    var _strUrlSignIn      = '/sign-in';
+    var _strStateRedirect = 'home';
 
     // *****************************************************************************
     // Public variables
@@ -43,16 +42,10 @@ function Controller($timeout, $state, CioAuthService) {
     // Controller function linking
     // *****************************************************************************
 
-    vm.init   = init;
     vm.signIn = signIn;
 
     // *****************************************************************************
     // Controller function definitions
-    // *****************************************************************************
-
-    function init() {
-    } init();
-
     // *****************************************************************************
 
     function signIn() {
@@ -87,7 +80,7 @@ function Controller($timeout, $state, CioAuthService) {
 
 // *****************************************************************************
 
-Controller.$inject = ['$timeout', '$state', 'CioComService'];
+Controller.$inject = ['$timeout', '$state', 'CioAuthService'];
 
 // *****************************************************************************
 

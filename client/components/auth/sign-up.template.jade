@@ -1,24 +1,48 @@
 mixin confirmationText(strName)
-    .text-danger(
-            data-ng-if="'invalid' === vm.flags.isAvailable.#{strName}")
-        i.fa.fa-ban
-        |&nbsp;Is not valid!
-    .text-muted(
-            data-ng-if="'pristine' === vm.flags.isAvailable.#{strName}")
+    
+    //- if username or email has not been changed, yet
+    .text-muted(data-ng-if="'pristine' === vm.states.#{strName}")
         i.fa.fa-times
         |&nbsp;Please enter text.
-    .text-muted(
-            data-ng-if="'pending' === vm.flags.isAvailable.#{strName}")
+    
+    //- if username or email request is pending
+    .text-muted(data-ng-if="'pending' === vm.states.#{strName}")
         i.fa.fa-spinner.fa-spin
         |&nbsp;pending...
-    .text-success(
-            data-ng-if="true === vm.flags.isAvailable.#{strName}")
+    
+    //- if username or email is available
+    .text-success(data-ng-if="'available' === vm.states.#{strName}")
         i.fa.fa-check
         |&nbsp;Is available.
-    .text-danger(
-            data-ng-if="false === vm.flags.isAvailable.#{strName}")
+    
+    //- if username or email is not available
+    .text-danger(data-ng-if="'notAvailable' === vm.states.#{strName}")
         i.fa.fa-ban
         |&nbsp;Sorry, but is not available.
+
+    //- if username or email are too short
+    .text-danger(data-ng-if="'tooShort' === vm.states.#{strName}")
+        i.fa.fa-ban
+        |&nbsp;Is too short!
+    
+    //- if username or email are too long
+    .text-danger(data-ng-if="'tooLong' === vm.states.#{strName}")
+        i.fa.fa-ban
+        |&nbsp;Is too long!
+    
+    //- if username or email are required
+    .text-danger(data-ng-if="'required' === vm.states.#{strName}")
+        i.fa.fa-ban
+        |&nbsp;This is required!
+    
+    //- if username or email are invalid
+    .text-danger(data-ng-if="'invalid' === vm.states.#{strName}")
+        i.fa.fa-ban
+        |&nbsp;Is not valid!
+
+//- *****************************************************************************
+
+div vm.formSignUp.signUpUsername.$error: {{ vm.formSignUp.signUpUsername.$error }}
 
 .wrapper.relative
     form(name="vm.formSignUp",
@@ -39,9 +63,7 @@ mixin confirmationText(strName)
         fieldset
             legend: h1 Sign Up
             
-            .form-group.no-margin-bottom(data-ng-class="{ 'has-error': \
-                    vm.flags.isAvailable.username === 'invalid' ||\
-                    vm.flags.isAvailable.username === false }")
+            .form-group.no-margin-bottom(data-ng-class="{ 'has-error': vm.flags.hasErrorsUsername }")
                 label(for="sign-up-username") Username:
                 input#sign-up-username.form-control(
                         type="text",
@@ -50,14 +72,12 @@ mixin confirmationText(strName)
                         data-ng-required="true",
                         data-ng-minlength="3",
                         data-ng-model="vm.modelSignUp.username",
-                        data-cio-input-change-event="vm.isAvailable('username', $viewValue)")
+                        cio-input-change-event="vm.isAvailable('Username')")
             
             .form-group-addon.right
                 +confirmationText('username')
 
-            .form-group.no-margin-bottom(data-ng-class="{ 'has-error': \
-                    vm.flags.isAvailable.email === 'invalid' ||\
-                    vm.flags.isAvailable.email === false }")
+            .form-group.no-margin-bottom(data-ng-class="{ 'has-error': vm.flags.hasErrorsEmail }")
                 label(for="sign-up-email") Email:
                 input#sign-up-email.form-control(
                         type="email",
@@ -65,7 +85,7 @@ mixin confirmationText(strName)
                         placeholder="Email",
                         data-ng-required="true",
                         data-ng-model="vm.modelSignUp.email",
-                        data-cio-input-change-event="vm.isAvailable('email', $viewValue)")
+                        cio-input-change-event="vm.isAvailable('Email')")
             
             .form-group-addon.right
                 +confirmationText('email')

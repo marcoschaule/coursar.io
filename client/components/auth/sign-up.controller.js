@@ -39,17 +39,18 @@ function Controller($timeout, $state, CioAuthService) {
     vm.modelSignUp = {};
     vm.formSignUp  = {};
     vm.flags = {
-        isAvailable : {
-            username: 'pristine',
-            email   : 'pristine',
-        },
+        hasErrorsUsername: false,
+        hasErrorsEmail   : false,
+    };
+    vm.states = {
+        username: 'pristine',
+        email   : 'pristine',
     };
 
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
 
-    vm.init        = init;
     vm.signUp      = signUp;
     vm.isAvailable = isAvailable;
 
@@ -57,11 +58,9 @@ function Controller($timeout, $state, CioAuthService) {
     // Controller function definitions
     // *****************************************************************************
 
-    function init() {
-    } init();
-
-    // *****************************************************************************
-
+    /**
+     * Controller function to sign the user up.
+     */
     function signUp() {
         var objData;
 
@@ -89,44 +88,58 @@ function Controller($timeout, $state, CioAuthService) {
 
     // *****************************************************************************
 
-    function isAvailable(strWhich, strValue) {
-        var objFormField  = vm.formSignUp['signUp' + _capitalize(strWhich)];
-        var strViewValue  = objFormField.$viewValue;
-        var strModelValue = objFormField.$modelValue;
+    /**
+     * Controller function to test if "username" or "email" is available.
+     * 
+     * @param {String} strWhich  string of which to test
+     */
+    function isAvailable(strWhich) {
+        var strWhichL      = strWhich.toLowerCase();
+        var strFieldForm   = 'signUp' + strWhich;
+        var strFieldErrors = 'hasErrors' + strWhich;
+        var objFormField   = vm.formSignUp[strFieldForm];
         var objData, objRequest;
 
-        // set the validity of the form field to "invalid"
+        // set manually the validity if each field to "false"
         objFormField.$setValidity('isNotAvailable', false);
 
-        // if user did not enter any text or text is
-        // not valid, reset to pristine
-        if (!strViewValue) {
-            return _setTextForAvailability(objFormField, strWhich, 'pristine');
+        // set the "has errors" flag to "true" in case there is an error
+        vm.flags[strFieldErrors] = true;
+
+        // test if there are any errors in the form
+        if (objFormField.$error.required) {
+            return (vm.states[strWhichL] = 'required');
+        }
+        if (objFormField.$error.minlength) {
+            return (vm.states[strWhichL] = 'tooShort');
+        }
+        if (objFormField.$error.maxlength) {
+            return (vm.states[strWhichL] = 'tooLong');
+        }
+        if (objFormField.$error.email) {
+            return (vm.states[strWhichL] = 'invalid');
         }
 
-        // is view value is set, but model value is not (since the input
-        // is not valie), set the availability text to "invalid", too
-        if (strViewValue && !strModelValue) {
-            return _setTextForAvailability(objFormField, strWhich, 'invalid');
-        }
+        // set the "has errors" flag to "false" since there was no error so far
+        vm.flags[strFieldErrors] = false;
 
-        objData           = {};
-        objData[strWhich] = strViewValue;
-        objRequest = {
-            id       : 'is-available-' + strWhich,
-            url      : _strUrlIsAvailable,
-            data     : objData,
-            isTimeout: true,
-        };
+        // set the state of the field to "pending" since the request
+        // is about to get fired
+        vm.states[strWhichL] = 'pending';
+        
+        objData            = {};
+        objData[strWhichL] = objFormField.$viewValue;
 
-        // set text to "pending"
-        _setTextForAvailability(objFormField, strWhich, 'pending');
+        return CioAuthService.testAvailability(strWhichL, objRequest, function(objErr, ObjData) {
 
-        return CioComService.put(objRequest, function(objErr, ObjData) {
-                
-            // set text to "available" or "not available"
-            _setTextForAvailability(objFormField, strWhich,
-                    !!(ObjData && ObjData.isAvailable));
+            // set manually the validity if each field depending on result
+            objFormField.$setValidity('isNotAvailable', !ObjData.isAvailable);
+
+            // set the "has errors" flag of the field depending on result
+            vm.flags[strFieldErrors] = !ObjData.isAvailable;
+
+            // set the state of the field depending on result
+            vm.states[strWhichL] = !!ObjData.isAvailable && 'available' || 'notAvailable';
         });
     }
 
@@ -134,48 +147,12 @@ function Controller($timeout, $state, CioAuthService) {
     // Helper function definitions
     // *****************************************************************************
 
-    function _setTextForAvailability(objFormField, strWhich, mixValue) {
-        var isAvailableLocal = !!mixValue;
-
-        if (objFormField.$invalid && !objFormField.$error.isNotAvailable) {
-            return (vm.flags.isAvailable[strWhich] = 'invalid');
-        }
-        if ('boolean' !== typeof mixValue) {
-            return (vm.flags.isAvailable[strWhich] = mixValue);
-        }
-
-        // set availability
-        vm.flags.isAvailable[strWhich] = 
-
-            // if field is pristine
-            (objFormField.$pristine && 'pristine') ||
-
-            // if field is dirty but empty
-            (objFormField.$dirty && !objFormField.$modelValue && 'pristine') ||
-
-            // if field is dirty, but available
-            (objFormField.$dirty && isAvailableLocal && true) ||
-
-            // default value
-            false;
-
-        // set manually the validity if each field to "false" is not available
-        objFormField.$setValidity('isNotAvailable',
-            vm.flags.isAvailable[strWhich] === true);
-    }
-
-    // *****************************************************************************
-
-    function _capitalize(strSrc) {
-        return strSrc.substr(0,1).toUpperCase() + strSrc.substr(1).toLowerCase();
-    }
-
     // *****************************************************************************
 }
 
 // *****************************************************************************
 
-Controller.$inject = ['$timeout', '$state', 'CioComService'];
+Controller.$inject = ['$timeout', '$state', 'CioAuthService'];
 
 // *****************************************************************************
 

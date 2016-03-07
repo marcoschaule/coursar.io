@@ -103,7 +103,6 @@ function signUp(objSignUp, callback) {
             { 'emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
     ] }, (objErr, objUser) => {
         if (objErr) {
-            console.log(">>> Debug ====================; 1: objErr:", objErr, '\n\n');
             return callback(settings.errors.signUp.generalError);
         }
         else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
@@ -127,7 +126,6 @@ function signUp(objSignUp, callback) {
         });
 
         return objAuth.save(objErr => {
-            console.log(">>> Debug ====================; objErr:", objErr, '\n\n');
             if (objErr) {
                 return callback(objErr);
             }
