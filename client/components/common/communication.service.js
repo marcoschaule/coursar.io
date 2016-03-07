@@ -297,10 +297,16 @@ function Service($rootScope, $window, $timeout, $http, $q) {
         var strAccessToken = headers('X-Access-Token');
         var strCsrfToken   = headers('X-CSRF-Token');
 
-        if (strAccessToken) {
+        if ('delete' === strAccessToken) {
+            $window.localStorage.removeItem('accessToken');
+        }
+        else if (strAccessToken) {
             $window.localStorage.accessToken = strAccessToken;
         }
-        if (strCsrfToken) {
+        if ('delete' === strCsrfToken) {
+            $window.localStorage.removeItem('csrfToken');
+        }
+        else if (strCsrfToken) {
             $window.localStorage.csrfToken = strCsrfToken;
         }
     }
