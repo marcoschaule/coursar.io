@@ -4,24 +4,15 @@
 // Includes and definitions
 // *****************************************************************************
 
-var path           = require('path');
-var clone          = require('clone');
 var mongoose       = require('mongoose');
-var nodemailer     = require('nodemailer');
 var uuid           = require('uuid');
 var async          = require('async');
 var AuthRessources = require('./auth.schema.js');
+var libEmail       = require('../../libraries/email.lib.js');
 
 // Models
 var Auth           = AuthRessources.Auth;
 var SignUp         = AuthRessources.SignUp;
-
-// create transporter object for sending emails
-var transporter    = nodemailer.createTransport(settings.general.smtp.uri);
-
-// email templates
-var objTemplateEmailForgotPassword =
-    require('../../templates/emails/forgot-password.template.json');
 
 // *****************************************************************************
 // Service functions
@@ -182,23 +173,15 @@ function forgotPassword(strEmail, callback) {
             return callback(settings.errors.resetPassword.generalError);
         }
 
-        strLink             = path.join(settings.general.system.url, 'reset-password', strRId);
-        regexLink           = new RegExp('\\$\\{link\\}', 'gim');
-        objMailOptions      = clone(objTemplateEmailForgotPassword);
-        objMailOptions.to   = strEmail;
-        objMailOptions.text = objMailOptions.text.replace(regexLink, strLink);
-        objMailOptions.html = objMailOptions.html.replace(regexLink, strLink);
-
-        // send mail with defined transport object
-        return transporter.sendMail(objMailOptions, (objErr, objInfo) => {
+        return libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objInfo) => {
             if (objErr) {
                 console.error(objErr);
                 return callback(settings.errors.resetPassword.generalError);
             }
-            return callback(null, objInfo.repsonse);
+            console.log(objInfo.repsonse);
+            return callback(null);
         });
     });
-
 }
 
 // *****************************************************************************
