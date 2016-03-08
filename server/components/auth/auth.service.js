@@ -173,12 +173,12 @@ function forgotPassword(strEmail, callback) {
             return callback(settings.errors.resetPassword.generalError);
         }
 
-        return libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objInfo) => {
+        return libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objResult) => {
             if (objErr) {
                 console.error(objErr);
                 return callback(settings.errors.resetPassword.generalError);
             }
-            console.log(objInfo.repsonse);
+            console.log(objResult);
             return callback(null);
         });
     });

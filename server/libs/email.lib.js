@@ -78,7 +78,8 @@ function _sendEmailForVerifyEmailOrForgotPassword(
     objMailOptions.html = objMailOptions.html.replace(regexLink, strLink);
 
     // send mail with defined transport object
-    return transporter.sendMail(objMailOptions, callback);
+    return transporter.sendMail(objMailOptions, (objErr, objReply) => 
+        callback(objErr, objInfo.repsonse));
 }
 
 // *****************************************************************************
