@@ -1,0 +1,6 @@
+{
+    "from"   : "\"Coursar.io\" <info@coursar.io>",
+    "subject": "Verify Email",
+    "text"   : "Verify email:\n\n\t${link}",
+    "html"   : "<h1>Verify email</h1>\n\n<p>\n\t<a href=\"${link}\">${link}</a></p>"
+}
