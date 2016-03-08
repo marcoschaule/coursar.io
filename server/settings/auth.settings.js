@@ -7,14 +7,14 @@
 if (!global.settings) {
     global.settings = {};
 }
-settings.auth = { session: {} };
+settings.auth = { session: {}, resetPassword: {} };
 
 // *****************************************************************************
 // Session settings
 // *****************************************************************************
 
 /**
- * Session Redis keyspace.
+ * Session Redis key space.
  * @type {String}
  */
 settings.auth.session.keyspace = 'sess:'; // prefix in Redis
@@ -50,10 +50,20 @@ settings.auth.session.sessionAge = 1*1*60*60; // one hour in seconds
 settings.auth.session.maxAge = 7*24*60*60; // one week in seconds
 
 /**
- * Session secret
+ * Session secret.
  * @type {String}
  */
 settings.auth.session.secret = 'too5tup!tToF!ndMy0wn5ecret';
+
+// *****************************************************************************
+// Reset password settings
+// *****************************************************************************
+
+/**
+ * Maximum age of a reset password session.
+ * @type {[type]}
+ */
+settings.auth.resetPassword.maxAge = 5*60; // five minutes in seconds
 
 // *****************************************************************************
 // Exports

@@ -178,7 +178,7 @@ function Service($rootScope, $window, $timeout, $http, $q) {
         if (objRequest.isTimeout) {
             return _requestWithTimeout(strMethod, objRequest, callback);
         }
-        return _request(objRequest, callback);
+        return _request(strMethod, objRequest, callback);
     }
 
     // *****************************************************************************
@@ -278,7 +278,7 @@ function Service($rootScope, $window, $timeout, $http, $q) {
             // from server, that means, token needs to be refreshed
             _handleTokens(objResult.headers);
 
-            var objErr = (isError ? { statusCode: objResult.status, message: objResult.statusText } : null);
+            var objErr = (isError ? objResult.data.err || objResult.data : null);
 
             // deactivate canceler of HTTP request
             _objCancelers[strIdentifier] = null;

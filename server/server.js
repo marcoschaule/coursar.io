@@ -31,7 +31,7 @@ var JWTRedisSession = require('jwt-redis-session');
 
 // setup
 var env             = (process.env.NODE_ENV || 'dev');
-var port            = (process.env.PORT     || 3000)*1;
+var port            = (process.env.PORT     || settings.general.system.port)*1;
 var app             = express();
 var strStaticFolder = path.join(__dirname, '../.build/', env);
 var objRedisClient, objRedisSettings;
@@ -58,6 +58,8 @@ objRedisSettings.client = objRedisClient;
 
 // connect mongoose
 mongoose.connect(settings.db.mongoDb.uri);
+
+global.clients = { redis: objRedisClient };
 
 // *****************************************************************************
 // App configuration

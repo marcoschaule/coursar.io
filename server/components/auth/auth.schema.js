@@ -5,7 +5,6 @@
 // ********************************************************************************
 
 var CryptoJS = require('crypto-js');
-var sha1     = require('crypto-js/sha1');
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
@@ -159,7 +158,7 @@ function _validateEmail(strEmail) {
 function _encrypt(strPassword) {
 
     // create the salt string
-    var strSalt = CryptoJS.lib.WordArray.random(128/8);
+    var strSalt = CryptoJS.lib.WordArray.random(128/8).toString();
 
     // create the hash
     var strHash = CryptoJS.PBKDF2(strPassword, strSalt, { keySize: 512/32 }).toString();

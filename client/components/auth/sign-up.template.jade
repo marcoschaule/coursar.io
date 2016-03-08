@@ -142,7 +142,8 @@ mixin confirmationText(strName)
                         data-ng-disabled="vm.formSignUp.$invalid")
                     |Sign Up
                 a.btn.btn-link(
-                        alt="Forgot Password?")
+                        alt="Forgot Password?",
+                        data-ui-sref="resetPassword")
                     |Forgot password?
 
     .spinner(data-ng-if="vm.flags.isProcessing")

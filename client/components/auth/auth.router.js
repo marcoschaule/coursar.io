@@ -43,7 +43,7 @@ var stateHomeSignUp = {
  * @type {Object}
  */
 var stateHomeResetPassword = {
-    url   : '/reset-password',
+    url   : '/reset-password/:strRId?',
     name  : 'resetPassword',
     views : {
         simple: {

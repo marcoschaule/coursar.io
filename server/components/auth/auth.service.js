@@ -4,13 +4,24 @@
 // Includes and definitions
 // *****************************************************************************
 
+var path           = require('path');
+var clone          = require('clone');
 var mongoose       = require('mongoose');
+var nodemailer     = require('nodemailer');
+var uuid           = require('uuid');
 var async          = require('async');
 var AuthRessources = require('./auth.schema.js');
 
 // Models
 var Auth           = AuthRessources.Auth;
 var SignUp         = AuthRessources.SignUp;
+
+// create transporter object for sending emails
+var transporter    = nodemailer.createTransport(settings.general.smtp.uri);
+
+// email templates
+var objTemplateEmailForgotPassword =
+    require('../../templates/emails/forgot-password.template.json');
 
 // *****************************************************************************
 // Service functions
@@ -145,6 +156,102 @@ function signUp(objSignUp, callback) {
  */
 function signOut(objSession, callback) {
     return objSession.destroy(objErr => callback(null));
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to handle a "forgot password" request. This function sends
+ * an email to the user including a link to reset the password.
+ * @public
+ * 
+ * @param {String}   strEmail  string of email the link should be send to
+ * @param {Function} callback  function for callback
+ */
+function forgotPassword(strEmail, callback) {
+    var objMailOptions, strLink, regexLink;
+
+    if (!callback || 'function' !== typeof callback) {
+        console.error(settings.errors.common.callbackMissing);
+        callback = function() {};
+    }
+
+    return _generateResetPasswordRedisEntry(strEmail, (objErr, strRId) => {
+        if (objErr) {
+            console.error(objErr);
+            return callback(settings.errors.resetPassword.generalError);
+        }
+
+        strLink             = path.join(settings.general.system.url, 'reset-password', strRId);
+        regexLink           = new RegExp('\\$\\{link\\}', 'gim');
+        objMailOptions      = clone(objTemplateEmailForgotPassword);
+        objMailOptions.to   = strEmail;
+        objMailOptions.text = objMailOptions.text.replace(regexLink, strLink);
+        objMailOptions.html = objMailOptions.html.replace(regexLink, strLink);
+
+        // send mail with defined transport object
+        return transporter.sendMail(objMailOptions, (objErr, objInfo) => {
+            if (objErr) {
+                console.error(objErr);
+                return callback(settings.errors.resetPassword.generalError);
+            }
+            return callback(null, objInfo.repsonse);
+        });
+    });
+
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to reset the password, depending on the Redis ID send
+ * from the user.
+ * 
+ * @param {String}   strRId          string of Redis ID
+ * @param {String}   strPasswordNew  string of new password
+ * @param {Function} callback        function for callback
+ */
+function resetPassword(strRId, strPasswordNew, callback) {
+    var objPassword;
+
+    if (!callback || 'function' !== typeof callback) {
+        console.error(settings.errors.common.callbackMissing);
+        callback = function() {};
+    }
+
+    return _getUserIdFromResetPasswordRedisEntry(strRId, (objErr, objReply) => {
+        if (objErr) {
+            console.error(objErr);
+            return callback(settings.errors.resetPassword.generalError);
+        }
+        if (!objReply || !objReply.userId) {
+            console.error('Redis entry does not exist anymore!');
+            return callback(settings.errors.resetPassword.sessionExpired);
+        }
+
+        objPassword = Auth.encrypt(strPasswordNew);
+
+        return Auth.update(
+                { _id: objReply.userId },
+                { $set: { 'password.salt': objPassword.salt, 'password.hash': objPassword.hash } },
+                { new: true },
+                (objErr, objModified) => {
+           
+            if (objErr) {
+               console.error(objErr);
+               return callback(settings.errors.resetPassword.generalError);
+            }
+
+            return _deleteResetPasswordRedisEntry(strRId, objErr => {
+                if (objErr) {
+                    console.error(objErr);
+                    return callback(settings.errors.resetPassword.generalError);
+                }
+
+                return callback(null);
+            });
+        });
+    });
 }
 
 // *****************************************************************************
@@ -379,12 +486,70 @@ function _indexOfEmailInArray(arrEmails, strEmail) {
 }
 
 // *****************************************************************************
+
+function _generateResetPasswordRedisEntry(strEmail, callback) {
+    var regexEmail = new RegExp('^' + strEmail + '$', 'i');
+    var objHash, strRId;
+
+    return Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
+        if (objErr) {
+            return callback(objErr);
+        }
+        else if (!objUser || !objUser.username) {
+            return callback('No such email found!');
+        }
+
+        strRId  = uuid.v4();
+        objHash = {
+            userId   : objUser._id.toString(),
+            createdAt: Date.now(),
+        };
+        
+        return clients.redis.setex(
+                'resp:' + strRId,
+                settings.auth.resetPassword.maxAge,
+                JSON.stringify(objHash),
+                objErr => {
+
+            if (objErr) {
+                return callback(objErr);
+            }
+            return callback(null, strRId);
+        });
+    });
+}
+
+// *****************************************************************************
+
+function _getUserIdFromResetPasswordRedisEntry(strRId, callback) {
+    return clients.redis.get('resp:' + strRId, (objErr, objReply) => {
+        if (objErr) {
+            return callback(objErr);
+        }
+        return callback(null, JSON.parse(objReply));
+    });
+}
+
+// *****************************************************************************
+
+function _deleteResetPasswordRedisEntry(strRId, callback) {
+    return clients.redis.del('resp:' + strRId, (objErr) => {
+        if (objErr) {
+            return callback(objErr);
+        }
+        return callback(null);
+    });
+}
+
+// *****************************************************************************
 // Exports
 // *****************************************************************************
 
 module.exports.signIn              = signIn;
 module.exports.signUp              = signUp;
 module.exports.signOut             = signOut;
+module.exports.forgotPassword      = forgotPassword;
+module.exports.resetPassword       = resetPassword;
 module.exports.setEmail            = setEmail;
 module.exports.checkSignedIn       = checkSignedIn;
 module.exports.touchSignedIn       = touchSignedIn;

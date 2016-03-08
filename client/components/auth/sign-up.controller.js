@@ -70,7 +70,6 @@ function Controller($timeout, $state, CioAuthService) {
             email       :   vm.modelSignUp.email,
             password    :   vm.modelSignUp.password,
             isRemembered: !!vm.modelSignUp.isRemembered,
-            isSpinner   :   true,
         };
 
         return CioAuthService.signUp(objData, function(objErr, objData) {

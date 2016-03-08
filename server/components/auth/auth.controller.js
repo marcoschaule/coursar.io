@@ -92,6 +92,29 @@ function signOut(req, res, next) {
 
 // *****************************************************************************
 
+function forgotPassword(req, res, next) {
+    return AuthService.forgotPassword(req.body.email, objErr => {
+        if (objErr) {
+            return res.status(500).json({});
+        }
+        return res.status(201).json({});
+    });
+}
+
+// *****************************************************************************
+
+function resetPassword(req, res, next) {
+    return AuthService.resetPassword(req.body.rid, req.body.password, objErr => {
+        console.log(">>> Debug ====================; objErr:", objErr, '\n\n');
+        if (objErr) {
+            return res.status(objErr.status || 500).json({ err: objErr });
+        }
+        return res.status(201).json({ success: true });
+    });
+}
+
+// *****************************************************************************
+
 function isSignedIn(req, res, next) {
     var _isSignedIn = AuthService.isSignedIn(req.session);
     return res.status(200).json({ isSignedIn: _isSignedIn });
@@ -150,15 +173,17 @@ function middlewareAll(req, res, next) {
 // Exports
 // *****************************************************************************
 
-module.exports.signIn          = signIn;
-module.exports.signUp          = signUp;
-module.exports.signOut         = signOut;
-module.exports.isSignedIn      = isSignedIn;
-module.exports.isAvailable     = isAvailable;
-module.exports.checkSignedIn   = checkSignedIn;
-module.exports.touchSignedIn   = touchSignedIn;
-module.exports.idle            = idle;
-module.exports.middlewareAll   = middlewareAll;
+module.exports.signIn         = signIn;
+module.exports.signUp         = signUp;
+module.exports.signOut        = signOut;
+module.exports.forgotPassword = forgotPassword;
+module.exports.resetPassword  = resetPassword;
+module.exports.isSignedIn     = isSignedIn;
+module.exports.isAvailable    = isAvailable;
+module.exports.checkSignedIn  = checkSignedIn;
+module.exports.touchSignedIn  = touchSignedIn;
+module.exports.idle           = idle;
+module.exports.middlewareAll  = middlewareAll;
 
 // *****************************************************************************
 // Helpers

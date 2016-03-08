@@ -28,10 +28,12 @@ function Service(CioComService) {
     // Private variables
     // *****************************************************************************
 
-    var _strStateRedirect  = 'home';
-    var _strUrlSignIn      = '/sign-in';
-    var _strUrlSignUp      = '/sign-up';
-    var _strUrlIsAvailable = '/is-available';
+    var _strStateRedirect     = 'home';
+    var _strUrlSignIn         = '/sign-in';
+    var _strUrlSignUp         = '/sign-up';
+    var _strUrlForgotPassword = '/forgot-password';
+    var _strUrlResetPassword  = '/reset-password';
+    var _strUrlIsAvailable    = '/is-available';
 
     // *****************************************************************************
     // Public variables
@@ -45,6 +47,8 @@ function Service(CioComService) {
 
     service.signIn           = signIn;
     service.signUp           = signUp;
+    service.forgotPassword   = forgotPassword;
+    service.resetPassword    = resetPassword;
     service.testAvailability = testAvailability;
 
     // *****************************************************************************
@@ -115,6 +119,49 @@ function Service(CioComService) {
     // *****************************************************************************
 
     /**
+     * Service function to send an email if user forgot password.
+     * 
+     * @param {Object}   objData        object of user data
+     * @param {String}   objData.email  string of user email from account
+     * @param {Function} callback       function for callback
+     */
+    function forgotPassword(objData, callback) {
+        if (!callback || 'function' !== typeof callback) {
+            callback = function() {};
+        }
+        var objRequest = {
+            id       : 'forgot-password',
+            url      : _strUrlForgotPassword,
+            data     : objData,
+        };
+        return CioComService.put(objRequest, callback);
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to send the new password and the Redis id to
+     * change the password.
+     * 
+     * @param {Object}   objData        object of user data
+     * @param {String}   objData.email  string of user email from account
+     * @param {Function} callback       function for callback
+     */
+    function resetPassword(objData, callback) {
+        if (!callback || 'function' !== typeof callback) {
+            callback = function() {};
+        }
+        var objRequest = {
+            id       : 'reset-password',
+            url      : _strUrlResetPassword,
+            data     : objData,
+        };
+        return CioComService.put(objRequest, callback);
+    }
+
+    // *****************************************************************************
+
+    /**
      * Service function to test if username or email is available.
      * 
      * @param {String}   strWhich  string of either "username" or "email"
@@ -122,6 +169,9 @@ function Service(CioComService) {
      * @param {Function} callback  function for callback
      */
     function testAvailability(strWhich, objData, callback) {
+        if (!callback || 'function' !== typeof callback) {
+            callback = function() {};
+        }
         var objRequest = {
             id       : 'is-available-' + strWhich,
             url      : _strUrlIsAvailable,

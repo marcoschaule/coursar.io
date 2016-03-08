@@ -26,9 +26,37 @@ settings.errors = {
 // Errors for "common" cases
 // *****************************************************************************
 
+/**
+ * Error object for the "common" scenario "general error".
+ * @type {Object}
+ */
+settings.errors.common.general = {
+    status : 500,
+    code   : '1001',
+    message: 'General error!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for the "common" scenario "callback missing".
+ * @type {Object}
+ */
+settings.errors.common.callbackMissing = {
+    status : 500,
+    code   : '1001',
+    message: 'Callback is missing!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for the "common" scenario "email invalid".
+ * @type {Object}
+ */
 settings.errors.common.emailInvalid = {
     status : 400,
-    code   : '1000',
+    code   : '1010',
     message: 'Email not valid!',
 };
 
@@ -194,6 +222,32 @@ settings.errors.checkAuthentication.refreshTokenInvalid = {
     status : 401,
     code   : '2012',
     message: 'Refresh token expired!',
+};
+
+// *****************************************************************************
+// Errors for "reset password"
+// *****************************************************************************
+
+/**
+ * Error object for "reset password" scenario "general error".
+ * @type {Object}
+ */
+settings.errors.resetPassword.generalError = {
+    status : 500,
+    code   : '2301',
+    message: 'General error with password reset!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for "reset password" scenario "session expired".
+ * @type {Object}
+ */
+settings.errors.resetPassword.sessionExpired = {
+    status : 500,
+    code   : '2302',
+    message: 'Reset password session is expired!',
 };
 
 // *****************************************************************************
