@@ -105,7 +105,6 @@ function forgotPassword(req, res, next) {
 
 function resetPassword(req, res, next) {
     return AuthService.resetPassword(req.body.rid, req.body.password, objErr => {
-        console.log(">>> Debug ====================; objErr:", objErr, '\n\n');
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }

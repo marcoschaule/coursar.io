@@ -20,27 +20,21 @@ require('./settings/paths.settings.js');
 require('./settings/captcha.settings.js');
 
 // requires
-var express         = require('express');
-var redis           = require('redis');
-var mongoose        = require('mongoose');
-var morgan          = require('morgan');
-var path            = require('path');
-var childProcess    = require('child_process');
-var bodyParser      = require('body-parser');
-var JWTRedisSession = require('jwt-redis-session');
+var express               = require('express');
+var redis                 = require('redis');
+var mongoose              = require('mongoose');
+var morgan                = require('morgan');
+var path                  = require('path');
+var childProcess          = require('child_process');
+var bodyParser            = require('body-parser');
+var JWTRedisSession       = require('jwt-redis-session');
 
 // setup
-var env             = (process.env.NODE_ENV || 'dev');
-var port            = (process.env.PORT     || settings.general.system.port)*1;
-var app             = express();
-var strStaticFolder = path.join(__dirname, '../.build/', env);
+var env                   = (process.env.NODE_ENV || 'dev');
+var port                  = (process.env.PORT     || settings.general.system.port)*1;
+var app                   = express();
+var strStaticFolder       = path.join(__dirname, '../.build/', env);
 var objRedisClient, objRedisSettings;
-
-// Controllers
-var AuthCtrl = require('./components/auth/auth.controller.js');
-
-// route setters
-var setupRoutesAuthPublic = require('./components/auth/auth.routes.js').public;
 
 // *****************************************************************************
 // Redis and MongoDB setup
@@ -60,6 +54,13 @@ objRedisSettings.client = objRedisClient;
 mongoose.connect(settings.db.mongoDb.uri);
 
 global.clients = { redis: objRedisClient };
+
+// *****************************************************************************
+// Controllers
+// *****************************************************************************
+
+// route setters
+var setupRoutesAuthPublic = require('./components/auth/auth.routes.js').public;
 
 // *****************************************************************************
 // App configuration

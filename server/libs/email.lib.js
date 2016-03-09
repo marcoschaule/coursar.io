@@ -14,9 +14,9 @@ var regexLink      = new RegExp('\\$\\{link\\}', 'gim');
 
 // email templates
 var objTemplateEmailVerifyEmail =
-    require('../../templates/emails/verifyEmail.template.json');
+    require('../templates/emails/verify-email.template.json');
 var objTemplateEmailForgotPassword =
-    require('../../templates/emails/forgot-password.template.json');
+    require('../templates/emails/forgot-password.template.json');
 
 // *****************************************************************************
 // Library function definitions
@@ -67,7 +67,7 @@ function _sendEmailForVerifyEmailOrForgotPassword(
         strUrlPart, strEmail, strRId, callback) {
     var strLink, objMailOptions;
 
-    if (!callback || 'function' !== callback) {
+    if (!callback || 'function' !== typeof callback) {
         callback = function() {};
     }
 
@@ -79,7 +79,7 @@ function _sendEmailForVerifyEmailOrForgotPassword(
 
     // send mail with defined transport object
     return transporter.sendMail(objMailOptions, (objErr, objReply) => 
-        callback(objErr, objInfo.repsonse));
+        callback(objErr, objReply.repsonse));
 }
 
 // *****************************************************************************

@@ -8,7 +8,10 @@ var mongoose       = require('mongoose');
 var uuid           = require('uuid');
 var async          = require('async');
 var AuthRessources = require('./auth.schema.js');
-var libEmail       = require('../../libraries/email.lib.js');
+
+//libraries
+var libEmail       = require('../../libs/email.lib.js');
+var libRedis       = require('../../libs/redis.lib.js');
 
 // Models
 var Auth           = AuthRessources.Auth;
@@ -160,6 +163,7 @@ function signOut(objSession, callback) {
  * @param {Function} callback  function for callback
  */
 function forgotPassword(strEmail, callback) {
+    var regexEmail = new RegExp('^' + strEmail + '$', 'i');
     var objMailOptions, strLink, regexLink;
 
     if (!callback || 'function' !== typeof callback) {
@@ -167,21 +171,41 @@ function forgotPassword(strEmail, callback) {
         callback = function() {};
     }
 
-    return _generateResetPasswordRedisEntry(strEmail, (objErr, strRId) => {
-        if (objErr) {
-            console.error(objErr);
-            return callback(settings.errors.resetPassword.generalError);
-        }
-
-        return libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objResult) => {
+    return async.waterfall([
+        
+        // get the user ID from the email
+        (_callback) => Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
             if (objErr) {
                 console.error(objErr);
-                return callback(settings.errors.resetPassword.generalError);
+                return _callback(objErr);
             }
-            console.log(objResult);
-            return callback(null);
-        });
-    });
+            else if (!objUser || !objUser._id) {
+                console.error('No such email found!');
+                return _callback('No such email found!');
+            }
+            return _callback(null, objUser._id.toString());
+        }),
+
+        // set the Redis entry and receive the Redis ID
+        (strUserId, _callback) => libRedis.setRedisEntryForPasswordReset(strUserId, (objErr, strRId) => {
+            if (objErr) {
+                console.error(objErr);
+                return _callback(settings.errors.resetPassword.generalError);
+            }
+            return _callback(null, strRId);
+        }),
+
+        // send the email to the given email address
+        (strRId, _callback) => libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objResult) => {
+            if (objErr) {
+                console.error(objErr);
+                return _callback(settings.errors.resetPassword.generalError);
+            }
+            return _callback(null);
+        }),
+    
+    // waterfall callback
+    ], callback);
 }
 
 // *****************************************************************************
@@ -195,6 +219,7 @@ function forgotPassword(strEmail, callback) {
  * @param {Function} callback        function for callback
  */
 function resetPassword(strRId, strPasswordNew, callback) {
+    var strKey = 'resp:' + strRId;
     var objPassword;
 
     if (!callback || 'function' !== typeof callback) {
@@ -202,39 +227,47 @@ function resetPassword(strRId, strPasswordNew, callback) {
         callback = function() {};
     }
 
-    return _getUserIdFromResetPasswordRedisEntry(strRId, (objErr, objReply) => {
-        if (objErr) {
-            console.error(objErr);
-            return callback(settings.errors.resetPassword.generalError);
-        }
-        if (!objReply || !objReply.userId) {
-            console.error('Redis entry does not exist anymore!');
-            return callback(settings.errors.resetPassword.sessionExpired);
-        }
+    // generate hash and salt for the new password
+    objPassword = Auth.encrypt(strPasswordNew);
 
-        objPassword = Auth.encrypt(strPasswordNew);
+    return async.waterfall([
+    
+        // get Redis entry to get the MongoDB user ID
+        (_callback) => libRedis.getRedisEntry(strKey, (objErr, objReply) => {
+            if (objErr) {
+                console.error(objErr);
+                return _callback(settings.errors.resetPassword.generalError);
+            }
+            if (!objReply || !objReply.userId) {
+                console.error('Redis entry does not exist anymore!');
+                return _callback(settings.errors.resetPassword.sessionExpired);
+            }
+            return _callback(null, objReply.userId.toString());
+        }),
 
-        return Auth.update(
-                { _id: objReply.userId },
+        // update password in database
+        (strUserId, _callback) => Auth.update(
+                { _id: strUserId },
                 { $set: { 'password.salt': objPassword.salt, 'password.hash': objPassword.hash } },
-                { new: true },
                 (objErr, objModified) => {
            
             if (objErr) {
                console.error(objErr);
-               return callback(settings.errors.resetPassword.generalError);
+               return _callback(settings.errors.resetPassword.generalError);
             }
+            return _callback(null);
+        }),
 
-            return _deleteResetPasswordRedisEntry(strRId, objErr => {
-                if (objErr) {
-                    console.error(objErr);
-                    return callback(settings.errors.resetPassword.generalError);
-                }
+        // delete Redis entry with MongoDB user ID
+        (_callback) => libRedis.deleteRedisEntry(strKey, objErr => {
+            if (objErr) {
+                console.error(objErr);
+                return _callback(settings.errors.resetPassword.generalError);
+            }
+            return _callback(null);
+        })
 
-                return callback(null);
-            });
-        });
-    });
+    ], callback);
 }
 
 // *****************************************************************************
