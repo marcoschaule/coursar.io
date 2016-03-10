@@ -472,7 +472,7 @@ gulp.task('server-express', callback => nodemon({
         env   : {
             'NODE_ENV': env,
             'PORT'    : port,
-        }
+        },
     })
 );
 

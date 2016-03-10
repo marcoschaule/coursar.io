@@ -33,8 +33,8 @@ function signIn(req, res, next) {
 
     // create object for additional (user) information
     objInfo = {
+        ua: req.headers['user-agent'],
         ip: req.headers['x-forwarded-for'] ||
-            req.headers['X-Forwarded-For'] ||
             req.connection.remoteAddress,
     };
 

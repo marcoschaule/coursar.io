@@ -27,6 +27,7 @@ var morgan                = require('morgan');
 var path                  = require('path');
 var childProcess          = require('child_process');
 var bodyParser            = require('body-parser');
+var csrf                  = require('csurf');
 var JWTRedisSession       = require('jwt-redis-session');
 
 // setup
@@ -34,6 +35,7 @@ var env                   = (process.env.NODE_ENV || 'dev');
 var port                  = (process.env.PORT     || settings.general.system.port)*1;
 var app                   = express();
 var strStaticFolder       = path.join(__dirname, '../.build/', env);
+var csrfProtection        = csrf({ sessionKey: 'session' });
 var objRedisClient, objRedisSettings;
 
 // *****************************************************************************
@@ -66,10 +68,26 @@ var setupRoutesAuthPublic = require('./components/auth/auth.routes.js').public;
 // App configuration
 // *****************************************************************************
 
+// enabling
 app.use(express.static(strStaticFolder));
 app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
-app.disable('X-Powered-By');
+
+app.use((req, res, next) => {
+    console.log(">>> Debug ====================; req.headers:", req.headers, '\n\n');
+    return next();
+});
+// app.use(function addCSRFToken(req, res, next) {
+//     if (req.csrfToken) {
+//         res.set('x-csrf-token', req.csrfToken());
+//     }
+//     return next();
+// });
+
+// disabling
+app.disable('x-powered-by');
+
+
 
 // *****************************************************************************
 // Routing - admin routes

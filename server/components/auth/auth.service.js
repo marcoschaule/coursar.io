@@ -58,6 +58,9 @@ function signIn(objSignIn, objInfo, objSession, callback) {
         objSession.updatedAt    = Date.now();
         objSession.sessionAge   = settings.auth.session.sessionAge;
         objSession.isRemembered = objSignIn.isRemembered;
+        objSession.ua           = objInfo.ua;
+        objSession.ip           = objInfo.ip;
+        objSession.ipo          = null;
         objSession.isSignedIn   = true;
 
         return _generateSession(objSession, (objErr, strToken) => {
