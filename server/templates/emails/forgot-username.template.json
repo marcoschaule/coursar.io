@@ -1,0 +1,6 @@
+{
+    "from"   : "\"Coursar.io\" <info@coursar.io>",
+    "subject": "Forgot Username",
+    "text"   : "Forgot username:\n\nYour username is: \"${username}\"",
+    "html"   : "<h1>Forgot Username</h1>\n\n<p>Your username is \"${username}\"</p>"
+}

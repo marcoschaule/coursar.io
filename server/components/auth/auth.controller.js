@@ -92,6 +92,35 @@ function signOut(req, res, next) {
 
 // *****************************************************************************
 
+/**
+ * Controller function to request the username if forgotten.
+ * 
+ * @param {Object}   req             object of default express request
+ * @param {Object}   req.body        object of request body
+ * @param {Object}   req.body.email  string of the user's email
+ * @param {Object}   res             object of default express response
+ * @param {Function} next            function for next middleware
+ */
+function forgotUsername(req, res, next) {
+    return AuthService.forgotUsername(req.body.email, objErr => {
+        if (objErr) {
+            return res.status(500).json({});
+        }
+        return res.status(201).json({});
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to request the password if forgotten.
+ * 
+ * @param {Object}   req             object of default express request
+ * @param {Object}   req.body        object of request body
+ * @param {Object}   req.body.email  string of the user's email
+ * @param {Object}   res             object of default express response
+ * @param {Function} next            function for next middleware
+ */
 function forgotPassword(req, res, next) {
     return AuthService.forgotPassword(req.body.email, objErr => {
         if (objErr) {
@@ -175,6 +204,7 @@ function middlewareAll(req, res, next) {
 module.exports.signIn         = signIn;
 module.exports.signUp         = signUp;
 module.exports.signOut        = signOut;
+module.exports.forgotUsername = forgotUsername;
 module.exports.forgotPassword = forgotPassword;
 module.exports.resetPassword  = resetPassword;
 module.exports.isSignedIn     = isSignedIn;

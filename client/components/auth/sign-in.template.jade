@@ -64,9 +64,14 @@
                         data-ng-disabled="vm.formSignIn.$invalid")
                     |Sign In
                 a.btn.btn-link(
-                        alt="Forgot Password?",
-                        data-ui-sref="resetPassword")
-                    |Forgot password?
+                        alt="Forgot Password",
+                        data-ui-sref="forgotPassword")
+                    |Forgot Password
+                ||
+                a.btn.btn-link(
+                        alt="Forgot Username",
+                        data-ui-sref="forgotUsername")
+                    |Forgot Username
 
     .spinner(data-ng-if="vm.flags.isProcessing")
         i.fa.fa-2x.fa-spinner.fa-spin

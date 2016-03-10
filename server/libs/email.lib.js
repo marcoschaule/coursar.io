@@ -10,11 +10,14 @@ var nodemailer     = require('nodemailer');
 
 // create transporter object for sending emails
 var transporter    = nodemailer.createTransport(settings.general.smtp.uri);
+var regexUsername  = new RegExp('\\$\\{username\\}', 'gim');
 var regexLink      = new RegExp('\\$\\{link\\}', 'gim');
 
 // email templates
 var objTemplateEmailVerifyEmail =
     require('../templates/emails/verify-email.template.json');
+var objTemplateEmailForgotUsername =
+    require('../templates/emails/forgot-username.template.json');
 var objTemplateEmailForgotPassword =
     require('../templates/emails/forgot-password.template.json');
 
@@ -41,6 +44,21 @@ function sendEmailVerifyEmail(strEmail, strRId, callback) {
  * Library function to send and email in the "forget password" process.
  * @public
  * 
+ * @param {String}   strEmail     string address the email is send to
+ * @param {String}   strUsername  string of username to be replaced
+ * @param {Function} callback     function for callback
+ */
+function sendEmailForgotUsername(strEmail, strUsername, callback) {
+    return _sendEmailForForgotUsername(
+            strEmail, strUsername, callback);
+}
+
+// *****************************************************************************
+
+/**
+ * Library function to send and email in the "forget password" process.
+ * @public
+ * 
  * @param {String}   strEmail  string address the email is send to
  * @param {String}   strRId    string if the Redis ID
  * @param {Function} callback  function for callback
@@ -52,6 +70,33 @@ function sendEmailForgotPassword(strEmail, strRId, callback) {
 
 // *****************************************************************************
 // Helper function definitions
+// *****************************************************************************
+
+/**
+ * Helper function to send an email in case of "forgot username" scenario.
+ * 
+ * @param {String}   strEmail     string address the email is send to
+ * @param {String}   strUsername  string of username to be replaced
+ * @param {Function} callback     function for callback
+ */
+function _sendEmailForForgotUsername(strEmail, strUsername, callback) {
+    var objMailOptions;
+
+    if (!callback || 'function' !== typeof callback) {
+        callback = function() {};
+    }
+
+    objMailOptions      = clone(objTemplateEmailForgotUsername);
+    objMailOptions.to   = strEmail;
+    objMailOptions.text = objMailOptions.text.replace(regexUsername, strUsername);
+    objMailOptions.html = objMailOptions.html.replace(regexUsername, strUsername);
+    console.log(">>> Debug ====================; objMailOptions:", objMailOptions, '\n\n');
+
+    // send mail with defined transport object
+    return transporter.sendMail(objMailOptions, (objErr, objReply) => 
+        callback(objErr, objReply && objReply.repsonse));
+}
+
 // *****************************************************************************
 
 /**
@@ -79,7 +124,7 @@ function _sendEmailForVerifyEmailOrForgotPassword(
 
     // send mail with defined transport object
     return transporter.sendMail(objMailOptions, (objErr, objReply) => 
-        callback(objErr, objReply.repsonse));
+        callback(objErr, objReply && objReply.repsonse));
 }
 
 // *****************************************************************************
@@ -87,6 +132,7 @@ function _sendEmailForVerifyEmailOrForgotPassword(
 // *****************************************************************************
 
 module.exports.sendEmailVerifyEmail    = sendEmailVerifyEmail;
+module.exports.sendEmailForgotUsername = sendEmailForgotUsername;
 module.exports.sendEmailForgotPassword = sendEmailForgotPassword;
 
 // *****************************************************************************

@@ -74,7 +74,7 @@ app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
 
 app.use((req, res, next) => {
-    console.log(">>> Debug ====================; req.headers:", req.headers, '\n\n');
+    // console.log(">>> Debug ====================; req.headers:", req.headers, '\n\n');
     return next();
 });
 // app.use(function addCSRFToken(req, res, next) {

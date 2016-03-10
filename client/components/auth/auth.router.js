@@ -5,7 +5,7 @@
 // *****************************************************************************
 
 /**
- * State of sign in view in home view.
+ * State of sign in view.
  * @type {Object}
  */
 var stateHomeSignIn = {
@@ -22,7 +22,7 @@ var stateHomeSignIn = {
 // *****************************************************************************
 
 /**
- * State of sign up view in home view.
+ * State of sign up view.
  * @type {Object}
  */
 var stateHomeSignUp = {
@@ -39,11 +39,45 @@ var stateHomeSignUp = {
 // *****************************************************************************
 
 /**
- * State of reset password view in home view.
+ * State of forgot password view.
+ * @type {Object}
+ */
+var stateHomeForgotUsername = {
+    url   : '/forgot-username',
+    name  : 'forgotUsername',
+    views : {
+        simple: {
+            controller : 'CioForgotUsernameCtrl as vm',
+            templateUrl: 'forgot-username.template.html',
+        },
+    },
+};
+
+// *****************************************************************************
+
+/**
+ * State of forgot password view.
+ * @type {Object}
+ */
+var stateHomeForgotPassword = {
+    url   : '/forgot-password',
+    name  : 'forgotPassword',
+    views : {
+        simple: {
+            controller : 'CioForgotPasswordCtrl as vm',
+            templateUrl: 'forgot-password.template.html',
+        },
+    },
+};
+
+// *****************************************************************************
+
+/**
+ * State of reset password view.
  * @type {Object}
  */
 var stateHomeResetPassword = {
-    url   : '/reset-password/:strRId?',
+    url   : '/reset-password/:strRId',
     name  : 'resetPassword',
     views : {
         simple: {
@@ -63,6 +97,8 @@ angular
         $stateProvider
             .state(stateHomeSignIn)
             .state(stateHomeSignUp)
+            .state(stateHomeForgotUsername)
+            .state(stateHomeForgotPassword)
             .state(stateHomeResetPassword)
             ;
     });

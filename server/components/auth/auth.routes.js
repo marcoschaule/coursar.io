@@ -26,6 +26,8 @@ function init(app) {
             AuthCtrl.signUp);
     app.put('/sign-out',    
             AuthCtrl.signOut);
+    app.put('/forgot-username',    
+            AuthCtrl.forgotUsername);
     app.put('/forgot-password',    
             AuthCtrl.forgotPassword);
     app.put('/reset-password',    

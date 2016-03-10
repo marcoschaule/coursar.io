@@ -31,6 +31,7 @@ function Service(CioComService) {
     var _strStateRedirect     = 'home';
     var _strUrlSignIn         = '/sign-in';
     var _strUrlSignUp         = '/sign-up';
+    var _strUrlForgotUsername = '/forgot-username';
     var _strUrlForgotPassword = '/forgot-password';
     var _strUrlResetPassword  = '/reset-password';
     var _strUrlIsAvailable    = '/is-available';
@@ -47,6 +48,7 @@ function Service(CioComService) {
 
     service.signIn           = signIn;
     service.signUp           = signUp;
+    service.forgotUsername   = forgotUsername;
     service.forgotPassword   = forgotPassword;
     service.resetPassword    = resetPassword;
     service.testAvailability = testAvailability;
@@ -114,6 +116,27 @@ function Service(CioComService) {
 
             return ('function' === typeof callback && callback(null, objData));
         });
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to send an email if user forgot username.
+     * 
+     * @param {Object}   objData        object of user data
+     * @param {String}   objData.email  string of user email from account
+     * @param {Function} callback       function for callback
+     */
+    function forgotUsername(objData, callback) {
+        if (!callback || 'function' !== typeof callback) {
+            callback = function() {};
+        }
+        var objRequest = {
+            id       : 'forgot-username',
+            url      : _strUrlForgotUsername,
+            data     : objData,
+        };
+        return CioComService.put(objRequest, callback);
     }
 
     // *****************************************************************************

@@ -165,6 +165,52 @@ function signOut(objSession, callback) {
  * @param {String}   strEmail  string of email the link should be send to
  * @param {Function} callback  function for callback
  */
+function forgotUsername(strEmail, callback) {
+    var regexEmail = new RegExp('^' + strEmail + '$', 'i');
+
+    if (!callback || 'function' !== typeof callback) {
+        console.error(settings.errors.common.callbackMissing);
+        callback = function() {};
+    }
+
+    return async.waterfall([
+        
+        // get the user ID from the email
+        (_callback) => Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
+            if (objErr) {
+                console.error(objErr);
+                return _callback(objErr);
+            }
+            else if (!objUser || !objUser.username) {
+                console.error('No such email found!');
+                return _callback('No such email found!');
+            }
+            return _callback(null, objUser.username);
+        }),
+
+        // send the email to the given email address
+        (strUsername, _callback) => libEmail.sendEmailForgotUsername(strEmail, strUsername, (objErr, objResult) => {
+            if (objErr) {
+                console.error(objErr);
+                return _callback(settings.errors.resetPassword.generalError);
+            }
+            return _callback(null);
+        }),
+    
+    // async waterfall callback
+    ], callback);
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to handle a "forgot password" request. This function sends
+ * an email to the user including a link to reset the password.
+ * @public
+ * 
+ * @param {String}   strEmail  string of email the link should be send to
+ * @param {Function} callback  function for callback
+ */
 function forgotPassword(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
     var objMailOptions, strLink, regexLink;
@@ -566,6 +612,7 @@ function _deleteResetPasswordRedisEntry(strRId, callback) {
 module.exports.signIn              = signIn;
 module.exports.signUp              = signUp;
 module.exports.signOut             = signOut;
+module.exports.forgotUsername      = forgotUsername;
 module.exports.forgotPassword      = forgotPassword;
 module.exports.resetPassword       = resetPassword;
 module.exports.setEmail            = setEmail;

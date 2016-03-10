@@ -1,5 +1,5 @@
 /**
- * @name        CioResetPasswordCtrl
+ * @name        CioForgotUsernameCtrl
  * @author      Marc Stark <self@marcstark.com>
  * @file        This file is an AngularJS controller.
  * 
@@ -15,13 +15,13 @@
 
 angular
     .module('cio-controllers')
-    .controller('CioResetPasswordCtrl', Controller);
+    .controller('CioForgotUsernameCtrl', Controller);
 
 // *****************************************************************************
 // Controller definition function
 // *****************************************************************************
 
-function Controller($state, CioAuthService) {
+function Controller(CioAuthService) {
     var vm = this;
 
     // *****************************************************************************
@@ -33,60 +33,42 @@ function Controller($state, CioAuthService) {
     // *****************************************************************************
 
     vm.states = {
-        passwordReset: false
+        emailSend: false,
     };
 
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
 
-    vm.resetPassword = resetPassword;
+    vm.forgotUsername = forgotUsername;
 
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
 
     /**
-     * Controller function to reset the password.
+     * Controller function to send an email containing a password reset link.
      * @public
      */
-    function resetPassword() {
+    function forgotUsername() {
         var objData = {
-            rid     : $state.params.strRId,
-            password: vm.modelResetPassword.password,
+            email: vm.modelForgotUsername.email,
         };
 
-        return CioAuthService.resetPassword(objData, function(objErr) {
-            vm.states.passwordReset = true;
-
-            if (objErr && '2301' === objErr.code) {
-                vm.states.passwordReset = 'error';
+        return CioAuthService.forgotUsername(objData, function(objErr) {
+            if (objErr) {
+                return (vm.states.emailSend = 'error');
             }
-            else if (objErr && '2302' === objErr.code) {
-                vm.states.passwordReset = 'expired';
-            }
+            return (vm.states.emailSend = true);
         });
     }
-
-    // *****************************************************************************
-    // Helper function definitions
-    // *****************************************************************************
-
-    /**
-     * Helper function to initialize this controller.
-     */
-    function _init() {
-        if (!$state.params.strRId) {
-            $state.go('home');
-        }
-    } _init();
 
     // *****************************************************************************
 }
 
 // *****************************************************************************
 
-Controller.$inject = ['$state', 'CioAuthService'];
+Controller.$inject = ['CioAuthService'];
 
 // *****************************************************************************
 
