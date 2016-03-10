@@ -1,5 +1,5 @@
 /**
- * @name        CioSettingsPrivacyCtrl
+ * @name        CioSettingsAccountCtrl
  * @author      Marc Stark <self@marcstark.com>
  * @file        This file is an AngularJS controller.
  * 
@@ -15,7 +15,7 @@
 
 angular
     .module('cio-controllers')
-    .controller('CioSettingsPrivacyCtrl', Controller);
+    .controller('CioSettingsAccountCtrl', Controller);
 
 // *****************************************************************************
 // Controller definition function

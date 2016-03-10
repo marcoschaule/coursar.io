@@ -90,7 +90,6 @@ function _sendEmailForForgotUsername(strEmail, strUsername, callback) {
     objMailOptions.to   = strEmail;
     objMailOptions.text = objMailOptions.text.replace(regexUsername, strUsername);
     objMailOptions.html = objMailOptions.html.replace(regexUsername, strUsername);
-    console.log(">>> Debug ====================; objMailOptions:", objMailOptions, '\n\n');
 
     // send mail with defined transport object
     return transporter.sendMail(objMailOptions, (objErr, objReply) => 
