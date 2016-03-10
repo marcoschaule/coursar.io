@@ -22,7 +22,7 @@ var objTemplateCacheSettings = {
  * Task to build the layout HTML file for development.
  */
 gulp.task('layout:dev', () => gulp
-    .src(['./client/layout/layout.jade'])
+    .src(['./client/components/layout/layout.jade'])
     .pipe(jade())
     .pipe(rename('layout.html'))
     .pipe(prettify({ indent_size: 4 }))

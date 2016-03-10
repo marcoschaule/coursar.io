@@ -1,0 +1,58 @@
+mixin confirmationText(strName)
+    
+    //- if username or email has not been changed, yet
+    .text-muted(data-ng-if="vm.states.#{strName} === 'pristine'")    
+        i.fa.fa-times
+        |&nbsp;Please enter text.
+    
+    //- if username or email request is pending
+    .text-muted(data-ng-if="vm.states.#{strName} === 'pending'")
+        i.fa.fa-spinner.fa-spin
+        |&nbsp;pending...
+    
+    //- if username or email is available
+    .text-success(data-ng-if="vm.states.#{strName} === 'available'")
+        i.fa.fa-check
+        |&nbsp;Is available.
+    
+    //- if username or email is not available
+    .text-danger(data-ng-if="vm.states.#{strName} === 'notAvailable'")
+        i.fa.fa-ban
+        |&nbsp;Sorry, but is not available.
+
+    //- if username or email are too short
+    .text-danger(data-ng-if="vm.states.#{strName} === 'tooShort'")
+        i.fa.fa-ban
+        |&nbsp;Is too short!
+    
+    //- if username or email are too long
+    .text-danger(data-ng-if="vm.states.#{strName} === 'tooLong'")
+        i.fa.fa-ban
+        |&nbsp;Is too long!
+    
+    //- if username or email are required
+    .text-danger(data-ng-if="vm.states.#{strName} === 'required'")
+        i.fa.fa-ban
+        |&nbsp;This is required!
+    
+    //- if username or email are invalid
+    .text-danger(data-ng-if="vm.states.#{strName} === 'invalid'")
+        i.fa.fa-ban
+        |&nbsp;Is not valid!
+
+mixin subnavigationForgot()
+    a.btn.btn-link(
+            alt="{{ 'auth.ForgotUsername' | translate }}",
+            data-ui-sref="forgotUsername")
+        |{{ 'auth.ForgotUsername' | translate }}
+    ||
+    a.btn.btn-link(
+            alt="{{ 'auth.ForgotPassword' | translate }}",
+            data-ui-sref="forgotPassword")
+        |{{ 'auth.ForgotPassword' | translate }}
+
+mixin subnavigationBackToHomepage()
+    a.btn.btn-link.no-hpadding(
+            alt="{{ 'common.BackToHomepage' | translate }}",
+            data-ui-sref="home")
+        |{{ 'common.BackToHomepage' | translate }}

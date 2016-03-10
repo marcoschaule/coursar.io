@@ -1,155 +1,99 @@
-mixin confirmationText(strName)
-    
-    //- if username or email has not been changed, yet
-    .text-muted(data-ng-if="vm.states.#{strName} === 'pristine'")    
-        i.fa.fa-times
-        |&nbsp;Please enter text.
-    
-    //- if username or email request is pending
-    .text-muted(data-ng-if="vm.states.#{strName} === 'pending'")
-        i.fa.fa-spinner.fa-spin
-        |&nbsp;pending...
-    
-    //- if username or email is available
-    .text-success(data-ng-if="vm.states.#{strName} === 'available'")
-        i.fa.fa-check
-        |&nbsp;Is available.
-    
-    //- if username or email is not available
-    .text-danger(data-ng-if="vm.states.#{strName} === 'notAvailable'")
-        i.fa.fa-ban
-        |&nbsp;Sorry, but is not available.
+include _mixins.include.jade
 
-    //- if username or email are too short
-    .text-danger(data-ng-if="vm.states.#{strName} === 'tooShort'")
-        i.fa.fa-ban
-        |&nbsp;Is too short!
-    
-    //- if username or email are too long
-    .text-danger(data-ng-if="vm.states.#{strName} === 'tooLong'")
-        i.fa.fa-ban
-        |&nbsp;Is too long!
-    
-    //- if username or email are required
-    .text-danger(data-ng-if="vm.states.#{strName} === 'required'")
-        i.fa.fa-ban
-        |&nbsp;This is required!
-    
-    //- if username or email are invalid
-    .text-danger(data-ng-if="vm.states.#{strName} === 'invalid'")
-        i.fa.fa-ban
-        |&nbsp;Is not valid!
+.wrapper
+    a.btn.btn-link.no-hpadding(
+            data-ui-sref="signIn",
+            alt="{{ 'auth.SignIn' | translate }}")
+        |{{ 'auth.SignIn' | translate }}
+    |&nbsp;&nbsp;|&nbsp;&nbsp;
+    +subnavigationBackToHomepage()
 
-//- *****************************************************************************
+.wrapper
+    h1.border-bottom {{ 'auth.SignUp' | translate }}
+    form(name="vm.formSignUp", data-ng-submit="vm.signUp()")
 
-.wrapper.relative
-    form(name="vm.formSignUp",
-            data-ng-submit="vm.signUp()")
-
-        .btn-set
-            a.btn.btn-link.no-hpadding(
-                    data-ui-sref="signIn",
-                    alt="Sign In")
-                |Sign In
-            |&nbsp;&nbsp;|&nbsp;&nbsp;
-            a.btn.btn-link.no-hpadding(
-                    data-ui-sref="home",
-                    alt="Back to Homepage")
-                |Back to Homepage
-        
-        .vmargin-2rem
-        fieldset
-            legend: h1 Sign Up
-            
-            .form-group.no-margin-bottom(
-                    data-ng-class="{ 'has-error': \
-                        vm.formSignUp.signUpUsername.$invalid &&\
-                        vm.formSignUp.signUpUsername.$dirty }")
-                label(for="sign-up-username") Username:
-                input#sign-up-username.form-control(
-                        type="text",
-                        name="signUpUsername",
-                        placeholder="Username",
-                        data-ng-required="true",
-                        data-ng-minlength="3",
-                        data-ng-model="vm.modelSignUp.username",
-                        cio-input-change-event="vm.isAvailable('Username')")
+        fieldset.form-group.no-margin-bottom(data-ng-class="{ 'has-error': \
+                    vm.formSignUp.signUpUsername.$invalid &&\
+                    vm.formSignUp.signUpUsername.$dirty }")
+            label(for="sign-up-username")
+                |{{ 'auth.Username' | translate }}:
+            input#sign-up-username.form-control(
+                    type="text",
+                    name="signUpUsername",
+                    alt="{{ 'auth.Username' | translate }}",
+                    placeholder="Username",
+                    data-ng-required="true",
+                    data-ng-minlength="3",
+                    data-ng-model="vm.modelSignUp.username",
+                    cio-input-change-event="vm.isAvailable('Username')")
             
             .form-group-addon.right
                 +confirmationText('username')
 
-            .form-group.no-margin-bottom(
-                    data-ng-class="{ 'has-error': \
-                        vm.formSignUp.signUpEmail.$invalid &&\
-                        vm.formSignUp.signUpEmail.$dirty }")
-                label(for="sign-up-email") Email:
-                input#sign-up-email.form-control(
-                        type="email",
-                        name="signUpEmail",
-                        placeholder="Email",
-                        data-ng-required="true",
-                        data-ng-model="vm.modelSignUp.email",
-                        cio-input-change-event="vm.isAvailable('Email')")
+        fieldset.form-group.no-margin-bottom(data-ng-class="{ 'has-error': \
+                    vm.formSignUp.signUpEmail.$invalid &&\
+                    vm.formSignUp.signUpEmail.$dirty }")
+            label(for="sign-up-email")
+                |{{ 'auth.Email' | translate }}:
+            input#sign-up-email.form-control(
+                    type="email",
+                    name="signUpEmail",
+                    alt="{{ 'auth.Email' | translate }}",
+                    placeholder="Email",
+                    data-ng-required="true",
+                    data-ng-model="vm.modelSignUp.email",
+                    cio-input-change-event="vm.isAvailable('Email')")
             
             .form-group-addon.right
                 +confirmationText('email')
             
-            .form-group.no-margin-bottom(data-ng-if="!vm.isSignInPasswordVisible")
-                label(for="sign-up-password-hidden") Password:
-                input#sign-up-password-hidden.form-control(
-                        type="password",
-                        name="signUpPassword",
-                        placeholder="Password",
-                        data-ng-required="true",
-                        data-ng-minlength="3",
-                        data-ng-model="vm.modelSignUp.password")
+        fieldset.form-group.no-margin-bottom(data-ng-if="!vm.isSignInPasswordVisible")
+            label(for="sign-up-password-hidden")
+                |{{ 'auth.Password' | translate }}:
+            input#sign-up-password-hidden.form-control(
+                    type="password",
+                    name="signUpPassword",
+                    alt="{{ 'auth.Password' | translate }}",
+                    placeholder="Password",
+                    data-ng-required="true",
+                    data-ng-minlength="3",
+                    data-ng-model="vm.modelSignUp.password")
             
-            .form-group.no-margin-bottom(data-ng-if="vm.isSignInPasswordVisible")
-                label(for="sign-up-password-visible") Password:
-                input#sign-up-password-visible.form-control(
-                        type="text",
-                        name="signUpPassword",
-                        placeholder="Password",
-                        data-ng-required="true",
-                        data-ng-minlength="3",
-                        data-ng-model="vm.modelSignUp.password")
+        fieldset.form-group(data-ng-if="vm.isSignInPasswordVisible")
+            label(for="sign-up-password-visible")
+                |{{ 'auth.Password' | translate }}:
+            input#sign-up-password-visible.form-control(
+                    type="text",
+                    name="signUpPassword",
+                    alt="{{ 'auth.Password' | translate }}",
+                    placeholder="Password",
+                    data-ng-required="true",
+                    data-ng-minlength="3",
+                    data-ng-model="vm.modelSignUp.password")
             
-            .form-group-addon.right
-                a.btn.btn-link.no-padding(
-                        data-ng-click="vm.isSignInPasswordVisible = !vm.isSignInPasswordVisible")
-                    span(data-ng-if="!vm.isSignInPasswordVisible")
-                        i.fa.fa-eye
-                        |&nbsp;Show Password
-                    span(data-ng-if="vm.isSignInPasswordVisible")
-                        i.fa.fa-eye-slash
-                        |&nbsp;Hide Password
+        fieldset.right
+            a.btn.btn-link.no-padding(data-ng-click="vm.isSignInPasswordVisible = !vm.isSignInPasswordVisible")
+                span(data-ng-if="!vm.isSignInPasswordVisible")
+                    i.fa.fa-eye
+                    |&nbsp;{{ 'auth.ShowPassword' | translate }}
+                span(data-ng-if="vm.isSignInPasswordVisible")
+                    i.fa.fa-eye-slash
+                    |&nbsp;{{ 'auth.HidePassword' | translate }}
 
-            .form-group: .checkbox
-                label
-                    input(type="checkbox",
-                            name="signUpIsRemembered",
-                            data-ng-model="vm.modelSignUp.isRemembered")
-                    |Remember me for sign in
+        fieldset.form-group: .checkbox
+            label
+                input(type="checkbox",
+                        name="signUpIsRemembered",
+                        alt="{{ 'auth.StaySignedIn' | translate }}",
+                        data-ng-model="vm.modelSignUp.isRemembered")
+                |{{ 'auth.StaySignedIn' | translate }}
 
-            //- #sign-up-captcha-cover
-            //- #sign-up-captcha
+        //- #sign-up-captcha-cover
+        //- #sign-up-captcha
 
-        .vmargin-1rem  
         fieldset
-            .btn-set
-                button.btn.btn-primary(
-                        alt="Sign Up",
-                        data-ng-disabled="vm.formSignUp.$invalid")
-                    |Sign Up
-                a.btn.btn-link(
-                        alt="Forgot Password",
-                        data-ui-sref="forgotPassword")
-                    |Forgot Password
-                ||
-                a.btn.btn-link(
-                        alt="Forgot Username",
-                        data-ui-sref="forgotUsername")
-                    |Forgot Username
-
-    .spinner(data-ng-if="vm.flags.isProcessing")
-        i.fa.fa-2x.fa-spinner.fa-spin
+            button.btn.btn-primary(
+                    alt="{{ 'auth.SignUp' | translate }}",
+                    data-ng-disabled="vm.formSignUp.$invalid")
+                |{{ 'auth.SignUp' | translate }}
+            +subnavigationForgot()

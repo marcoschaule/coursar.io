@@ -20,7 +20,7 @@ var cssnano  = require('gulp-cssnano');
  * build task to run before.
  */
 gulp.task('create:prod', () => gulp
-    .src('client/layout/layout.jade')
+    .src('client/components/layout/layout.jade')
     .pipe(jade())
     .pipe(prettify({ indent_size: 4 }))
     .pipe(useref())

@@ -13,7 +13,7 @@ angular.module('cio-services',    []);
 angular.module('cio-directives',  []);
 angular.module('cio-filters',     []);
 angular.module('cio-routes',      []);
-angular.module('cio',             ['cio-externals', 'cio-templates', 'cio-services', 'cio-directives', 'cio-directives', 'cio-controllers', 'cio-routes']);
+angular.module('cio',             ['cio-externals', 'cio-contants', 'cio-values', 'cio-templates', 'cio-services', 'cio-directives', 'cio-directives', 'cio-controllers', 'cio-routes']);
 
 // *****************************************************************************
 // Router
@@ -39,6 +39,16 @@ angular
 
 // *****************************************************************************
 
+// config language
+angular
+    .module('cio')
+    .config(function($translateProvider) {
+        $translateProvider.preferredLanguage('en-US');
+        $translateProvider.useSanitizeValueStrategy(null); //'sanitize');
+    });
+
+// *****************************************************************************
+
 // running the app
 angular
     .module('cio')
@@ -49,20 +59,6 @@ angular
             isProcessing: false,
         };
     });
-
-// *****************************************************************************
-
-angular
-    .module('cio')
-    .config(function($translateProvider) {
-        
-        $translateProvider.preferredLanguage('en-US');
-        $translateProvider.useStaticFilesLoader({
-            prefix: '/language/',
-            // prefix: '/languages/translation.',
-            // suffix: '.json',
-        });
-});
 
 // *****************************************************************************
 

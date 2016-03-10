@@ -29,9 +29,6 @@ html(land="en")
         #view-common: div(data-ui-view="common")
         #view-simple: div(data-ui-view="simple")
 
-        //- #view-simple
-        //-     div(data-ui-view="simple")
-
         .spinner(data-ng-if="flags.isProcessing")
             i.fa.fa-2x.fa-spinner.fa-spin
         
@@ -40,7 +37,6 @@ html(land="en")
         script(src="scripts/vendor/angular-sanitize.js")
         script(src="scripts/vendor/angular-ui-router.js")
         script(src="scripts/vendor/angular-translate.js")
-        script(src="scripts/vendor/angular-translate-loader-static-files.js")
         // endbuild
             
         // build:js(.build/dev/) scripts/scripts.min.js 

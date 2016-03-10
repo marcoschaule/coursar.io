@@ -29,10 +29,7 @@ gulp.task('styles:dev', callback => runSequence(
  * components folders for development.
  */
 gulp.task('styles-user:dev', () => gulp
-    .src([
-        'client/layout/layout.styl',
-        'client/components/**/*.styl',
-    ])
+    .src(['client/components/**/*.styl'])
     .pipe(stylus())
     .pipe(flatten())
     .pipe(gulp.dest('./.build/dev/styles/'))
