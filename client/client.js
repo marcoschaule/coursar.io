@@ -4,7 +4,9 @@
 // Modules
 // *****************************************************************************
 
-angular.module('cio-externals',   ['ui.router']);
+angular.module('cio-externals',   ['ui.router', 'pascalprecht.translate']);
+angular.module('cio-contants',    []);
+angular.module('cio-values',      []);
 angular.module('cio-templates',   []);
 angular.module('cio-controllers', []);
 angular.module('cio-services',    []);
@@ -47,6 +49,20 @@ angular
             isProcessing: false,
         };
     });
+
+// *****************************************************************************
+
+angular
+    .module('cio')
+    .config(function($translateProvider) {
+        
+        $translateProvider.preferredLanguage('en-US');
+        $translateProvider.useStaticFilesLoader({
+            prefix: '/language/',
+            // prefix: '/languages/translation.',
+            // suffix: '.json',
+        });
+});
 
 // *****************************************************************************
 

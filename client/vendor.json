@@ -25,6 +25,12 @@
             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css.map",
             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.js",
             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"
+        ],
+        "angular-translate": [
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"
         ]
     }
 }

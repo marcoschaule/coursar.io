@@ -39,12 +39,17 @@ html(land="en")
         script(src="scripts/vendor/angular.js")
         script(src="scripts/vendor/angular-sanitize.js")
         script(src="scripts/vendor/angular-ui-router.js")
+        script(src="scripts/vendor/angular-translate.js")
+        script(src="scripts/vendor/angular-translate-loader-static-files.js")
         // endbuild
             
         // build:js(.build/dev/) scripts/scripts.min.js 
         //- Common
         script(src="scripts/client.js")
         script(src="scripts/templates.js")
+        //- Values
+        script(src="scripts/translation.en-US.js")
+        script(src="scripts/translation.de-DE.js")
         //- Directives
         script(src="scripts/input.directive.js")
         //- Services
