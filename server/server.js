@@ -62,7 +62,8 @@ global.clients = { redis: objRedisClient };
 // *****************************************************************************
 
 // route setters
-var setupRoutesAuthPublic = require('./components/auth/auth.routes.js').public;
+var setupRoutesAuthPublic     = require('./components/auth/auth.routes.js').public;
+var setupRoutesLanguagePublic = require('./components/language/language.routes.js').public;
 
 // *****************************************************************************
 // App configuration
@@ -104,6 +105,7 @@ app.disable('x-powered-by');
 
 // initialize component routes
 setupRoutesAuthPublic(app);
+setupRoutesLanguagePublic(app);
 
 app.get('/test', (req, res, next) => { // TODO: remove
     res.send('isSingedIn: ' + !!req.session.isSingedIn);

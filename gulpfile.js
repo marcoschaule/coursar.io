@@ -4,491 +4,32 @@
 // Requires
 // *****************************************************************************
 
-var fs            = require('fs');
-var path          = require('path');
-var del           = require('del');
-var childProcess  = require('child_process');
-var async         = require('async');
-
-var gulp          = require('gulp');
-var nodemon       = require('gulp-nodemon');
-var stylus        = require('gulp-stylus');
-var jade          = require('gulp-jade');
-var flatten       = require('gulp-flatten');
-var concat        = require('gulp-concat');
-var watch         = require('gulp-watch');
-var rename        = require('gulp-rename');
-var replace       = require('gulp-replace');
-var cssnano       = require('gulp-cssnano');
-var prettify      = require('gulp-prettify');
-var sourcemaps    = require('gulp-sourcemaps');
-var uglify        = require('gulp-uglify');
-var download      = require('gulp-download');
-var git           = require('gulp-git');
-var bump          = require('gulp-bump');
-var filter        = require('gulp-filter');
-var tagVersion    = require('gulp-tag-version');
-var templateCache = require('gulp-angular-templatecache');
-var useref        = require('gulp-useref');
-var gulpif        = require('gulp-if');
-var runSequence   = require('run-sequence');
-var vendor        = require('./client/vendor.json');
-
-var exec          = childProcess.exec;
-var spawn         = childProcess.spawn;
+var gulp        = require('gulp');
+var runSequence = require('run-sequence');
 
 // *****************************************************************************
 // Variables
 // *****************************************************************************
 
-var regexStylesReplacer       = new RegExp('<\\!--\\s*\\{styles\\}\\s*--\\>');
-var regexScriptsReplacer      = new RegExp('<\\!--\\s*\\{scripts\\}\\s*--\\>');
+global.env  = 'prod';
+global.port = 3000;
 
 // *****************************************************************************
-
-var strPathBuild              = './.build';
-var strPathAssets             = './assets';
-var strPathSrcLayout          = 'client/layout/layout.jade';
-var strTemplateChacheFileName = 'templates.js';
-var strStylesMinFileName      = 'styles.min.css';
-var strScriptsMinFileName     = 'scripts.min.js';
-var strStylesTag              = '<link rel="stylesheet" href="{path}"></link>';
-var strScriptsTag             = '<script type="text/javascript" src="{path}"></script>';
-var strPathScriptsUser        = path.join(__dirname, strPathBuild + '/dev/scripts/');
-var strPathScriptsVendor      = path.join(__dirname, strPathBuild + '/dev/scripts/vendor/');
-var strPathStylesUser         = path.join(__dirname, strPathBuild + '/dev/styles/');
-var strPathStylesVendor       = path.join(__dirname, strPathBuild + '/dev/styles/vendor/');
-
+// Load external subtasks
 // *****************************************************************************
 
-var objTemplateCacheSettings  = {
-    module: 'cio-templates'
-};
-var arrStyleFiles = [
-    'styles/vendor/bootstrap.css',
-    'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css',
-    'styles/layout.css',
-];
-var arrScriptFiles = [
-    // 'https://www.google.com/recaptcha/api.js',
-    'scripts/vendor/angular.js',
-    'scripts/vendor/angular-sanitize.js',
-    'scripts/vendor/angular-ui-router.js',
-    'scripts/client.js',
-    'scripts/templates.js',
-    'scripts/communication.service.js',
-    'scripts/auth.service.js',
-    'scripts/sign-in.controller.js',
-    'scripts/sign-up.controller.js',
-    'scripts/public.router.js',
-    'scripts/auth.router.js',
-    'scripts/reset-password.controller.js',
-];
-var arrScriptVendorFiles = [
-    strPathBuild + '/vendor/angular/angular.js',
-    strPathBuild + '/vendor/angular-sanitize/angular-sanitize.js',
-    strPathBuild + '/vendor/angular-ui/angular-ui-router.js',
-    strPathBuild + '/vendor/bootstrap/bootstrap.js',
-];
-var arrStyleFilesMapped    = arrStyleFiles
-    .map((strPath) => strStylesTag.replace('{path}', strPath));
-var arrScriptFilesMapped   = arrScriptFiles
-    .map((strPath) => strScriptsTag.replace('{path}', strPath));
-var arrStyleFilesExtended  = arrStyleFiles
-    .map((strPath) => path.join(strPathBuild + '/dev/', strPath));
-var arrScriptFilesExtended = arrScriptFiles
-    .map((strPath) => path.join(strPathBuild + '/dev/', strPath));
-
-// *****************************************************************************
-
-var env  = 'prod';
-var port = 3000;
-var serverExpress, serverMongoDB, serverRedis;
-
-// *****************************************************************************
-// Basic tasks - clean
-// *****************************************************************************
-
-/**
- * Task to delete all files and folders in
- * the "strPathBuild + //dev" folder for development.
- */
-gulp.task('clean:dev', () => {
-    return del([strPathBuild + '/dev/**/*']);
-});
-
-// *****************************************************************************
-
-/**
- * Task to delete all files and folders in
- * the "strPathBuild + //prod" folder for production.
- */
-gulp.task('clean:prod', () => {
-    return del([strPathBuild + '/prod/**/*']);
-});
-
-// *****************************************************************************
-// Basic tasks - assets
-// *****************************************************************************
-
-/**
- * Task to copy the assets to the ".build" folder for development.
- */
-gulp.task('assets:dev', () => gulp
-    .src([strPathAssets + '/**/*'])
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/dev/assets/')));
-
-// *****************************************************************************
-
-/**
- * Task to copy the assets to the ".build" folder for production.
- */
-gulp.task('assets:prod', () => gulp
-    .src([strPathAssets + '/**/*'])
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/prod/assets/')));
-
-// *****************************************************************************
-// Basic tasks - layout and templates
-// *****************************************************************************
-
-/**
- * Task to build the layout HTML file for development.
- */
-gulp.task('layout:dev', () => gulp
-    .src([strPathSrcLayout])
-    .pipe(jade())
-    .pipe(replace(regexStylesReplacer, arrStyleFilesMapped.join('\n')))
-    .pipe(replace(regexScriptsReplacer, arrScriptFilesMapped.join('\n')))
-    .pipe(rename('layout.html'))
-    .pipe(prettify({ indent_size: 4 }))
-    .pipe(gulp.dest(strPathBuild + '/dev/'))
-);
-
-// *****************************************************************************
-
-// /**
-//  * Task to build the layout HTML file for production.
-//  */
-// gulp.task('layout:prod', () => {
-//     return gulp
-//         .src([strPathSrcLayout])
-//         .pipe(jade())
-//         .pipe(replace(regexStylesReplacer, strStylesTag
-//             .replace('{path}',  strStylesMinFileName)))
-//         .pipe(replace(regexScriptsReplacer, strScriptsTag
-//             .replace('{path}', strScriptsMinFileName)))
-//         .pipe(rename('layout.html'))
-//         .pipe(gulp.dest(strPathBuild + '/prod/'));
-// });
-
-// *****************************************************************************
-
-/**
- * Task to build the templates for angular's template cache.
- */
-gulp.task('templates', () => gulp
-    .src(['./client/components/**/*.template.jade'])
-    .pipe(jade())
-    .pipe(flatten())
-    .pipe(templateCache(strTemplateChacheFileName, objTemplateCacheSettings))
-    .pipe(gulp.dest(strPathBuild + '/dev/scripts/'))
-);
-
-// *****************************************************************************
-// Basic tasks - styles
-// *****************************************************************************
-
-/**
- * Task to build CSS from stylus from layout and
- * components folders for development.
- */
-gulp.task('styles:dev', callback => runSequence(
-    'styles-vendor:dev',
-    'styles-user:dev',
-    callback)
-);
-
-// *****************************************************************************
-
-/**
- * Task to build user CSS from stylus from layout and
- * components folders for development.
- */
-gulp.task('styles-user:dev', () => gulp
-    .src([
-        'client/layout/layout.styl',
-        'client/components/**/*.styl',
-    ])
-    .pipe(stylus())
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/dev/styles/'))
-);
-
-// *****************************************************************************
-
-/**
- * Task to build vendor CSS from stylus of the layout and
- * components folders for development.
- */
-gulp.task('styles-vendor:dev', () => gulp
-    .src([strPathBuild + '/vendor/**/*.css', '!' + strPathBuild + '/vendor/**/*.min.css'])
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/dev/styles/vendor'))
-);
-
-// *****************************************************************************
-
-// /**
-//  * Task to build CSS from stylus from layout and
-//  * components folders for production.
-//  */
-// gulp.task('styles:prod', ['styles:dev'], () => {
-//     return gulp
-//         .src(strPathSrcLayout)
-//         .pipe(sourcemaps.init())
-//         .pipe(cssnano({ discardComments: { removeAll: true } }))
-//         .pipe(sourcemaps.write('.'))
-//         .pipe(concat(strStylesMinFileName))
-//         .pipe(gulp.dest(strPathBuild + '/prod/'));
-// });
-
-// *****************************************************************************
-// Basic tasks - scripts
-// *****************************************************************************
-
-/**
- * Task to copy user and vendor scripts
- * for development.
- */
-gulp.task('scripts:dev', callback => runSequence(
-    'scripts-vendor:dev',
-    'scripts-user:dev',
-    callback)
-);
-
-// *****************************************************************************
-
-/**
- * Task to copy the user scripts to the build
- * folder for development.
- */
-gulp.task('scripts-user:dev', () => gulp
-    .src([
-        'client/libs/**/*.js',
-        'client/client.js',
-        'client/components/**/*.js'
-    ])
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/dev/scripts/'))
-);
-
-// *****************************************************************************
-
-/**
- * Task to copy the vendor scripts to the build
- * folder for development.
- */
-gulp.task('scripts-vendor:dev', () => gulp
-    .src([strPathBuild + '/vendor/**/*.js', '!' + strPathBuild + '/vendor/**/*.min.js'])
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/dev/scripts/vendor'))
-);
-
-// *****************************************************************************
-
-// /**
-//  * Task to build the production scripts.
-//  */
-// gulp.task('scripts:prod',  () => {
-//     return gulp
-//         .src(arrScriptFilesExtended)
-//         .pipe(concat(strScriptsMinFileName))
-//         .pipe(sourcemaps.init())
-//         .pipe(cssnano({ discardComments: { removeAll: true } }))
-//         .pipe(sourcemaps.write('.'))
-//         .pipe(gulp.dest(strPathBuild + '/prod/'));
-// });
-
-// *****************************************************************************
-// Basic tasks - fonts
-// *****************************************************************************
-
-/**
- * Task to copy all fonts to development folder.
- */
-gulp.task('fonts:dev', () => gulp
-    .src([
-        strPathBuild + '/vendor/**/*.eot',
-        strPathBuild + '/vendor/**/*.svg',
-        strPathBuild + '/vendor/**/*.ttf',
-        strPathBuild + '/vendor/**/*.woff',
-        strPathBuild + '/vendor/**/*.woff2',
-    ])
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/dev/fonts'))
-);
-
-// *****************************************************************************
-
-/**
- * Task to copy all fonts to development folder.
- */
-gulp.task('fonts:prod', () => gulp
-    .src([
-        strPathBuild + '/vendor/**/*.eot',
-        strPathBuild + '/vendor/**/*.svg',
-        strPathBuild + '/vendor/**/*.ttf',
-        strPathBuild + '/vendor/**/*.woff',
-        strPathBuild + '/vendor/**/*.woff2',
-    ])
-    .pipe(flatten())
-    .pipe(gulp.dest(strPathBuild + '/prod/fonts'))
-);
-
-// *****************************************************************************
-// Basic tasks - production
-// *****************************************************************************
-
-/**
- * Task to create production layout, scripts and styles. Needs the development
- * build task to run before.
- */
-gulp.task('create:prod', () => gulp
-    .src(strPathSrcLayout)
-    .pipe(jade())
-    .pipe(prettify({ indent_size: 4 }))
-    .pipe(useref())
-    .pipe(gulpif('*.js', uglify()))
-    .pipe(gulpif('*.css', cssnano()))
-    .pipe(gulp.dest(strPathBuild + '/prod/'))
-);
-
-// *****************************************************************************
-// Basic tasks - vendor
-// *****************************************************************************
-
-/**
- * Task to delete all vendor files.
- */
-gulp.task('vendor', callback => runSequence(
-        'vendor:clean',
-        'vendor:download',
-        callback)
-);
-
-// *****************************************************************************
-
-/**
- * Task to delete all vendor files.
- */
-gulp.task('vendor:clean', () => del([strPathBuild + '/vendor/**/*']));
-
-// *****************************************************************************
-
-/**
- * Task to download vendor files into vendor folder
- * defined in "vendor.json" file.
- */
-gulp.task('vendor:download', callback => {
-    var streamWriteFile, objRequest;
-
-    return async.forEachOf(vendor.dependencies, function(arrVendor, strFolder, _callbackOuter) {
-        if (!arrVendor || arrVendor.length <= 0 || !strFolder) {
-            return _callbackOuter();
-        }
-
-        return async.each(arrVendor, function(strVendorUrl, _callbackInner) {
-            if (!strVendorUrl) {
-                return _callbackInner();
-            }
-
-            return download(strVendorUrl)
-                .pipe(gulp.dest(strPathBuild + '/vendor/' + strFolder))
-                .on('end', _callbackInner);
-
-        }, _callbackOuter);
-    }, callback);
-});
-
-// *****************************************************************************
-// Basic tasks - servers
-// *****************************************************************************
-
-/**
- * Task to start the Redis server.
- * 
- * spawn version: "serverRedis = spawn('redis-server');"
- */
-gulp.task('server-redis', callback => {
-    var numPortRedis = port+2;
-    if (serverRedis && 'function' === typeof serverRedis.kill) {
-        serverRedis.kill();
-    }
-    serverRedis = exec('redis-server --port ' + numPortRedis, (objErr) => {
-        return ('function' === typeof callback && callback(objErr));
-    });
-    serverRedis.stdout.on('data', (buffer) => {
-        console.log(buffer.toString());
-    });
-    serverRedis.on('exit', () => {
-        console.log('Redis killed!');
-    });
-});
-// *****************************************************************************
-
-/**
- * Task to start the MongoBD server.
- * 
- * spawn version: "serverMongo = spawn('mongo-server');"
- */
-gulp.task('server-mongodb', callback => {
-    var numPortMongoDB = port+1;
-    if (serverMongoDB && 'function' === typeof serverMongoDB.kill) {
-        serverMongoDB.kill();
-    }
-    serverMongoDB = exec('mongod --dbpath ./.mongodb/ --port ' + numPortMongoDB, (objErr) => {
-        return ('function' === typeof callback && callback(objErr));
-    });
-    serverMongoDB.stdout.on('data', (buffer) => {
-        console.log(buffer.toString());
-    });
-    serverMongoDB.on('exit', () => {
-        console.log('MongoDB killed!');
-    });
-});
-
-// *****************************************************************************
-
-/**
- * Task to start the Express server
- * 
- * spawn version: "serverExpress = spawn('node', ['server/server.js'], { NODE_ENV: env, PORT: port });"
- */
-gulp.task('server-express', callback => nodemon({
-        script: 'server/server.js',
-        ignore: ['nodemon.json', 'build/*', 'client/*'],
-        env   : {
-            'NODE_ENV': env,
-            'PORT'    : port,
-        },
-    })
-);
-
-// *****************************************************************************
-// Watchers
-// *****************************************************************************
-
-/**
- * Task to watch development files.
- */
-gulp.task('watch:dev', () => {
-    gulp.watch(['./gulpfile.js', './package.json', './client/**/*.styl'], ['styles:dev']);
-    gulp.watch(['./gulpfile.js', './package.json', './client/**/*.js'],   ['scripts:dev']);
-    gulp.watch(['./gulpfile.js', './package.json', './client/**/*.jade'], ['layout:dev', 'templates']);
-    gulp.watch(['./gulpfile.js', './package.json', './server/**/*.js'],   ['server-express']);
-});
+require('./tasks/clean.task.js')(gulp);
+require('./tasks/assets.task.js')(gulp);
+require('./tasks/templates.task.js')(gulp);
+require('./tasks/styles.task.js')(gulp);
+require('./tasks/scripts.task.js')(gulp);
+require('./tasks/language.task.js')(gulp);
+require('./tasks/fonts.task.js')(gulp);
+require('./tasks/production.task.js')(gulp);
+require('./tasks/vendor.task.js')(gulp);
+require('./tasks/servers.task.js')(gulp);
+require('./tasks/version.task.js')(gulp);
+require('./tasks/watchers.js')(gulp);
 
 // *****************************************************************************
 // Executive tasks
@@ -498,14 +39,8 @@ gulp.task('watch:dev', () => {
  * Task to build the development files.
  */
 gulp.task('build:dev', callback => runSequence(
-    'clean:dev', [
-        'scripts:dev',
-        'styles:dev',
-        'fonts:dev',
-        'assets:dev',
-        'layout:dev',
-        'templates',
-    ],
+    ['clean:dev'],
+    ['scripts:dev', 'styles:dev', 'fonts:dev', 'assets:dev', 'lang:dev', 'layout:dev', 'templates'],
     callback)
 );
 
@@ -515,12 +50,8 @@ gulp.task('build:dev', callback => runSequence(
  * Task to build the production files.
  */
 gulp.task('build:prod', callback => runSequence(
-    'scripts:dev',
-    'styles:dev',
-    'clean:prod',
-    'create:prod',
-    'fonts:prod',
-    'assets:prod',
+    ['scripts:dev', 'styles:dev'],
+    ['clean:prod', 'create:prod', 'fonts:prod', 'assets:prod', 'lang:prod'],
     callback
 ));
 
@@ -530,12 +61,12 @@ gulp.task('build:prod', callback => runSequence(
  * Task to run all development tasks.
  */
 gulp.task('run:dev', callback => {
-    env  = 'dev';
-    port = 3000;
+    global.env  = 'dev';
+    global.port = 3000;
 
     return runSequence(
-        'build:dev',
-        'watch:dev',
+        ['build:dev'],
+        ['watch:dev'],
         ['server-redis', 'server-mongodb', 'server-express'],
         callback);
 });
@@ -547,45 +78,6 @@ gulp.task('run:dev', callback => {
  */
 gulp.task('default', ['run:dev']);
 
-// *****************************************************************************
-// Version bumping and git management
-// *****************************************************************************
-
-/**
- * Tasks to bump a version by patch, feature or release (semver).
- */
-gulp.task('bump:patch',   function() { return bumpVersion('patch'); });
-gulp.task('bump:feature', function() { return bumpVersion('minor'); });
-gulp.task('bump:release', function() { return bumpVersion('major'); });
-
-/**
- * Bumping version number and tagging the repository with it.
- * Please read http://semver.org/
- *
- * You can use the commands
- *
- *     gulp bump:patch     # makes v0.1.0 → v0.1.1
- *     gulp bump:feature   # makes v0.1.1 → v0.2.0
- *     gulp bump:release   # makes v0.2.1 → v1.0.0
- *
- * To bump the version numbers accordingly after you did a patch,
- * introduced a feature or made a backwards-incompatible release.
- */
-function bumpVersion(strImportance) {
-    // get all the files to bump version in 
-    return gulp.src(['./package.json'])
-        // bump the version number in those files 
-        .pipe(bump({ type: strImportance }))
-        // save it back to filesystem 
-        .pipe(gulp.dest('./'))
-        // commit the changed version number 
-        .pipe(git.commit('Bump package version'))
-        // read only one file to get the version number 
-        .pipe(filter('package.json'))
-        // **tag it in the repository** 
-        .pipe(tagVersion());
-}
- 
 // *****************************************************************************
 
 })();
