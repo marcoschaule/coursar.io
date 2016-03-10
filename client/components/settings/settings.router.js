@@ -20,6 +20,23 @@ var stateSettingsAccount = {
 };
 
 // *****************************************************************************
+
+/**
+ * State of the accounts settings view.
+ * @type {Object}
+ */
+var stateSettingsPrivacy = {
+    url   : '/settings-privacy',
+    name  : 'settingsPrivacy',
+    views : {
+        simple: {
+            controller : 'CioSettingsPrivacyCtrl as vm',
+            templateUrl: 'settings-privacy.template.html',
+        },
+    },
+};
+
+// *****************************************************************************
 // Router
 // *****************************************************************************
 
