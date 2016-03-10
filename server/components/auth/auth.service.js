@@ -204,7 +204,7 @@ function forgotPassword(strEmail, callback) {
             return _callback(null);
         }),
     
-    // waterfall callback
+    // async waterfall callback
     ], callback);
 }
 
@@ -267,6 +267,7 @@ function resetPassword(strRId, strPasswordNew, callback) {
             return _callback(null);
         })
 
+    // async waterfall callback
     ], callback);
 }
 
@@ -317,11 +318,9 @@ function setEmail(strUserId, strEmailNew, callback) {
                         _callback);
             },
 
-        // async callback
+        // async series callback
         ], callback);
     });
-
-
 }
 
 // *****************************************************************************
