@@ -35,12 +35,18 @@ function Service(CioComService) {
     var _strUrlForgotPassword = '/forgot-password';
     var _strUrlResetPassword  = '/reset-password';
     var _strUrlIsAvailable    = '/is-available';
+    var _strUrlIsSignedIn     = '/is-signed-in';
+    var _strUrlUserCreate     = '/user/create';
+    var _strUrlUserRead       = '/user/read';
+    var _strUrlUserUpdate     = '/user/update';
+    var _strUrlUserDelete     = '/user/delete';
 
     // *****************************************************************************
     // Public variables
     // *****************************************************************************
 
     service.isSignedIn = false;
+    service.user       = null;
 
     // *****************************************************************************
     // Service function linking
@@ -51,7 +57,9 @@ function Service(CioComService) {
     service.forgotUsername   = forgotUsername;
     service.forgotPassword   = forgotPassword;
     service.resetPassword    = resetPassword;
+    service.getUser          = getUser;
     service.testAvailability = testAvailability;
+    service.testSignedIn     = testSignedIn;
 
     // *****************************************************************************
     // Service function definitions
@@ -60,6 +68,7 @@ function Service(CioComService) {
     /**
      * Service function to sign user in. In case of success, the service
      * provides a variable "isSignedIn".
+     * @public
      * 
      * @param {Object}   objData                 object of user data to sign in
      * @param {Object}   objData.username        string of user name
@@ -68,6 +77,8 @@ function Service(CioComService) {
      * @param {Function} callback                function for callback
      */
     function signIn(objData, callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
         var objRequest = {
             id       : 'sign-in',
             url      : _strUrlSignIn,
@@ -91,6 +102,7 @@ function Service(CioComService) {
     /**
      * Service function to sign user up and in afterwards. In case of success,
      * the service provides a variable "isSignedIn".
+     * @public
      * 
      * @param {Object}   objData                 object of user data to sign in
      * @param {Object}   objData.username        string of user name
@@ -122,15 +134,15 @@ function Service(CioComService) {
 
     /**
      * Service function to send an email if user forgot username.
+     * @public
      * 
      * @param {Object}   objData        object of user data
      * @param {String}   objData.email  string of user email from account
      * @param {Function} callback       function for callback
      */
     function forgotUsername(objData, callback) {
-        if (!callback || 'function' !== typeof callback) {
-            callback = function() {};
-        }
+        callback = 'function' === typeof callback && callback || function(){};
+
         var objRequest = {
             id       : 'forgot-username',
             url      : _strUrlForgotUsername,
@@ -143,15 +155,15 @@ function Service(CioComService) {
 
     /**
      * Service function to send an email if user forgot password.
+     * @public
      * 
      * @param {Object}   objData        object of user data
      * @param {String}   objData.email  string of user email from account
      * @param {Function} callback       function for callback
      */
     function forgotPassword(objData, callback) {
-        if (!callback || 'function' !== typeof callback) {
-            callback = function() {};
-        }
+        callback = 'function' === typeof callback && callback || function(){};
+
         var objRequest = {
             id       : 'forgot-password',
             url      : _strUrlForgotPassword,
@@ -165,15 +177,15 @@ function Service(CioComService) {
     /**
      * Service function to send the new password and the Redis id to
      * change the password.
+     * @public
      * 
      * @param {Object}   objData        object of user data
      * @param {String}   objData.email  string of user email from account
      * @param {Function} callback       function for callback
      */
     function resetPassword(objData, callback) {
-        if (!callback || 'function' !== typeof callback) {
-            callback = function() {};
-        }
+        callback = 'function' === typeof callback && callback || function(){};
+
         var objRequest = {
             id       : 'reset-password',
             url      : _strUrlResetPassword,
@@ -185,16 +197,43 @@ function Service(CioComService) {
     // *****************************************************************************
 
     /**
+     * Service function to get user from server.
+     * @public
+     * 
+     * @param {Function} callback  function for callback
+     */
+    function getUser(callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        var objRequest = {
+            id : 'get-user',
+            url: _strUrlUserRead,
+        };
+        return CioComService.put(objRequest, function(objErr, objUser) {
+            if (objErr) {
+                return callback(objErr);
+            }
+            
+            service.user       = objUser;
+            service.isSignedIn = true;
+            
+            return callback(null, service.isSignedIn);
+        });
+    }
+
+    // *****************************************************************************
+
+    /**
      * Service function to test if username or email is available.
+     * @public
      * 
      * @param {String}   strWhich  string of either "username" or "email"
-     * @param {Obejct}   objData   object of user data
+     * @param {Object}   objData   object of user data
      * @param {Function} callback  function for callback
      */
     function testAvailability(strWhich, objData, callback) {
-        if (!callback || 'function' !== typeof callback) {
-            callback = function() {};
-        }
+        callback = 'function' === typeof callback && callback || function(){};
+
         var objRequest = {
             id       : 'is-available-' + strWhich,
             url      : _strUrlIsAvailable,
@@ -202,6 +241,24 @@ function Service(CioComService) {
             isTimeout: true,
         };
         return CioComService.put(objRequest, callback);
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to test if user is signed in. If not, try to sign in
+     * user by requesting server.
+     * @public
+     * 
+     * @param {Function} callback  function for callback
+     */
+    function testSignedIn(callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        if (service.isSignedIn) {
+            return callback(null, !!service.isSignedIn);
+        }
+        return getUser(callback);
     }
 
     // *****************************************************************************

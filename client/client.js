@@ -62,4 +62,25 @@ angular
 
 // *****************************************************************************
 
+// auth settings
+angular
+    .module('cio')
+    .run(function($rootScope, $state, CioAuthService) {
+
+        return $rootScope.$on('$stateChangeStart', function(objEvent, objToState) { //, objToParams, objFromState, objFromParams) {
+            if (!objToState.private || CioAuthService.isSignedIn) {
+                return;
+            }
+            return CioAuthService.testSignedIn(function(objErr, isSignedIn) {
+                if (objErr || !isSignedIn) {
+                    objEvent.preventDefault();
+                    return $state.transitionTo('signIn');
+                }
+                return;
+            });
+        });
+});
+
+// *****************************************************************************
+
 })();

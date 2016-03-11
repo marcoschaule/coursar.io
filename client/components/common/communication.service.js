@@ -172,8 +172,8 @@ function Service($rootScope, $window, $timeout, $http, $q) {
             throw new Error('Request URL is not set!');
         }
 
-        objRequest.data    = objRequest.data    || {};
         objRequest.headers = objRequest.headers || {};
+        objRequest.data    = objRequest.data    || {};
 
         if (objRequest.isTimeout) {
             return _requestWithTimeout(strMethod, objRequest, callback);
@@ -272,7 +272,7 @@ function Service($rootScope, $window, $timeout, $http, $q) {
         var strIdentifier = objRequest.id;
 
         if (isError) {
-            console.log(">>> Debug ====================; objRequest:", objRequest, '\n\n');
+            console.log(">>> Debug ====================; Error objRequest:", objRequest, '\n\n');
         }
 
         // return the "$http" success and error callback
