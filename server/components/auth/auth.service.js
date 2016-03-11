@@ -422,9 +422,19 @@ function checkSignedIn(objSession, callback) {
 
 // *****************************************************************************
 
+/**
+ * Service function to refresh the session when the user is not idle.
+ * @public
+ * 
+ * @param {Object}   objSession  object of JWT session
+ * @param {Function} callback    function for callback
+ */
 function touchSignedIn(objSession, callback) {
     if (!isSignedIn(objSession)) {
-        return callback();
+        return callback({ err: 'Error: user is not signed in!' });
+    }
+    if (!objSession.updatedAt || !objSession.update) {
+        return callback({ err: 'Error: Problem with JWT!' });
     }
 
     // set a new "updatedAt" date
@@ -437,13 +447,14 @@ function touchSignedIn(objSession, callback) {
 
 /**
  * Service function to test whether a user is signed in.
+ * @public
  * 
  * @param  {Object}   objSession  object of JWT session
  * @param  {Function} [callback]  (optional) function for callback
  * @return {Boolean}              true if user is singed in
  */
 function isSignedIn(objSession, callback) {
-    if (objSession && objSession.isSignedIn) {
+    if (objSession && objSession.jwt && objSession.id) {
         return callback && callback(null, true) || true;
     }
     return callback && callback(null, false) || false;
@@ -491,19 +502,9 @@ function isEmailAvailable(strEmail, callback) {
 // Helper functions
 // *****************************************************************************
 
-function _validateSignUp(objSignUp) {
-    var docUser = new SignUp({
-        email    : objSignUp.email,
-        username : objSignUp.username,
-        password : objSignUp.password,
-    });
-    return docUser.validateSync();
-}
-
-// *****************************************************************************
-
 /**
  * Helper function to generate the Redis session if it doesn't exist, yet.
+ * @private
  * 
  * @param  {Object}   objSession  object of JWT session
  * @param  {Function} callback    function for callback

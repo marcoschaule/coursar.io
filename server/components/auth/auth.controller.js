@@ -167,12 +167,26 @@ function isAvailable(req, res, next) {
 
 // *****************************************************************************
 
+/**
+ * Controller function to check if the user is still signed in.
+ * 
+ * @param {Object}   req   object of express default request
+ * @param {Object}   res   object of express default response
+ * @param {Function} next  function for next middleware
+ */
 function checkSignedIn(req, res, next) {
     return AuthService.checkSignedIn(req.session, next);
 }
 
 // *****************************************************************************
 
+/**
+ * Controller function to refresh the session on user action.
+ * 
+ * @param {Object}   req   object of express default request
+ * @param {Object}   res   object of express default response
+ * @param {Function} next  function for next middleware
+ */
 function touchSignedIn(req, res, next) {
     return AuthService.touchSignedIn(req.session, objErr => {
         return next();
@@ -180,21 +194,31 @@ function touchSignedIn(req, res, next) {
 }
 
 // *****************************************************************************
-
-function idle(req, res, next) {
-    return res.status(201).json({});
-}
-
-// *****************************************************************************
 // Middleware functions
 // *****************************************************************************
 
-function middlewareAll(req, res, next) {
-    if (req.session && req.session.jwt) {
+/**
+ * Middleware function to authorize requests, add headers, check if they are
+ * signed in and if not, inform client to redirect.
+ * @public
+ * 
+ * @param {Object}   req   object of express default request
+ * @param {Object}   res   object of express default response
+ * @param {Function} next  function for next middleware
+ */
+function authorize(req, res, next) {
+    return AuthService.touchSignedIn(req.session, objErr => {
+        if (objErr) {
+            console.error(objErr);
+            return next({ err: 'Error: user is not signed in!', redirect: true });
+        }
+        
+        // set access token and CSRF token in header
         res.set('X-Access-Token', req.session.jwt);
-        return touchSignedIn(req, res, next);
-    }
-    return next();
+        res.set('X-CSRF-Token',   'CSRF-Token');
+
+        return next(null);
+    });
 }
 
 // *****************************************************************************
@@ -211,8 +235,7 @@ module.exports.isSignedIn     = isSignedIn;
 module.exports.isAvailable    = isAvailable;
 module.exports.checkSignedIn  = checkSignedIn;
 module.exports.touchSignedIn  = touchSignedIn;
-module.exports.idle           = idle;
-module.exports.middlewareAll  = middlewareAll;
+module.exports.authorize      = authorize;
 
 // *****************************************************************************
 // Helpers

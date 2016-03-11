@@ -6,48 +6,87 @@
 
 var AuthCtrl = require('./auth.controller.js');
 
+// local variables
+var _isInit = false;
+var _app, _env;
+
 // *****************************************************************************
 // Routes linking
 // *****************************************************************************
 
 /**
- * Function to initialize auth routes.
+ * Router function to init the router.
+ * @public
  * 
- * @param {Object} app  object of the express application
+ * @param  {Object} app  object of express app
+ * @param  {String} env  string of current app's environment
+ * @return {Object}      object of setter functions
  */
-function init(app) {
+function init(app, env) {
+    _app    = app;
+    _env    = env;
+    _isInit = true;
 
-    // POST routes
-    app.put('/',            
-            AuthCtrl.idle);
-    app.put('/sign-in',     
+    return {
+        public   : setPublicRoutes,
+        private  : setPrivateRoutes,
+        authorize: setAuthorization,
+    };
+}
+
+// *****************************************************************************
+
+/**
+ * Router function to set public routes.
+ * @public
+ */
+function setPublicRoutes() {
+
+    // PUT routes
+    _app.put('/sign-in',     
             AuthCtrl.signIn);
-    app.put('/sign-up',     
+    _app.put('/sign-up',     
             AuthCtrl.signUp);
-    app.put('/sign-out',    
+    _app.put('/sign-out',    
             AuthCtrl.signOut);
-    app.put('/forgot-username',    
+    _app.put('/forgot-username',    
             AuthCtrl.forgotUsername);
-    app.put('/forgot-password',    
+    _app.put('/forgot-password',    
             AuthCtrl.forgotPassword);
-    app.put('/reset-password',    
+    _app.put('/reset-password',    
             AuthCtrl.resetPassword);
-    app.put('/is-available',
+    _app.put('/is-available',
             AuthCtrl.isAvailable);
-    app.put('/is-signed-in',
-            AuthCtrl.middlewareAll,
+    _app.put('/is-signed-in',
             AuthCtrl.isSignedIn);
 }
 
 // *****************************************************************************
-// Helper functions
+
+/**
+ * Router function to set public routes.
+ * @public
+ */
+function setPrivateRoutes() {
+}
+
 // *****************************************************************************
+
+/**
+ * Router function to set authorization for all following routes.
+ * @public
+ */
+function setAuthorization() {
+
+    // authorization middleware to authorize all following routes
+    _app.use(AuthCtrl.authorize);
+}
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.public = init;
+module.exports.init = init;
 
 // *****************************************************************************
 

@@ -271,6 +271,10 @@ function Service($rootScope, $window, $timeout, $http, $q) {
     function _requestCallback(objRequest, isError, callback) {
         var strIdentifier = objRequest.id;
 
+        if (isError) {
+            console.log(">>> Debug ====================; objRequest:", objRequest, '\n\n');
+        }
+
         // return the "$http" success and error callback
         return function(objResult) {
             

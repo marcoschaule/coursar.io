@@ -10,7 +10,7 @@
  */
 var stateAccountProfile = {
     url   : '/account',
-    name  : 'account-profile',
+    name  : 'accountProfile',
     views : {
         simple: {
             controller : 'CioAccountProfileCtrl as vm',
