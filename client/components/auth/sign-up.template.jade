@@ -21,7 +21,7 @@ include _mixins.include.jade
                     type="text",
                     name="signUpUsername",
                     alt="{{ 'auth.Username' | translate }}",
-                    placeholder="Username",
+                    placeholder="{{ 'auth.Username' | translate }}",
                     data-ng-required="true",
                     data-ng-minlength="3",
                     data-ng-model="vm.modelSignUp.username",
@@ -39,7 +39,7 @@ include _mixins.include.jade
                     type="email",
                     name="signUpEmail",
                     alt="{{ 'auth.Email' | translate }}",
-                    placeholder="Email",
+                    placeholder="{{ 'auth.Email' | translate }}",
                     data-ng-required="true",
                     data-ng-model="vm.modelSignUp.email",
                     cio-input-change-event="vm.isAvailable('Email')")
@@ -54,7 +54,7 @@ include _mixins.include.jade
                     type="password",
                     name="signUpPassword",
                     alt="{{ 'auth.Password' | translate }}",
-                    placeholder="Password",
+                    placeholder="{{ 'auth.Password' | translate }}",
                     data-ng-required="true",
                     data-ng-minlength="3",
                     data-ng-model="vm.modelSignUp.password")
@@ -66,7 +66,7 @@ include _mixins.include.jade
                     type="text",
                     name="signUpPassword",
                     alt="{{ 'auth.Password' | translate }}",
-                    placeholder="Password",
+                    placeholder="{{ 'auth.Password' | translate }}",
                     data-ng-required="true",
                     data-ng-minlength="3",
                     data-ng-model="vm.modelSignUp.password")

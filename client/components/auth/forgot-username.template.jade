@@ -3,41 +3,43 @@ include _mixins.include.jade
 .wrapper
     a.btn.btn-link.no-hpadding(
             href="javascript:history.back()",
-            alt="Back")
-        |Back
+            alt="{{ 'common.Back' | translate }}")
+        |{{ 'common.Back' | translate }}
     |&nbsp;&nbsp;|&nbsp;&nbsp;
     a.btn.btn-link.no-hpadding(
             data-ui-sref="home",
-            alt="Back to Homepage")
-        |Back to Homepage
+            alt="{{ 'common.BackToHomepage' | translate }}")
+        |{{ 'common.BackToHomepage' | translate }}
 
 .wrapper(data-ng-if="false === vm.states.emailSend")
-    form(name="vm.formForgotUsername",
-            data-ng-submit="vm.forgotUsername()")
+    h1.border-bottom {{ 'auth.ForgotUsername' | translate }}?
+    form(name="vm.formForgotUsername", data-ng-submit="vm.forgotUsername()")
 
-        .vmargin-2rem
         fieldset
-            legend: h1 Forgot Username?
-            
             .form-group.no-margin-bottom(
                     data-ng-class="{ 'has-error': false }")
-                label(for="forgot-username-email") Email:
+                label(for="forgot-username-email") {{ 'auth.Email' | translate }}:
                 input#forgot-username-email.form-control(
                         type="text",
                         name="forgotUsernameEmail",
-                        placeholder="Email",
+                        alt="{{ 'auth.Email' | translate }}",
+                        placeholder="{{ 'auth.Email' | translate }}",
                         data-ng-required="true",
                         data-ng-model="vm.modelForgotUsername.email")
             
-        .vmargin-2rem  
         fieldset
             button.btn.btn-primary(
-                    alt="Send Email",
+                    alt="{{ 'auth.SendEmail' | translate }}",
                     data-ng-disabled="vm.formForgotUsername.$invalid")
-                |Send Email
+                |{{ 'auth.SendEmail' | translate }}
 
 .wrapper(data-ng-if="true === vm.states.emailSend")
-    h1 Email send successfully
+    h1.border-bottom {{ 'auth.EmailSendSuccessfully' | translate }}
     .text-success
         i.fa.fa-check
-        span &nbsp;If this email exists in our database, a link was successfully send to it.
+        span &nbsp;{{ 'auth.message.UsernameEmailSendSuccessfully' | translate }}
+.wrapper(data-ng-if="'error' === vm.states.emailSend")
+    h1.border-bottom {{ 'auth.AnErrorOccured' | translate }}
+    .text-success
+        i.fa.fa-check
+        span &nbsp;{{ 'auth.message.UsernameEmailSendWithError' | translate }}
