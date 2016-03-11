@@ -1,7 +1,7 @@
 /**
- * @name        CioSettingsAccountCtrl
+ * @name        CioAccountService
  * @author      Marc Stark <self@marcstark.com>
- * @file        This file is an AngularJS controller.
+ * @file        This file is an AngularJS service.
  * 
  * @copyright   (c) 2015 marcstark.com, Marc Stark <self@marcstark.com>
  * @license     https://github.com/marcstark/coursar.io/blob/master/LICENSE
@@ -14,15 +14,15 @@
 // *****************************************************************************
 
 angular
-    .module('cio-controllers')
-    .controller('CioSettingsAccountCtrl', Controller);
+    .module('cio-services')
+    .controller('CioAccountService', Service);
 
 // *****************************************************************************
-// Controller definition function
+// Service definition function
 // *****************************************************************************
 
-function Controller() {
-    var vm = this;
+function Service() {
+    var service = {};
 
     // *****************************************************************************
     // Private variables
@@ -33,11 +33,11 @@ function Controller() {
     // *****************************************************************************
 
     // *****************************************************************************
-    // Controller function linking
+    // Service function linking
     // *****************************************************************************
 
     // *****************************************************************************
-    // Controller function definitions
+    // Service function definitions
     // *****************************************************************************
 
     // *****************************************************************************
