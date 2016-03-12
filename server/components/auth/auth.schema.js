@@ -20,6 +20,10 @@ var Schema   = mongoose.Schema;
 var objAuth = {
     profile: {
         dateOfBitrh: Date,
+        gender: {
+            type    : String,
+            validate: /male|female|other/,
+        },
         name: {
             first: String,
             last : String,
