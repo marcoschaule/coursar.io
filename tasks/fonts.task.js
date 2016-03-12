@@ -4,7 +4,15 @@ module.exports = function(gulp) { 'use strict';
 // Includes and definitions
 // *****************************************************************************
 
-var flatten = require('gulp-flatten');
+var flatten        = require('gulp-flatten');
+var arrFontSources = [
+    './.build/vendor/**/*.otf',
+    './.build/vendor/**/*.eot',
+    './.build/vendor/**/*.svg',
+    './.build/vendor/**/*.ttf',
+    './.build/vendor/**/*.woff',
+    './.build/vendor/**/*.woff2',
+];
 
 // *****************************************************************************
 // Basic tasks - fonts
@@ -14,13 +22,7 @@ var flatten = require('gulp-flatten');
  * Task to copy all fonts to development folder.
  */
 gulp.task('fonts:dev', () => gulp
-    .src([
-        './.build/vendor/**/*.eot',
-        './.build/vendor/**/*.svg',
-        './.build/vendor/**/*.ttf',
-        './.build/vendor/**/*.woff',
-        './.build/vendor/**/*.woff2',
-    ])
+    .src(arrFontSources)
     .pipe(flatten())
     .pipe(gulp.dest('./.build/dev/fonts'))
 );
@@ -31,13 +33,7 @@ gulp.task('fonts:dev', () => gulp
  * Task to copy all fonts to development folder.
  */
 gulp.task('fonts:prod', () => gulp
-    .src([
-        './.build/vendor/**/*.eot',
-        './.build/vendor/**/*.svg',
-        './.build/vendor/**/*.ttf',
-        './.build/vendor/**/*.woff',
-        './.build/vendor/**/*.woff2',
-    ])
+    .src(arrFontSources)
     .pipe(flatten())
     .pipe(gulp.dest('./.build/prod/fonts'))
 );

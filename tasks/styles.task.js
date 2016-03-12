@@ -6,6 +6,8 @@ module.exports = function(gulp) { 'use strict';
 
 var runSequence = require('run-sequence');
 var stylus      = require('gulp-stylus');
+var gulpif      = require('gulp-if');
+var replace     = require('gulp-replace');
 var flatten     = require('gulp-flatten');
 
 // *****************************************************************************
@@ -43,9 +45,30 @@ gulp.task('styles-user:dev', () => gulp
  */
 gulp.task('styles-vendor:dev', () => gulp
     .src(['./.build/vendor/**/*.css', '!./.build/vendor/**/*.min.css'])
+    .pipe(gulpif(_testForFile('font-awesome'), replace(/..\/fonts/g, '../../fonts')))
     .pipe(flatten())
     .pipe(gulp.dest('./.build/dev/styles/vendor'))
 );
+
+// *****************************************************************************
+// Helper functions
+// *****************************************************************************
+
+/**
+ * Helper function to test if a file is within the pipeline.
+ * @private
+ * 
+ * @param  {String}  strFileName  string of the file name
+ * @return {Boolean}              true if the file was found
+ */
+function _testForFile(strFileName) {
+    return function(objFile) {
+        if (objFile.path.indexOf(strFileName) >= 0) {
+            return true;
+        }
+        return false;
+    };
+}
 
 // *****************************************************************************
 
