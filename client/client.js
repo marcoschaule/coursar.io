@@ -16,71 +16,113 @@ angular.module('cio-routes',      []);
 angular.module('cio',             ['cio-externals', 'cio-contants', 'cio-values', 'cio-templates', 'cio-services', 'cio-directives', 'cio-directives', 'cio-controllers', 'cio-routes']);
 
 // *****************************************************************************
-// Router
+// Config and running
 // *****************************************************************************
 
 // configure routes
-angular
-    .module('cio')
-    .config(function($urlRouterProvider, $stateProvider, $locationProvider) {
-        $locationProvider.html5Mode(true);
-        $urlRouterProvider.otherwise('/');
-    });
+angular.module('cio')
+    .config(_configRoutesProvider)
+    .config(_configHttpProvider)
+    .config(_configTranslationProvider)
+    .run(_runSpinner)
+    .run(_runAuthentication);
+
+// *****************************************************************************
+// Helper functions
+// *****************************************************************************
+
+/**
+ * Helper function to setup router provider.
+ * @private
+ * 
+ * @param {Provider} $urlRouterProvider  provider of the URL route
+ * @param {Provider} $stateProvider      provider of the state
+ * @param {Provider} $locationProvider   provider of the location
+ */
+function _configRoutesProvider($urlRouterProvider, $stateProvider, $locationProvider) {
+    $locationProvider.html5Mode(true);
+    $urlRouterProvider.otherwise('/');
+}
+
+// injection
+_configRoutesProvider.$inject = ['$urlRouterProvider', '$stateProvider', '$locationProvider'];
 
 // *****************************************************************************
 
-// configure HTTP default headers
-angular
-    .module('cio')
-    .config(function($httpProvider) {
-        $httpProvider.defaults.headers.common['X-Access-Token'] = null;
-        $httpProvider.defaults.headers.common['X-CSRF-Token']   = null;
-    });
+/**
+ * Helper function to setup the HTTP provider.
+ * @private
+ * 
+ * @param {Provider} $httpProvider  provider of HTTP
+ */
+function _configHttpProvider($httpProvider) {
+    $httpProvider.defaults.headers.common['X-Access-Token'] = null;
+    $httpProvider.defaults.headers.common['X-CSRF-Token']   = null;
+}
+
+// injection
+_configHttpProvider.$inject = ['$httpProvider'];
 
 // *****************************************************************************
 
-// config language
-angular
-    .module('cio')
-    .config(function($translateProvider) {
-        $translateProvider.preferredLanguage('en-US');
-        $translateProvider.useSanitizeValueStrategy(null); //'sanitize');
-    });
+/**
+ * Helper function to setup the translation provider.
+ * @private
+ * 
+ * @param {Provider} $translateProvider  provider of the translator
+ */
+function _configTranslationProvider($translateProvider) {
+    $translateProvider.preferredLanguage('en-US');
+    $translateProvider.useSanitizeValueStrategy(null); //'sanitize');
+}
+
+// injection
+_configTranslationProvider.$inject = ['$translateProvider'];
 
 // *****************************************************************************
 
-// running the app
-angular
-    .module('cio')
-    .run(function($rootScope) {
+/**
+ * Helper function to setup the spinner runner.
+ * @private
+ * 
+ * @param {Service} $rootScope  service for the root scope
+ */
+function _runSpinner($rootScope) {
+    $rootScope.flags = {
+        isProcessing: false,
+    };
+}
 
-        // global flags
-        $rootScope.flags = {
-            isProcessing: false,
-        };
-    });
+// injection
+_runSpinner.$inject = ['$rootScope'];
 
 // *****************************************************************************
 
-// auth settings
-angular
-    .module('cio')
-    .run(function($window, $rootScope, $state, CioAuthService) {
-        // console.log(">>> Debug ====================; client.js: $window.localStorage:", $window.localStorage, '\n\n');
-
-        return $rootScope.$on('$stateChangeStart', function(objEvent, objToState) { //, objToParams, objFromState, objFromParams) {
-            if (!objToState.private || CioAuthService.isSignedIn) {
-                return;
+/**
+ * Helper function to setup the authentication runner.
+ * @private
+ * 
+ * @param {Service} $rootScope      service for the root scope
+ * @param {Service} $state          service for the state
+ * @param {Service} CioAuthService  service for the authentication
+ */
+function _runAuthentication($rootScope, $state, CioAuthService) {
+    return $rootScope.$on('$stateChangeStart', function(objEvent, objToState) { //, objToParams, objFromState, objFromParams) {
+        if (!objToState.private || CioAuthService.isSignedIn) {
+            return;
+        }
+        return CioAuthService.testSignedIn(function(objErr, isSignedIn) {
+            if (objErr || !isSignedIn) {
+                objEvent.preventDefault();
+                return $state.transitionTo('signIn');
             }
-            return CioAuthService.testSignedIn(function(objErr, isSignedIn) {
-                if (objErr || !isSignedIn) {
-                    objEvent.preventDefault();
-                    return $state.transitionTo('signIn');
-                }
-                return;
-            });
+            return;
         });
-});
+    });
+}
+
+// injection
+_runAuthentication.$inject = ['$rootScope', '$state', 'CioAuthService'];
 
 // *****************************************************************************
 
