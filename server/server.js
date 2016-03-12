@@ -102,7 +102,7 @@ app.use((objErr, req, res, next) => {
         res.status(401).redirect('/');
     }
     else if (objErr) {
-        return res.status(500).json({ err: objErr });
+        return res.status(objErr.status || 500).json(objErr);
     }
     return res.status(500).json({});
 });

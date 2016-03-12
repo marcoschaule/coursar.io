@@ -21,7 +21,7 @@ angular
 // Service definition function
 // *****************************************************************************
 
-function Service($rootScope, $window, $timeout, $http, $q) {
+function Service($rootScope, $state, $window, $timeout, $http, $q) {
     var service = {};
 
     // *****************************************************************************
@@ -271,12 +271,13 @@ function Service($rootScope, $window, $timeout, $http, $q) {
     function _requestCallback(objRequest, isError, callback) {
         var strIdentifier = objRequest.id;
 
-        if (isError) {
-            console.log(">>> Debug ====================; Error objRequest:", objRequest, '\n\n');
-        }
-
         // return the "$http" success and error callback
         return function(objResult) {
+
+            // if backend sends back to redirect, do so
+            if ($state.current.private && objResult.data.redirect) {
+                $state.transitionTo('signIn');
+            }
             
             // write all tokens in session storage; if there is any token send
             // from server, that means, token needs to be refreshed
@@ -355,7 +356,7 @@ function Service($rootScope, $window, $timeout, $http, $q) {
 
 // *****************************************************************************
 
-Service.$inject = ['$rootScope', '$window', '$timeout', '$http', '$q'];
+Service.$inject = ['$rootScope', '$state', '$window', '$timeout', '$http', '$q'];
 
 // *****************************************************************************
 

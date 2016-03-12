@@ -21,7 +21,7 @@ angular
 // Controller definition function
 // *****************************************************************************
 
-function Controller() {
+function Controller($state, CioAccountService) {
     var vm = this;
 
     // *****************************************************************************
@@ -36,9 +36,21 @@ function Controller() {
     // Controller function linking
     // *****************************************************************************
 
+    vm.readUser = readUser;
+
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
+
+    /**
+     * Controller function to read the user from the server.
+     * @public
+     */
+    function readUser() {
+        return CioAccountService.readUser(function(objErr, objUser) {
+            console.log(">>> Debug ====================; objUser:", objUser, '\n\n');
+        });
+    }
 
     // *****************************************************************************
     // Helper function definitions
@@ -46,6 +58,10 @@ function Controller() {
 
     // *****************************************************************************
 }
+
+// *****************************************************************************
+
+Controller.$inject = ['$state', 'CioAccountService'];
 
 // *****************************************************************************
 

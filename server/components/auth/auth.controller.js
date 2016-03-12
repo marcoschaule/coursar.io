@@ -210,7 +210,7 @@ function authorize(req, res, next) {
     return AuthService.touchSignedIn(req.session, objErr => {
         if (objErr) {
             console.error(objErr);
-            return next({ err: 'Error: user is not signed in!', redirect: true });
+            return next({ err: 'Error: user is not signed in!', redirect: true, status: 401 });
         }
         
         // set access token and CSRF token in header

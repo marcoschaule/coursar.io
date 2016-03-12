@@ -65,7 +65,8 @@ angular
 // auth settings
 angular
     .module('cio')
-    .run(function($rootScope, $state, CioAuthService) {
+    .run(function($window, $rootScope, $state, CioAuthService) {
+        // console.log(">>> Debug ====================; client.js: $window.localStorage:", $window.localStorage, '\n\n');
 
         return $rootScope.$on('$stateChangeStart', function(objEvent, objToState) { //, objToParams, objFromState, objFromParams) {
             if (!objToState.private || CioAuthService.isSignedIn) {

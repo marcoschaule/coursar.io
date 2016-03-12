@@ -15,18 +15,23 @@
 
 angular
     .module('cio-services')
-    .controller('CioAccountService', Service);
+    .factory('CioAccountService', Service);
 
 // *****************************************************************************
 // Service definition function
 // *****************************************************************************
 
-function Service() {
+function Service(CioComService) {
     var service = {};
 
     // *****************************************************************************
     // Private variables
     // *****************************************************************************
+
+    var _strUrlUserCreate = '/user/create';
+    var _strUrlUserRead   = '/user/read';
+    var _strUrlUserUpdate = '/user/update';
+    var _strUrlUserDelete = '/user/delete';
 
     // *****************************************************************************
     // Public variables
@@ -36,16 +41,47 @@ function Service() {
     // Service function linking
     // *****************************************************************************
 
+    service.readUser = readUser;
+
     // *****************************************************************************
     // Service function definitions
     // *****************************************************************************
+
+    /**
+     * Service method to read the user from server.
+     * @public
+     * 
+     * @param {Function} callback  function for callback
+     */
+    function readUser(callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        var objRequest = {
+            id : 'read-user',
+            url: _strUrlUserRead,
+        };
+        return CioComService.put(objRequest, function(objErr, objUser) {
+            if (objErr) {
+                return callback(objErr);
+            }
+            return callback(null, objUser);
+        });
+    }
 
     // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
 
     // *****************************************************************************
+
+    return service;
+
+    // *****************************************************************************
 }
+
+// *****************************************************************************
+
+Service.$inject = ['CioComService'];
 
 // *****************************************************************************
 
