@@ -3,42 +3,47 @@ mixin confirmationText(strName)
     //- if username or email has not been changed, yet
     .text-muted(data-ng-if="vm.states.#{strName} === 'pristine'")    
         i.fa.fa-times
-        |&nbsp;Please enter text.
+        |&nbsp;{{ 'auth.message.#{strName}.PleaseEnter' | translate }}
     
     //- if username or email request is pending
     .text-muted(data-ng-if="vm.states.#{strName} === 'pending'")
         i.fa.fa-spinner.fa-spin
-        |&nbsp;pending...
+        |&nbsp;{{ 'auth.CheckingAvailability' | translate }}...
     
     //- if username or email is available
     .text-success(data-ng-if="vm.states.#{strName} === 'available'")
         i.fa.fa-check
-        |&nbsp;Is available.
+        |&nbsp;{{ 'auth.message.#{strName}.IsAvailable' | translate }}
     
     //- if username or email is not available
     .text-danger(data-ng-if="vm.states.#{strName} === 'notAvailable'")
         i.fa.fa-ban
-        |&nbsp;Sorry, but is not available.
+        |&nbsp;{{ 'auth.message.#{strName}.IsNotAvailable' | translate }}
 
     //- if username or email are too short
     .text-danger(data-ng-if="vm.states.#{strName} === 'tooShort'")
         i.fa.fa-ban
-        |&nbsp;Is too short!
+        |&nbsp;{{ 'auth.message.#{strName}.IsTooShort' | translate }}
     
     //- if username or email are too long
     .text-danger(data-ng-if="vm.states.#{strName} === 'tooLong'")
         i.fa.fa-ban
-        |&nbsp;Is too long!
+        |&nbsp;{{ 'auth.message.#{strName}.IsTooLong' | translate }}
     
     //- if username or email are required
     .text-danger(data-ng-if="vm.states.#{strName} === 'required'")
         i.fa.fa-ban
-        |&nbsp;This is required!
+        |&nbsp;{{ 'auth.message.ThisFieldIsRequired' | translate }}
     
     //- if username or email are invalid
     .text-danger(data-ng-if="vm.states.#{strName} === 'invalid'")
         i.fa.fa-ban
-        |&nbsp;Is not valid!
+        |&nbsp;{{ 'auth.message.#{strName}.IsNotValid' | translate }}
+    
+    //- if username or email are invalid
+    .text-danger(data-ng-if="vm.states.#{strName} === 'error'")
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.ErrorGeneral' | translate }}
 
 mixin subnavigationForgot()
     a.btn.btn-link(
