@@ -111,7 +111,7 @@ function Service(CioComService) {
      * @param {Object}   [objData.isRemembered]  (optional) true if user wants to stay signed in
      * @param {Function} callback                function for callback
      */
-    function signUp(objData) {
+    function signUp(objData, callback) {
         var objRequest = {
             id       : 'sign-up',
             url      : _strUrlSignUp,

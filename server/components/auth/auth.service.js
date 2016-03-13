@@ -23,7 +23,8 @@ var SignUp         = AuthRessources.SignUp;
 
 /**
  * Service function to sign user in.
- * 
+ *
+ * @public
  * @param  {Object}   objSignIn               object of sign in
  * @param  {String}   objSignIn.username      string of username
  * @param  {String}   objSignIn.password      string of password, still unencrypted
@@ -81,7 +82,8 @@ function signIn(objSignIn, objInfo, objSession, callback) {
 
 /**
  * Service function to sign user up.
- * 
+ *
+ * @public
  * @param  {Object}   objSignUp           object of sign up
  * @param  {String}   objSignUp.username  string of username
  * @param  {String}   objSignUp.password  string of password, still unencrypted
@@ -91,55 +93,85 @@ function signIn(objSignIn, objInfo, objSession, callback) {
 function signUp(objSignUp, callback) {
     var objPassword, objUserReturn, docUser, objErrValidation;
 
-    // validate user data
-    docUser = new SignUp({
-        email    : objSignUp.email,
-        username : objSignUp.username,
-        password : objSignUp.password,
-    });
-    objErrValidation = docUser.validateSync();
+    // waterfall for sign up
+    return async.waterfall([
+    
+        // test if user or email already exists and proceed if not
+        (_callback) => {
 
-    if (objErrValidation) {
-        return callback(objErrValidation);
-    }
+            return Auth.findOne({ $or: [
+                { 'username': { $regex: objSignUp.username, $options: 'i' } },
+                { 'emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
+            ] }, (objErr, objUser) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.signUp.generalError);
+                }
+                else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
+                    console.error(settings.errors.signUp.usernameNotAvailable);
+                    return _callback(settings.errors.signUp.generalError);
+                }
+                else if (objUser && objUser.profile && _indexOfEmailInArray(objUser.emails, objSignUp.email) >= 0) {
+                    console.error(settings.errors.signUp.emailNotAvailable);
+                    return _callback(settings.errors.signUp.generalError);
+                }
+                return _callback(null);
+            });
+        },
 
-    // encrypt password
-    objPassword = Auth.encrypt(objSignUp.password);
+        // create the user object and save it in the database
+        (_callback) => {
 
-    return Auth.findOne({ $or: [
-            { 'username': { $regex: objSignUp.username, $options: 'i' } },
-            { 'emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
-    ] }, (objErr, objUser) => {
-        if (objErr) {
-            return callback(settings.errors.signUp.generalError);
-        }
-        else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
-            return callback(settings.errors.signUp.usernameNotAvailable);
-        }
-        else if (objUser && objUser.profile && _indexOfEmailInArray(objUser.emails, objSignUp.email) >= 0) {
-            return callback(settings.errors.signUp.emailNotAvailable);
-        }
+            // encrypt password
+            objPassword = Auth.encrypt(objSignUp.password);
 
-        // create a new authenticated user
-        var objAuth = new Auth({
-            username: objSignUp.username,
-            emails  : [{
-                address : objSignUp.email,
-                verified: false,
-            }],
-            password: {
-                hash: objPassword.hash,
-                salt: objPassword.salt,
-            },
-        });
+            // create a new authenticated user
+            var objUser = new Auth({
+                username: objSignUp.username,
+                emails  : [{
+                    address : objSignUp.email,
+                    verified: false,
+                }],
+                password: {
+                    hash: objPassword.hash,
+                    salt: objPassword.salt,
+                },
+            });
 
-        return objAuth.save(objErr => {
-            if (objErr) {
-                return callback(objErr);
-            }
-            return callback(null, objSignUp);
-        });
-    });
+            return objUser.save(objErr => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.signUp.generalError);
+                }
+                return _callback(null, objUser._id.toString());
+            });
+        },
+
+        // set the Redis entry and receive the Redis ID
+        (strUserId, _callback) => {
+
+            return libRedis.setRedisEntryForEmailVerification(strUserId, (objErr, strRId) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.signUp.generalError);
+                }
+                return _callback(null, strRId);
+            });
+        },
+
+        // send the email address validation email to the user
+        (strRId, _callback) => {
+
+            return libEmail.sendEmailVerifyEmail(objSignUp.email, strRId, (objErr, objResult) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.signUp.generalError);
+                }
+                return _callback(null);
+            });
+        },
+
+    ], callback);
 }
 
 // *****************************************************************************
@@ -147,7 +179,8 @@ function signUp(objSignUp, callback) {
 /**
  * Service function to sign out. It destroys the session in redis
  * and the JWToken.
- * 
+ *
+ * @public
  * @param {Object}   objSession  object of session
  * @param {Function} callback    function for callback
  */
@@ -160,8 +193,8 @@ function signOut(objSession, callback) {
 /**
  * Service function to handle a "forgot password" request. This function sends
  * an email to the user including a link to reset the password.
- * @public
  * 
+ * @public
  * @param {String}   strEmail  string of email the link should be send to
  * @param {Function} callback  function for callback
  */
@@ -176,26 +209,32 @@ function forgotUsername(strEmail, callback) {
     return async.waterfall([
         
         // get the user ID from the email
-        (_callback) => Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
-            if (objErr) {
-                console.error(objErr);
-                return _callback(objErr);
-            }
-            else if (!objUser || !objUser.username) {
-                console.error('No such email found!');
-                return _callback('No such email found!');
-            }
-            return _callback(null, objUser.username);
-        }),
+        (_callback) => {
+
+            return Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+                else if (!objUser || !objUser.username) {
+                    console.error('No such email found!');
+                    return _callback('No such email found!');
+                }
+                return _callback(null, objUser.username);
+            });
+        },
 
         // send the email to the given email address
-        (strUsername, _callback) => libEmail.sendEmailForgotUsername(strEmail, strUsername, (objErr, objResult) => {
-            if (objErr) {
-                console.error(objErr);
-                return _callback(settings.errors.resetPassword.generalError);
-            }
-            return _callback(null);
-        }),
+        (strUsername, _callback) => {
+
+            return libEmail.sendEmailForgotUsername(strEmail, strUsername, (objErr, objResult) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.resetPassword.generalError);
+                }
+                return _callback(null);
+            });
+        },
     
     // async waterfall callback
     ], callback);
@@ -206,8 +245,8 @@ function forgotUsername(strEmail, callback) {
 /**
  * Service function to handle a "forgot password" request. This function sends
  * an email to the user including a link to reset the password.
- * @public
  * 
+ * @public
  * @param {String}   strEmail  string of email the link should be send to
  * @param {Function} callback  function for callback
  */
@@ -223,35 +262,44 @@ function forgotPassword(strEmail, callback) {
     return async.waterfall([
         
         // get the user ID from the email
-        (_callback) => Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
-            if (objErr) {
-                console.error(objErr);
-                return _callback(objErr);
-            }
-            else if (!objUser || !objUser._id) {
-                console.error('No such email found!');
-                return _callback('No such email found!');
-            }
-            return _callback(null, objUser._id.toString());
-        }),
+        (_callback) => {
+
+            return Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+                else if (!objUser || !objUser._id) {
+                    console.error('No such email found!');
+                    return _callback('No such email found!');
+                }
+                return _callback(null, objUser._id.toString());
+            });
+        },
 
         // set the Redis entry and receive the Redis ID
-        (strUserId, _callback) => libRedis.setRedisEntryForPasswordReset(strUserId, (objErr, strRId) => {
-            if (objErr) {
-                console.error(objErr);
-                return _callback(settings.errors.resetPassword.generalError);
-            }
-            return _callback(null, strRId);
-        }),
+        (strUserId, _callback) => {
+
+            return libRedis.setRedisEntryForPasswordReset(strUserId, (objErr, strRId) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.resetPassword.generalError);
+                }
+                return _callback(null, strRId);
+            });
+        },
 
         // send the email to the given email address
-        (strRId, _callback) => libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objResult) => {
-            if (objErr) {
-                console.error(objErr);
-                return _callback(settings.errors.resetPassword.generalError);
-            }
-            return _callback(null);
-        }),
+        (strRId, _callback) => {
+
+            return libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objResult) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.resetPassword.generalError);
+                }
+                return _callback(null);
+            });
+        },
     
     // async waterfall callback
     ], callback);
@@ -262,7 +310,8 @@ function forgotPassword(strEmail, callback) {
 /**
  * Service function to reset the password, depending on the Redis ID send
  * from the user.
- * 
+ *
+ * @public
  * @param {String}   strRId          string of Redis ID
  * @param {String}   strPasswordNew  string of new password
  * @param {Function} callback        function for callback
@@ -282,39 +331,48 @@ function resetPassword(strRId, strPasswordNew, callback) {
     return async.waterfall([
     
         // get Redis entry to get the MongoDB user ID
-        (_callback) => libRedis.getRedisEntry(strKey, (objErr, objReply) => {
-            if (objErr) {
-                console.error(objErr);
-                return _callback(settings.errors.resetPassword.generalError);
-            }
-            if (!objReply || !objReply.userId) {
-                console.error('Redis entry does not exist anymore!');
-                return _callback(settings.errors.resetPassword.sessionExpired);
-            }
-            return _callback(null, objReply.userId.toString());
-        }),
+        (_callback) => {
+
+            return libRedis.getRedisEntry(strKey, (objErr, objReply) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.resetPassword.generalError);
+                }
+                if (!objReply || !objReply.userId) {
+                    console.error('Redis entry does not exist anymore!');
+                    return _callback(settings.errors.resetPassword.sessionExpired);
+                }
+                return _callback(null, objReply.userId.toString());
+            });
+        },
 
         // update password in database
-        (strUserId, _callback) => Auth.update(
-                { _id: strUserId },
-                { $set: { 'password.salt': objPassword.salt, 'password.hash': objPassword.hash } },
-                (objErr, objModified) => {
-           
-            if (objErr) {
-               console.error(objErr);
-               return _callback(settings.errors.resetPassword.generalError);
-            }
-            return _callback(null);
-        }),
+        (strUserId, _callback) => {
+
+            return Auth.update(
+                    { _id: strUserId },
+                    { $set: { 'password.salt': objPassword.salt, 'password.hash': objPassword.hash } },
+                    (objErr, objModified) => {
+               
+                if (objErr) {
+                   console.error(objErr);
+                   return _callback(settings.errors.resetPassword.generalError);
+                }
+                return _callback(null);
+            });
+        },
 
         // delete Redis entry with MongoDB user ID
-        (_callback) => libRedis.deleteRedisEntry(strKey, objErr => {
-            if (objErr) {
-                console.error(objErr);
-                return _callback(settings.errors.resetPassword.generalError);
-            }
-            return _callback(null);
-        })
+        (_callback) => {
+
+            return libRedis.deleteRedisEntry(strKey, objErr => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.resetPassword.generalError);
+                }
+                return _callback(null);
+            });
+        },
 
     // async waterfall callback
     ], callback);
@@ -327,7 +385,8 @@ function resetPassword(strRId, strPasswordNew, callback) {
  * Either the email already exists within the "emails" array,
  * then it is moved to position 0. Or it doesn't exist, then it is
  * just inserted at position 0.
- * 
+ *
+ * @public
  * @param {String}   strUserId    string of user id
  * @param {String}   strEmailNew  string of new or existing email address
  * @param {Function} callback     function for callback
@@ -350,7 +409,8 @@ function setEmail(strUserId, strEmailNew, callback) {
         return async.series([
 
             // remove email from array if available
-            _callback => {
+            (_callback) => {
+
                 if (numPosition < 0) {
                     return _callback(null);
                 }
@@ -361,7 +421,8 @@ function setEmail(strUserId, strEmailNew, callback) {
             },
 
             // add email to position 0
-            _callback => {
+            (_callback) => {
+
                 return Auth.update({ _id: strUserId }, { $push:
                         { 'emails': { $each: [objEmailNew], $position: 0 } } },
                         _callback);
@@ -374,6 +435,27 @@ function setEmail(strUserId, strEmailNew, callback) {
 
 // *****************************************************************************
 
+/**
+ * Service function to check whether a user is still signed in or not.
+ * This function also checks if the max life time of the session is over
+ * or not.
+ *
+ * If the user didn't want to be remembered, the session lives for the maximum
+ * of one hour (according to the settings). If the user interacts with the app
+ * during that time, the session is refreshed for each interaction. If not, the
+ * session is deleted.
+ *
+ * If the user wanted to be remembered, the session lives for the maximum of
+ * one week (according to the settings). During that week, the session does not
+ * need to be refreshed, unless it is one hour before the end. If the user
+ * interact with the app one hour before the long session ends, the session will
+ * be refreshed for one additional hour for each interaction. If not, the
+ * session is deleted.
+ *
+ * @public
+ * @param {Object}   objSession  object of the user's session
+ * @param {Function} callback    function for callback
+ */
 function checkSignedIn(objSession, callback) {
     var _isSignedIn      = isSignedIn(objSession);
     var objIsNotSignedIn = { isSignedIn: false };
@@ -382,7 +464,6 @@ function checkSignedIn(objSession, callback) {
     if (!_isSignedIn) {
         return callback(objIsNotSignedIn);
     }
-
     // test if session is older than "sessionAge" or "maxAge" plus "sessionAge"
     var isSessionOlderThanSessionAge = 
         objSession.updatedAt + settings.auth.session.sessionAge * 1000 < Date.now();
@@ -415,17 +496,15 @@ function checkSignedIn(objSession, callback) {
         });
     }
 
-    return objSession.update(objErr => {
-        return callback(objErr || null);
-    });
+    return objSession.update(objErr => callback(objErr));
 }
 
 // *****************************************************************************
 
 /**
  * Service function to refresh the session when the user is not idle.
- * @public
  * 
+ * @public
  * @param {Object}   objSession  object of JWT session
  * @param {Function} callback    function for callback
  */
@@ -447,8 +526,8 @@ function touchSignedIn(objSession, callback) {
 
 /**
  * Service function to test whether a user is signed in.
- * @public
  * 
+ * @public
  * @param  {Object}   objSession  object of JWT session
  * @param  {Function} [callback]  (optional) function for callback
  * @return {Boolean}              true if user is singed in
@@ -465,6 +544,7 @@ function isSignedIn(objSession, callback) {
 /**
  * Service function to test if username is available.
  * 
+ * @public
  * @param {String}   strUsername  string of username needs to be tested
  * @param {Function} callback     function for callback
  */
@@ -484,6 +564,14 @@ function isUsernameAvailable(strUsername, callback) {
 
 // *****************************************************************************
 
+/**
+ * Service function to test whether an email is available. For this, all emails
+ * of all users are tested against, not only the first onces.
+ * 
+ * @public
+ * @param {String}   strEmail  string of email that needs to be tested
+ * @param {Function} callback  function for callback
+ */
 function isEmailAvailable(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
 
@@ -504,8 +592,8 @@ function isEmailAvailable(strEmail, callback) {
 
 /**
  * Helper function to generate the Redis session if it doesn't exist, yet.
- * @private
  * 
+ * @private
  * @param  {Object}   objSession  object of JWT session
  * @param  {Function} callback    function for callback
  */
@@ -534,8 +622,8 @@ function _generateSession(objSession, callback) {
 /**
  * Helper function to get the index of a given array,
  * if it appears in the given array of emails.
- * @private
  * 
+ * @private
  * @param  {Array}  arrEmails  array of emails
  * @param  {String} strEmail   string of email
  * @return {Number}            number of index
@@ -552,6 +640,13 @@ function _indexOfEmailInArray(arrEmails, strEmail) {
 
 // *****************************************************************************
 
+/**
+ * Helper function to generate a Redis entry for the reset password process.
+ * 
+ * @private
+ * @param {String}   strEmail  string of the email of the user who forgot the password
+ * @param {Function} callback  function for callback
+ */
 function _generateResetPasswordRedisEntry(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
     var objHash, strRId;
@@ -586,6 +681,15 @@ function _generateResetPasswordRedisEntry(strEmail, callback) {
 
 // *****************************************************************************
 
+// TODO: remove is not necessary any more
+/**
+ * Helper function to get the user ID from the corresponding Redis entry
+ * to reset proceed to resetting the user's password.
+ * 
+ * @private
+ * @param {String}   strRId    string of Redis ID
+ * @param {Function} callback  function for callback
+ */
 function _getUserIdFromResetPasswordRedisEntry(strRId, callback) {
     return clients.redis.get('resp:' + strRId, (objErr, objReply) => {
         if (objErr) {
@@ -597,6 +701,14 @@ function _getUserIdFromResetPasswordRedisEntry(strRId, callback) {
 
 // *****************************************************************************
 
+// TODO: remove is not necessary any more
+/**
+ * Helper function to delete a Redis entry responsible for password reset.
+ * 
+ * @private
+ * @param {String}   strRId    string of the Redis ID
+ * @param {Function} callback  function for callback
+ */
 function _deleteResetPasswordRedisEntry(strRId, callback) {
     return clients.redis.del('resp:' + strRId, (objErr) => {
         if (objErr) {

@@ -28,7 +28,7 @@ function Controller($timeout, $state, CioAuthService) {
     // Private variables
     // *****************************************************************************
     
-    var _strStateRedirect  = '/';
+    var _strStateRedirect  = 'accountProfile';
     var _strUrlSignUp      = '/sign-up';
     var _strUrlIsAvailable = '/is-available';
 
@@ -119,13 +119,16 @@ function Controller($timeout, $state, CioAuthService) {
         objData            = {};
         objData[strWhichL] = objFormField.$viewValue;
 
-        return CioAuthService.testAvailability(strWhichL, objData, function(objErr, ObjData) {
+        return CioAuthService.testAvailability(strWhichL, objData, function(objErr, objData) {
+            if (objErr || !objData) {
+                return (vm.states[strWhichL] = 'error');
+            }
 
             // set manually the validity if each field depending on result
-            objFormField.$setValidity('isAvailable', !!ObjData.isAvailable);
+            objFormField.$setValidity('isAvailable', !!objData.isAvailable);
 
             // set the state of the field depending on result
-            vm.states[strWhichL] = !!ObjData.isAvailable && 'available' || 'notAvailable';
+            vm.states[strWhichL] = !!objData.isAvailable && 'available' || 'notAvailable';
         });
     }
 

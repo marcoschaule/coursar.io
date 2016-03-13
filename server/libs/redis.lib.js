@@ -14,8 +14,8 @@ var redis = global.clients.redis;
 /**
  * Library function to generate a Redis entry for
  * the "reset password" scenario.
- * @public
  * 
+ * @public
  * @param {String}   strUserId  string of MongoDB user ID
  * @param {Function} callback   function for callback
  */
@@ -29,8 +29,8 @@ function setRedisEntryForEmailVerification(strUserId, callback) {
 /**
  * Library function to generate a Redis entry for
  * the "reset password" scenario.
- * @public
  * 
+ * @public
  * @param {String}   strUserId  string of MongoDB user ID
  * @param {Function} callback   function for callback
  */
@@ -43,8 +43,8 @@ function setRedisEntryForPasswordReset(strUserId, callback) {
 
 /**
  * Library function to delete a Redis entry.
- * @public
  * 
+ * @public
  * @param {String}   strKey    string of the Redis key
  * @param {Function} callback  function for callback
  */
@@ -56,8 +56,8 @@ function getRedisEntry(strKey, callback) {
 
 /**
  * Library function to delete a Redis entry.
- * @public
  * 
+ * @public
  * @param {String}   strKey    string of the Redis key
  * @param {Function} callback  function for callback
  */
@@ -71,8 +71,8 @@ function deleteRedisEntry(strKey, callback) {
 
 /**
  * Helper function to set the Redis entry with expiration.
- * @private
  * 
+ * @private
  * @param {String}   strKey     string of the Redis entry key
  * @param {String}   strHash    string of the Redis entry hash
  * @param {Number}   numMaxAge  number of the max time of the Redis entry
@@ -93,13 +93,14 @@ function _setexRedisEntry(strKey, strHash, numMaxAge, callback) {
 /**
  * Helper function to set a Redis entry for either "email verification"
  * or "password reset" scenario.
- * @private
  * 
+ * @private
  * @param {String}   strKeyPrefix  string of Redis key prefix
  * @param {String}   strUserId     string of MongoDB user ID
  * @param {Function} callback      function for callback
  */
-function _setRedisEntryForEmailVerificationOrPasswordReset(strKeyPrefix, strUserId, callback) {
+function _setRedisEntryForEmailVerificationOrPasswordReset(
+        strKeyPrefix, strUserId, callback) {
     var strHash, strRId, numMaxAge, strKey;
 
     if (!callback || 'function' !== typeof callback) {
@@ -127,8 +128,8 @@ function _setRedisEntryForEmailVerificationOrPasswordReset(strKeyPrefix, strUser
 
 /**
  * Helper function to perform a default query.
- * @private
  * 
+ * @private
  * @param {String}   strAction  string of an action like "get", "del" etc.
  * @param {String}   strKey     string of the Redis key "resp:some-key-idenfifier"
  * @param {Function} callback   function for callback

@@ -28,6 +28,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     // Private variables
     // *****************************************************************************
 
+    var _numRepeatCounter  = 4;
+    var _numRepeatPeriod   = 800; // pause period in milliseconds
     var _numTimeoutDefault = 400; // timeout in milliseconds
     var _objTimeouts       = {};
     var _objCancelers      = {};
@@ -72,8 +74,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
     /**
      * Function to send a "POST" request to the server.
-     * @public
      * 
+     * @public
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
      * @param {String}   objRequest.url                  string of the URL to be called
@@ -91,8 +93,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
     /**
      * Function to send a "PUT" request to the server.
-     * @public
      * 
+     * @public
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
      * @param {String}   objRequest.url                  string of the URL to be called
@@ -110,8 +112,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
     /**
      * Function to send a "GET" request to the server.
-     * @public
      * 
+     * @public
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
      * @param {String}   objRequest.url                  string of the URL to be called
@@ -129,8 +131,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
     /**
      * Function to send a "DELETE" request to the server.
-     * @public
      * 
+     * @public
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
      * @param {String}   objRequest.url                  string of the URL to be called
@@ -153,8 +155,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      * with or without timeout. Also, the request object is checked if both the
      * unique identifier and the URL is set. If not, the function throws an
      * exception.
-     * @private
      * 
+     * @private
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
      * @param {String}   objRequest.url                  string of the URL to be called
@@ -165,6 +167,9 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      * @param {Function} callback                        function for callback
      */
     function _prepareRequest(strMethod, objRequest, callback) {
+        var _numRepeatCounterLocal = _numRepeatCounter + 1;
+        var _sendRequestFinal      = objRequest.isTimeout ? _requestWithTimeout : _request;
+
         if (!objRequest.id) {
             throw new Error('Request identifier is not set!');
         }
@@ -175,10 +180,28 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         objRequest.headers = objRequest.headers || {};
         objRequest.data    = objRequest.data    || {};
 
-        if (objRequest.isTimeout) {
-            return _requestWithTimeout(strMethod, objRequest, callback);
-        }
-        return _request(strMethod, objRequest, callback);
+        function __sendRequest() {
+            return _sendRequestFinal(strMethod, objRequest, function(objErr, objResult) {
+
+                // if there is an error, try x times to repeat the request
+                if (objErr && (_numRepeatCounterLocal-=1) >= 0) {
+                    return $timeout(__sendRequest, _numRepeatPeriod);
+                }
+
+                // if backend responds with a redirect, perform it
+                else if ($state.current.private && objResult.redirect) {
+                    return $state.transitionTo('signIn');
+                }
+
+                // if any other error occured, return that error
+                else if (objErr) {
+                    return callback(objErr);
+                }
+
+                // otherweise proceed to succeed
+                return callback(null, objResult);
+            });
+        } __sendRequest();
     }
 
     // *****************************************************************************
@@ -187,8 +210,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      * Helper function to request the server. This function uses the "$http"
      * service to fire the request. If the same request is fired again, the
      * previous one is canceled.
-     * @private
      * 
+     * @private
      * @param {Object}   strMethod                       string of used HTTP method
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
@@ -228,8 +251,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
     /**
      * Helper function to request with timeout the server.
-     * @private
      * 
+     * @private
      * @param {Object}   strMethod                       string of used HTTP method
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
@@ -260,8 +283,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      * Helper function to process request callbacks - in both success and error
      * scenario. This function transforms two different callbacks into one
      * callback with an error as first argument in error case.
-     * @private
      * 
+     * @private
      * @param {Object}   objRequest                      object of request info and data
      * @param {String}   objRequest.id                   string of an unique identifier for the request
      * @param {Boolean}  [objRequest.isSpinnerDisabled]  (optional) true if request activates spinner
@@ -270,20 +293,18 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      */
     function _requestCallback(objRequest, isError, callback) {
         var strIdentifier = objRequest.id;
+        var objErr;
 
         // return the "$http" success and error callback
         return function(objResult) {
-
-            // if backend sends back to redirect, do so
-            if ($state.current.private && objResult.data.redirect) {
-                $state.transitionTo('signIn');
-            }
             
             // write all tokens in session storage; if there is any token send
             // from server, that means, token needs to be refreshed
             _handleTokens(objResult.headers);
 
-            var objErr = (isError ? objResult.data && objResult.data.err || objResult.err : null);
+            // if it was an error, set the error object with the
+            // whole result data object.
+            objErr = isError && objResult.data || null;
 
             // deactivate canceler of HTTP request
             _objCancelers[strIdentifier] = null;
@@ -305,8 +326,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      * Helper function to handle delivered tokens. If any token is send from
      * server, that means, that token needs to be refreshed (overridden) here
      * on client side.
-     * @private
      * 
+     * @private
      * @param {Function} headers  function to get headers attached to the response
      */
     function _handleTokens(headers) {
@@ -332,8 +353,8 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     /**
      * Helper function to extend the headers (object) with tokens if they
      * are available in local storage.
-     * @private
      * 
+     * @private
      * @param  {Object} objHeaders  object of headers without tokens
      * @return {Object}             object of headers with tokens ... eventually
      */

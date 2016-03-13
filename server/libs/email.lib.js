@@ -27,8 +27,8 @@ var objTemplateEmailForgotPassword =
 
 /**
  * Library function to send and email in the "verify email" process.
- * @public
  * 
+ * @public
  * @param {String}   strEmail  string address the email is send to
  * @param {String}   strRId    string if the Redis ID
  * @param {Function} callback  function for callback
@@ -42,8 +42,8 @@ function sendEmailVerifyEmail(strEmail, strRId, callback) {
 
 /**
  * Library function to send and email in the "forget password" process.
- * @public
  * 
+ * @public
  * @param {String}   strEmail     string address the email is send to
  * @param {String}   strUsername  string of username to be replaced
  * @param {Function} callback     function for callback
@@ -57,8 +57,8 @@ function sendEmailForgotUsername(strEmail, strUsername, callback) {
 
 /**
  * Library function to send and email in the "forget password" process.
- * @public
  * 
+ * @public
  * @param {String}   strEmail  string address the email is send to
  * @param {String}   strRId    string if the Redis ID
  * @param {Function} callback  function for callback
@@ -74,17 +74,14 @@ function sendEmailForgotPassword(strEmail, strRId, callback) {
 
 /**
  * Helper function to send an email in case of "forgot username" scenario.
- * 
+ *
+ * @private
  * @param {String}   strEmail     string address the email is send to
  * @param {String}   strUsername  string of username to be replaced
  * @param {Function} callback     function for callback
  */
 function _sendEmailForForgotUsername(strEmail, strUsername, callback) {
     var objMailOptions;
-
-    if (!callback || 'function' !== typeof callback) {
-        callback = function() {};
-    }
 
     objMailOptions      = clone(objTemplateEmailForgotUsername);
     objMailOptions.to   = strEmail;
@@ -100,8 +97,8 @@ function _sendEmailForForgotUsername(strEmail, strUsername, callback) {
 
 /**
  * Helper function to send an email in general.
- * @private
  * 
+ * @private
  * @param {String}   strUrlPart  string of the URL party that is called with the Redis ID
  * @param {String}   strEmail    string address the email is send to
  * @param {String}   strRId      string if the Redis ID
@@ -109,14 +106,12 @@ function _sendEmailForForgotUsername(strEmail, strUsername, callback) {
  */
 function _sendEmailForVerifyEmailOrForgotPassword(
         strUrlPart, strEmail, strRId, callback) {
-    var strLink, objMailOptions;
+    var strLink, objMailOptions, objTemplate;
 
-    if (!callback || 'function' !== typeof callback) {
-        callback = function() {};
-    }
-
+    objMailOptions      = 'verify-email' === strUrlPart ?
+        clone(objTemplateEmailVerifyEmail) :
+        clone(objTemplateEmailForgotPassword);
     strLink             = path.join(settings.general.system.url, strUrlPart, strRId);
-    objMailOptions      = clone(objTemplateEmailForgotPassword);
     objMailOptions.to   = strEmail;
     objMailOptions.text = objMailOptions.text.replace(regexLink, strLink);
     objMailOptions.html = objMailOptions.html.replace(regexLink, strLink);

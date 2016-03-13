@@ -12,8 +12,8 @@ var User = require('../auth/auth.schema.js').Auth;
 
 /**
  * Service method to get the "public" user data.
- * @public
  * 
+ * @public
  * @param {String}   strUserId  string of request user's id
  * @param {Function} callback   function for callback
  */
@@ -25,6 +25,9 @@ function readUser(strUserId, callback) {
     return User.findOne({ _id: strUserId }, (objErr, objUser) => {
         if (objErr) {
             return callback(objErr);
+        }
+        if (!objUser || !objUser._id || !objUser.username || !objUser.emails) {
+            return callback(true);
         }
 
         objUserResult = {
