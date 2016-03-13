@@ -29,6 +29,7 @@ require('./tasks/production.task.js')(gulp);
 require('./tasks/vendor.task.js')(gulp);
 require('./tasks/servers.task.js')(gulp);
 require('./tasks/version.task.js')(gulp);
+require('./tasks/tests.task.js')(gulp);
 require('./tasks/watchers.js')(gulp);
 
 // *****************************************************************************
@@ -52,6 +53,16 @@ gulp.task('build:dev', callback => runSequence(
 gulp.task('build:prod', callback => runSequence(
     ['scripts:dev', 'styles:dev'],
     ['clean:prod', 'create:prod', 'fonts:prod', 'assets:prod', 'lang:prod'],
+    callback
+));
+
+// *****************************************************************************
+
+/**
+ * Task to test the application.
+ */
+gulp.task('test', callback => runSequence(
+    ['test:server'],
     callback
 ));
 

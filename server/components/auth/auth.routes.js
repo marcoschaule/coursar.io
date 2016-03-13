@@ -29,7 +29,6 @@ function init(app, env) {
 
     return {
         public   : setPublicRoutes,
-        private  : setPrivateRoutes,
         authorize: setAuthorization,
     };
 }
@@ -67,8 +66,8 @@ function setPublicRoutes() {
  * Router function to set public routes.
  * @public
  */
-function setPrivateRoutes() {
-}
+// function setPrivateRoutes() {
+// }
 
 // *****************************************************************************
 
