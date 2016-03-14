@@ -28,7 +28,7 @@ var objOptionsThresholds = {
  * Task to run the Mocha test against the server.
  */
 gulp.task('test:server', () => gulp
-    .src('./tests/server-tests.js', { read: false })
+    .src('./tests/unit/server-tests.js', { read: false })
     .pipe(mocha(objOptionsMocha))
 );
 
@@ -60,7 +60,7 @@ gulp.task('pre-cover:server', () => gulp
  */
 gulp.task('cover:server', ['pre-cover:clean', 'pre-cover:server'], () => gulp
     // just start server tests
-    .src(['./tests/server-tests.js'])
+    .src(['./tests/unit/server-tests.js'])
     // use mocha reporter
     .pipe(mocha())
     // Creating the reports after tests ran

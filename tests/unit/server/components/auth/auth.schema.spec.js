@@ -10,7 +10,7 @@ var assert  = require('chai').assert;
 var sinon   = require('sinon');
 var bequire = require('proxyquire').noCallThru();
 
-var MockMongoose = require(path.join(_getBasedir(), '/tests/_mocks/mongoose.mock.js'));
+var MockMongoose = require(path.join(_getBasedir(), '/tests/unit/_mocks/mongoose.mock.js'));
 var AuthSchema   = bequire(path.join(path.join(_getBasedir(), '/server/components/auth/'), '/auth.schema.js'),
         { 'mongoose': MockMongoose.mongoose });
 
