@@ -4,17 +4,47 @@ module.exports = function(gulp) { 'use strict';
 // Includes and definitions
 // *****************************************************************************
 
+var del      = require('del');
 var istanbul = require('gulp-istanbul');
 var mocha    = require('gulp-mocha');
+
+var objOptionsMocha = {
+    reporter        : 'spec',
+    ui              : 'bdd',
+};
+var objOptionsReports = {
+    dir             : './.coverage',
+    reportOpts      : { dir: './.coverage' },
+};
+var objOptionsThresholds = {
+    thresholds      : { global: 10 },
+};
 
 // *****************************************************************************
 // Basic tasks - server tests
 // *****************************************************************************
 
 /**
- * Task to prepare server testing by loading all files.
+ * Task to run the Mocha test against the server.
  */
-gulp.task('pre-test:server', () => gulp
+gulp.task('test:server', () => gulp
+    .src('./tests/server-tests.js', { read: false })
+    .pipe(mocha(objOptionsMocha))
+);
+
+// *****************************************************************************
+
+/**
+ * Task to clean the coverage folder.
+ */
+gulp.task('pre-cover:clean', () => del(['./.coverage']));
+
+// *****************************************************************************
+
+/**
+ * Task to prepare server coverage testing by loading all files.
+ */
+gulp.task('pre-cover:server', () => gulp
     // load all server files to be tested if required by test files
     .src(['./server/**/*.js'])
     // Covering files
@@ -26,17 +56,17 @@ gulp.task('pre-test:server', () => gulp
 // *****************************************************************************
 
 /**
- * Task to test server files.
+ * Task to test cover server files.
  */
-gulp.task('test:server', ['pre-test:server'], () => gulp
+gulp.task('cover:server', ['pre-cover:clean', 'pre-cover:server'], () => gulp
     // just start server tests
     .src(['./tests/server-tests.js'])
     // use mocha reporter
     .pipe(mocha())
     // Creating the reports after tests ran
-    .pipe(istanbul.writeReports())
+    .pipe(istanbul.writeReports(objOptionsReports))
     // Enforce a coverage of at least 90%
-    .pipe(istanbul.enforceThresholds({ thresholds: { global: 50 } }))
+    .pipe(istanbul.enforceThresholds(objOptionsThresholds))
 );
 
 // *****************************************************************************

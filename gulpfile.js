@@ -59,10 +59,10 @@ gulp.task('build:prod', callback => runSequence(
 // *****************************************************************************
 
 /**
- * Task to test the application.
+ * Task to test and cover the application.
  */
-gulp.task('test', callback => runSequence(
-    ['test:server'],
+gulp.task('cover', callback => runSequence(
+    ['cover:server'],
     callback
 ));
 

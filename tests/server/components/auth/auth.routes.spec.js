@@ -10,9 +10,9 @@ var sinon        = require('sinon');
 var proxyquire   = require('proxyquire').noCallThru();
 
 var strAuthPath  = path.join(_getBasedir(), '/server/components/auth/');
-var AuthCtrlStub = require('./auth.controller.stub.js');
+var AuthCtrlMock = require('./auth.controller.mock.js');
 var AuthRoutes   = proxyquire(path.join(strAuthPath, '/auth.routes.js'),
-        { './auth.controller.js': AuthCtrlStub });
+        { './auth.controller.js': AuthCtrlMock });
 
 // *****************************************************************************
 // Spec definitions
@@ -47,35 +47,35 @@ describe('Authentication route\'s', function() {
         });
         it('* should create a route for sign in', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/sign-in', AuthCtrlStub.signIn));
+            assert.isTrue(objApp.put.calledWith('/sign-in', AuthCtrlMock.signIn));
         });
         it('* should create a route for sign up', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/sign-up', AuthCtrlStub.signUp));
+            assert.isTrue(objApp.put.calledWith('/sign-up', AuthCtrlMock.signUp));
         });
         it('* should create a route for sign out', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/sign-out', AuthCtrlStub.signOut));
+            assert.isTrue(objApp.put.calledWith('/sign-out', AuthCtrlMock.signOut));
         });
         it('* should create a route for forgotten username', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/forgot-username', AuthCtrlStub.forgotUsername));
+            assert.isTrue(objApp.put.calledWith('/forgot-username', AuthCtrlMock.forgotUsername));
         });
         it('* should create a route for forgotten password', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/forgot-password', AuthCtrlStub.forgotPassword));
+            assert.isTrue(objApp.put.calledWith('/forgot-password', AuthCtrlMock.forgotPassword));
         });
         it('* should create a route for resetting password', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/reset-password', AuthCtrlStub.resetPassword));
+            assert.isTrue(objApp.put.calledWith('/reset-password', AuthCtrlMock.resetPassword));
         });
         it('* should create a route for testing if email or username is available', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/is-available', AuthCtrlStub.isAvailable));
+            assert.isTrue(objApp.put.calledWith('/is-available', AuthCtrlMock.isAvailable));
         });
         it('* should create a route for testing if user is signed in', function () {
             assert.isTrue(objApp.put.called);
-            assert.isTrue(objApp.put.calledWith('/is-signed-in', AuthCtrlStub.isSignedIn));
+            assert.isTrue(objApp.put.calledWith('/is-signed-in', AuthCtrlMock.isSignedIn));
         });
     });
 
@@ -90,7 +90,7 @@ describe('Authentication route\'s', function() {
         });
         it('* should create a middleware for authorizing users', function () {
             assert.isTrue(objApp.use.called);
-            assert.isTrue(objApp.use.calledWith(AuthCtrlStub.authorize));
+            assert.isTrue(objApp.use.calledWith(AuthCtrlMock.authorize));
         });
     });
 });

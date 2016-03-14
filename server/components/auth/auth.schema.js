@@ -19,7 +19,7 @@ var Schema   = mongoose.Schema;
  */
 var objAuth = {
     profile: {
-        dateOfBitrh: Date,
+        dateOfBirth: Date,
         gender: {
             type    : String,
             validate: /male|female|other/,
@@ -29,9 +29,9 @@ var objAuth = {
             last : String,
         },
         address: {
-            street    : String,
-            city      : String,
-            postalCode: String,
+            street : String,
+            city   : String,
+            zipcode: String,
         },
     },
     emails: [{
@@ -71,23 +71,6 @@ var objAuth = {
 var schemaAuth = new Schema(objAuth, { collection: 'users' });
 
 // *****************************************************************************
-
-/**
- * Schema object for sign up.
- * 
- * @type {Schema}
- */
-var objSignUp = {
-    username: objAuth.username,
-    email   : Object.assign(objAuth.emails[0].address, { required: true }),
-    password: { type: String, required: true, min: 3, max: 20 },
-};
-var schemaSignUp = new Schema(objSignUp, {
-    toObject: { virtuals: true },
-    toJSON:   { virtuals: true }
-});
-
-// *****************************************************************************
 // Schema methods and statics
 // *****************************************************************************
 
@@ -99,8 +82,7 @@ schemaAuth.methods.compare = _compare;
 // Model definitions
 // *****************************************************************************
 
-var Auth   = mongoose.model('Auth', schemaAuth, 'users');
-var SignUp = mongoose.model('SignUp', schemaSignUp, 'none');
+var Auth = mongoose.model('Auth', schemaAuth, 'users');
 
 // *****************************************************************************
 // Custom validators
@@ -112,6 +94,8 @@ var SignUp = mongoose.model('SignUp', schemaSignUp, 'none');
 
 /**
  * Virtual getter function to get the primary email.
+ *
+ * @private
  */
 schemaAuth.virtual('profile.email').get(() => {
     return this.profile && this.profile.emails && this.profile.emails[0];
@@ -123,7 +107,8 @@ schemaAuth.virtual('profile.email').get(() => {
 
 /**
  * Helper function to validate a field of the given value object.
- * 
+ *
+ * @private
  * @param  {String}   strField              string of the field name
  * @param  {String}   [strFieldValidation]  (optional) string of the validation field name
  * @return {Function}                       function for validation
@@ -141,7 +126,8 @@ function _validateEqual(strField, strFieldValidation) {
 
 /**
  * Helper function to validate an email.
- * 
+ *
+ * @private
  * @param  {String}  strEmail  string of email that needs to be validated
  * @return {Boolean}           true if email is valid
  */
@@ -155,7 +141,8 @@ function _validateEmail(strEmail) {
 /**
  * Helper function to encrypt a password to be saved as a hash with a salt
  * in the database.
- * 
+ *
+ * @private
  * @param  {String} strPassword  string of user password
  * @return {Object}              Object of salt and hash
  */
@@ -175,7 +162,8 @@ function _encrypt(strPassword) {
 /**
  * Helper function to compare a given password with the stored hash
  * generated from the stored salt.
- * 
+ *
+ * @private
  * @param  {String}  strPassword  string of given password
  * @param  {String}  strSalt      string of stored salt
  * @param  {String}  strHash      string of stored hash
@@ -193,11 +181,8 @@ function _compare(strPassword) {
 // *****************************************************************************
 
 module.exports.Auth         = Auth;
-module.exports.SignUp       = SignUp;
 module.exports.schemaAuth   = schemaAuth;
-module.exports.schemaSignUp = schemaSignUp;
 module.exports.objAuth      = objAuth;
-module.exports.objSignUp    = objSignUp;
 
 // ********************************************************************************
 

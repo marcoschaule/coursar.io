@@ -9,12 +9,12 @@
 // *****************************************************************************
 
 /**
- * Stub function to return the authentication controller stub.
+ * Stub function to return the authentication controller mock.
  *
  * @public
  * @return {Object}  object including all variables and functions of the controller
  */
-function getStub() {
+function getMock() {
     var AuthCtrl = {};
 
     AuthCtrl.signIn         = function() {};
@@ -34,7 +34,7 @@ function getStub() {
 // Exports
 // *****************************************************************************
 
-module.exports = getStub();
+module.exports = getMock();
 
 // *****************************************************************************
 
