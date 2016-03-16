@@ -28,6 +28,13 @@ function Controller($state, CioAccountService) {
     // Private variables
     // *****************************************************************************
 
+    vm.flags = {
+        isUsernameInputActive: false,
+        isPasswordInputActive: false,
+    };
+
+    vm.modelChangeUsername = { username: 'MyUsername' };
+
     // *****************************************************************************
     // Public variables
     // *****************************************************************************

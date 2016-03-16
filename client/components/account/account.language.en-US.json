@@ -1,3 +1,7 @@
 {
-    "test1": "test2"
+    "auth.Profile"                                                              : "Profile",
+    "auth.ChangeUsername"                                                       : "Change Username",
+    "auth.ChangePassword"                                                       : "Change Password",
+    
+    "endOfLine":"End of Line"
 }
