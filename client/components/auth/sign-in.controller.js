@@ -36,7 +36,7 @@ function Controller($timeout, $state, CioAuthService) {
 
     vm.modelSignIn = {};
     vm.formSignIn  = {};
-    vm.flags       = {};
+    vm.state       = { signIn: false };
 
     // *****************************************************************************
     // Controller function linking
@@ -65,8 +65,11 @@ function Controller($timeout, $state, CioAuthService) {
         };
 
         return CioAuthService.signIn(objData, function(objErr, objData) {
-            if (objErr) {
-                return;
+            if (objErr && '2003' === objErr.code) {
+                return (vm.state.signIn = 'invalid');
+            }
+            else if (objErr) {
+                return (vm.state.signIn = 'error');
             }
 
             // redirect to the user defined entry page

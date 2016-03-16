@@ -6,6 +6,7 @@
 
 var mongoose       = require('mongoose');
 var uuid           = require('uuid');
+var clone          = require('clone');
 var async          = require('async');
 var AuthRessources = require('./auth.schema.js');
 
@@ -37,6 +38,7 @@ var SignUp         = AuthRessources.SignUp;
 function signIn(objSignIn, objInfo, objSession, callback) {
     var regexUsername = new RegExp('^' + objSignIn.username + '$', 'i');
     var objUserReturn = {};
+    var objErrorReturn;
 
     return Auth.findOne({ $or: [
             { 'username'          : regexUsername },
@@ -47,7 +49,7 @@ function signIn(objSignIn, objInfo, objSession, callback) {
             return callback(settings.errors.signIn.generalError);
         }
         else if (!objUser || !objUser.compare(objSignIn.password)) {
-            return callback(settings.errors.signIn.usernameOrPasswordWrong);
+            return callback({ err: settings.errors.signIn.usernameOrPasswordWrong, redirect: true });
         }
 
         // get MongoDB user id

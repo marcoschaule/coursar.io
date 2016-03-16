@@ -41,7 +41,7 @@ function signIn(req, res, next) {
 
     return AuthService.signIn(objUser, objInfo, req.session, (objErr, objProfile, strToken) => {
         if (objErr) {
-            return res.status(objErr.status || 500).json({ err: objErr });
+            return res.status(objErr.err.status || objErr.status || 500).json(objErr);
         }
 
         // set token in header; from now on,

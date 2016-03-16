@@ -184,18 +184,20 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
             return _sendRequestFinal(strMethod, objRequest, function(objErr, objResult) {
 
                 // if there is an error, try x times to repeat the request
-                if (objErr && (_numRepeatCounterLocal-=1) >= 0) {
+                if (objErr && !objResult.redirect && (_numRepeatCounterLocal-=1) >= 0) {
                     return $timeout(__sendRequest, _numRepeatPeriod);
                 }
 
+                $rootScope.flags.isProcessing = false;
+
                 // if backend responds with a redirect, perform it
-                else if ($state.current.private && objResult.redirect) {
+                if ($state.current.private && objResult.redirect) {
                     return $state.transitionTo('signIn');
                 }
 
                 // if any other error occured, return that error
-                else if (objErr) {
-                    return callback(objErr);
+                if (objErr) {
+                    return callback(objErr.err || objErr);
                 }
 
                 // otherweise proceed to succeed
@@ -225,7 +227,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         var strIdentifier = objRequest.id;
 
         // activate the processing to enable spinners and wait functions, etc.
-        !!objRequest.isSpinnerDisabled && ($rootScope.flags.isProcessing = true);
+        !objRequest.isSpinnerDisabled && ($rootScope.flags.isProcessing = true);
 
         // extend header with tokens if they are available
         _extendHeaders(objRequest.headers);
@@ -313,7 +315,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
             _objTimeouts[strIdentifier] = null;
 
             // deactivate the processing
-            !!objRequest.isSpinnerDisabled && ($rootScope.flags.isProcessing = false);
+            // !objRequest.isSpinnerDisabled && ($rootScope.flags.isProcessing = false);
 
             // call a "normal" callback where first element is the error object
             return callback(objErr, objResult.data, objResult.status);
