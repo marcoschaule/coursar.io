@@ -1,83 +1,30 @@
 h1.border-bottom {{ 'auth.Profile' | translate }}
 
-form.container-fluid(name="vm.formAccount")
+table.table.table-striped
+    tbody
+        tr
+            td Username
+            td {{ vm.modelUser.username }}
+        tr
+            td Email
+            td {{ vm.modelUser.email }}
 
-    fieldset.row
-        .col-xs-3
-            label(for="change-username")
-                |{{ 'auth.Username' | translate }}:
-        .col-xs-9(data-ng-class="{ 'has-error': \
-                vm.formAccount.username.$invalid &&\
-                vm.formAccount.username.$dirty }")
-            input#change-username.form-control(
-                    data-ng-class="{ inactive: !vm.flags.isUsernameInputActive }",
-                    type="text",
-                    name="username",
-                    alt="{{ 'auth.Username' | translate }}",
-                    placeholder="{{ 'auth.Username' | translate }}",
-                    data-ng-disabled="!vm.flags.isUsernameInputActive",
-                    data-ng-required="true",
-                    data-ng-minlength="3",
-                    data-ng-model="vm.modelAccount.username",
-                    cio-input-change-event="vm.isAvailable('Username')")
-    
-    fieldset.row
-        .col-xs-3
-            label(for="change-username")
-                |{{ 'auth.Username' | translate }}:
-        .col-xs-9(data-ng-class="{ 'has-error': \
-                vm.formAccount.username.$invalid &&\
-                vm.formAccount.username.$dirty }")
-            input#change-username.form-control(
-                    data-ng-class="{ inactive: !vm.flags.isUsernameInputActive }",
-                    type="text",
-                    name="username",
-                    alt="{{ 'auth.Username' | translate }}",
-                    placeholder="{{ 'auth.Username' | translate }}",
-                    data-ng-disabled="!vm.flags.isUsernameInputActive",
-                    data-ng-required="true",
-                    data-ng-minlength="3",
-                    data-ng-model="vm.modelAccount.username",
-                    cio-input-change-event="vm.isAvailable('Username')")
-    
-
-        
-            
-            
-
-        fieldset(data-ng-if="vm.flags.isUsernameInputActive")
-            button.btn.btn-primary(
-                    alt="{{ 'auth.SignUp' | translate }}",
-                    data-ng-disabled="vm.formAccount.$invalid")
-                |{{ 'auth.ChangeUsername' | translate }}
-
-.container-fluid
-    form(name="vm.formChangePassword")
-
-        fieldset.form-group.no-margin-bottom(data-ng-class="{ 'has-error': \
-                    vm.formChangePassword.changePassword.$invalid &&\
-                    vm.formChangePassword.changePassword.$dirty }")
-            label.col-xs-3(for="change-password"): .row
-                |{{ 'auth.Password' | translate }}:
-            input.col-xs-9#change-password.form-control(
-                    data-ng-class="{ inactive: !vm.flags.isPasswordInputActive }",
-                    type="text",
-                    name="changePassword",
-                    alt="{{ 'auth.Password' | translate }}",
-                    placeholder="{{ 'auth.Password' | translate }}",
-                    data-ng-disabled="!vm.flags.isPasswordInputActive",
-                    data-ng-required="true",
-                    data-ng-minlength="3",
-                    data-ng-model="vm.modelChangePassword.password",
-                    cio-input-change-event="vm.isAvailable('Password')")
-
-        .vmargin-1rem
-        fieldset(data-ng-if="vm.flags.isPasswordInputActive")
-            button.btn.btn-primary(
-                    alt="{{ 'auth.SignUp' | translate }}",
-                    data-ng-disabled="vm.formChangePassword.$invalid")
-                |{{ 'auth.ChangePassword' | translate }}
-
-
-
-//- a.btn(ng-click="vm.readUser()") Read User
+//- form(name="vm.formAccount")
+    //- fieldset.row
+    //-     .col-xs-3
+    //-         label(for="account-username")
+    //-             |{{ 'auth.Username' | translate }}:
+    //-     .col-xs-9(data-ng-class="{ 'has-error': \
+    //-             vm.formAccount.username.$invalid &&\
+    //-             vm.formAccount.username.$dirty }")
+    //-         input#account-username.form-control(
+    //-                 data-ng-class="{ inactive: !vm.flags.isUsernameInputActive }",
+    //-                 type="text",
+    //-                 name="username",
+    //-                 alt="{{ 'auth.Username' | translate }}",
+    //-                 placeholder="{{ 'auth.Username' | translate }}",
+    //-                 data-ng-disabled="!vm.flags.isUsernameInputActive",
+    //-                 data-ng-required="true",
+    //-                 data-ng-minlength="3",
+    //-                 data-ng-model="vm.modelAccount.username",
+    //-                 cio-input-account-event="vm.isAvailable('Username')")

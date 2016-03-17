@@ -37,6 +37,8 @@ function Service(CioComService) {
     // Public variables
     // *****************************************************************************
 
+    service.objUser = {};
+
     // *****************************************************************************
     // Service function linking
     // *****************************************************************************
@@ -64,6 +66,7 @@ function Service(CioComService) {
             if (objErr) {
                 return callback(objErr);
             }
+            service.objUser = objUser;
             return callback(null, objUser);
         });
     }

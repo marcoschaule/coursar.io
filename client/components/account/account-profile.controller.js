@@ -28,16 +28,15 @@ function Controller($state, CioAccountService) {
     // Private variables
     // *****************************************************************************
 
+    // *****************************************************************************
+    // Public variables
+    // *****************************************************************************
+
     vm.flags = {
         isUsernameInputActive: false,
         isPasswordInputActive: false,
     };
-
-    vm.modelChangeUsername = { username: 'MyUsername' };
-
-    // *****************************************************************************
-    // Public variables
-    // *****************************************************************************
+    vm.modelUser = null;
 
     // *****************************************************************************
     // Controller function linking
@@ -55,13 +54,17 @@ function Controller($state, CioAccountService) {
      */
     function readUser() {
         return CioAccountService.readUser(function(objErr, objUser) {
-            console.log(">>> Debug ====================; objUser:", objUser, '\n\n');
+            vm.modelUser = CioAccountService.objUser;
         });
     }
 
     // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
+
+    function _init() {
+        readUser();
+    } _init();
 
     // *****************************************************************************
 }
