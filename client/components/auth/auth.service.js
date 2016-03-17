@@ -31,6 +31,7 @@ function Service(CioComService) {
     var _strStateRedirect     = 'home';
     var _strUrlSignIn         = '/sign-in';
     var _strUrlSignUp         = '/sign-up';
+    var _strUrlSignOut        = '/sign-out';
     var _strUrlForgotUsername = '/forgot-username';
     var _strUrlForgotPassword = '/forgot-password';
     var _strUrlResetPassword  = '/reset-password';
@@ -54,6 +55,7 @@ function Service(CioComService) {
 
     service.signIn           = signIn;
     service.signUp           = signUp;
+    service.signOut          = signOut;
     service.forgotUsername   = forgotUsername;
     service.forgotPassword   = forgotPassword;
     service.resetPassword    = resetPassword;
@@ -128,6 +130,21 @@ function Service(CioComService) {
 
             return ('function' === typeof callback && callback(null, objData));
         });
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to sign out a user.
+     */
+    function signOut(callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        var objRequest = {
+            id       : 'sign-out',
+            url      : _strUrlSignOut,
+        };
+        return CioComService.put(objRequest, callback);
     }
 
     // *****************************************************************************

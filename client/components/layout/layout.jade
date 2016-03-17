@@ -20,7 +20,9 @@ html(land="en")
         //-         });
         //-     };
 
-    body(data-ng-app="cio").relative
+    body.relative(
+            data-ng-app="cio",
+            data-ng-controller="CioCommonCtrl")
 
         #view-common.container-fluid
             .row
@@ -30,6 +32,7 @@ html(land="en")
                 .col-xs-9(data-ui-view="commonMain")
             .row
                 .col-xs-12(data-ui-view="commonFoot")
+        #view-wide:   div(data-ui-view="wide")
         #view-simple: div(data-ui-view="simple")
 
         .spinner(data-ng-if="flags.isProcessing")

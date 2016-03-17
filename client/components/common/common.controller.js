@@ -1,11 +1,11 @@
 /**
- * @name        CioAccountProfileCtrl
+ * @name        CioCommonCtrl
  * @author      Marc Stark <self@marcstark.com>
  * @file        This file is an AngularJS controller.
  * 
  * @copyright   (c) 2015 marcstark.com, Marc Stark <self@marcstark.com>
  * @license     https://github.com/marcstark/coursar.io/blob/master/LICENSE
- * @readme      https://github.com/marcstark/coursar.io/blob/master/README
+ * @readme      https://github.com/marcstark/coursar.io/blob/master/README.md
  */
 (function() { 'use strict';
 
@@ -15,46 +15,40 @@
 
 angular
     .module('cio-controllers')
-    .controller('CioAccountProfileCtrl', Controller);
+    .controller('CioCommonCtrl', Controller);
 
 // *****************************************************************************
 // Controller definition function
 // *****************************************************************************
 
-function Controller($rootScope, $state, CioAccountService) {
+function Controller($rootScope, $state, CioAuthService) {
     var vm = this;
 
     // *****************************************************************************
     // Private variables
     // *****************************************************************************
-
+    
     // *****************************************************************************
     // Public variables
     // *****************************************************************************
-
-    vm.flags = {
-        isUsernameInputActive: false,
-        isPasswordInputActive: false,
-    };
-    vm.modelUser = null;
 
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
 
-    vm.readUser = readUser;
+    vm.signOut = signOut;
+    $rootScope.signOut = signOut;
 
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
 
     /**
-     * Controller function to read the user from the server.
-     * @public
+     * Controller function to sign out the user.
      */
-    function readUser() {
-        return CioAccountService.readUser(function(objErr, objUser) {
-            vm.modelUser = CioAccountService.objUser;
+    function signOut() {
+        return CioAuthService.signOut(function() {
+            return $state.transitionTo('home');
         });
     }
 
@@ -62,16 +56,12 @@ function Controller($rootScope, $state, CioAccountService) {
     // Helper function definitions
     // *****************************************************************************
 
-    function _init() {
-        readUser();
-    } _init();
-
     // *****************************************************************************
 }
 
 // *****************************************************************************
 
-Controller.$inject = ['$rootScope', '$state', 'CioAccountService'];
+Controller.$inject = ['$rootScope', '$state', 'CioAuthService'];
 
 // *****************************************************************************
 

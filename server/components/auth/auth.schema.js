@@ -21,19 +21,19 @@ var objAuth = {
 
     // user personal data
     profile: {
+        name: {
+            first: String,
+            last: String,
+        },
         dateOfBirth: Date,
         gender: {
             type: String,
             validate: /male|female|other/,
         },
-        name: {
-            first: String,
-            last: String,
-        },
         address: {
             street: String,
-            city: String,
             zipcode: String,
+            city: String,
         },
     },
 
@@ -60,6 +60,24 @@ var objAuth = {
             type: String,
             required: true
         },
+    },
+
+    // time stamps
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedUsernameAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedEmailAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedPasswordAt: {
+        type: Date,
+        default: Date.now,
     },
 
     // flags

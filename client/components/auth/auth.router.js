@@ -8,7 +8,7 @@
  * State of sign in view.
  * @type {Object}
  */
-var stateHomeSignIn = {
+var stateAuthSignIn = {
     url   : '/sign-in',
     name  : 'signIn',
     views : {
@@ -25,7 +25,7 @@ var stateHomeSignIn = {
  * State of sign up view.
  * @type {Object}
  */
-var stateHomeSignUp = {
+var stateAuthSignUp = {
     url   : '/sign-up',
     name  : 'signUp',
     views : {
@@ -39,10 +39,27 @@ var stateHomeSignUp = {
 // *****************************************************************************
 
 /**
+ * State of sign out view.
+ * @type {Object}
+ */
+var stateAuthSignOut = {
+    url   : '/sign-out',
+    name  : 'signOut',
+    views : {
+        simple: {
+            controller : 'CioSignOutCtrl as vm',
+            templateUrl: 'sign-out.template.html',
+        },
+    },
+};
+
+// *****************************************************************************
+
+/**
  * State of forgot password view.
  * @type {Object}
  */
-var stateHomeForgotUsername = {
+var stateAuthForgotUsername = {
     url   : '/forgot-username',
     name  : 'forgotUsername',
     views : {
@@ -59,7 +76,7 @@ var stateHomeForgotUsername = {
  * State of forgot password view.
  * @type {Object}
  */
-var stateHomeForgotPassword = {
+var stateAuthForgotPassword = {
     url   : '/forgot-password',
     name  : 'forgotPassword',
     views : {
@@ -76,7 +93,7 @@ var stateHomeForgotPassword = {
  * State of reset password view.
  * @type {Object}
  */
-var stateHomeResetPassword = {
+var stateAuthResetPassword = {
     url   : '/reset-password/:strRId',
     name  : 'resetPassword',
     views : {
@@ -95,11 +112,12 @@ angular
     .module('cio-routes')
     .config(function($stateProvider) {
         $stateProvider
-            .state(stateHomeSignIn)
-            .state(stateHomeSignUp)
-            .state(stateHomeForgotUsername)
-            .state(stateHomeForgotPassword)
-            .state(stateHomeResetPassword)
+            .state(stateAuthSignIn)
+            .state(stateAuthSignUp)
+            .state(stateAuthSignOut)
+            .state(stateAuthForgotUsername)
+            .state(stateAuthForgotPassword)
+            .state(stateAuthResetPassword)
             ;
     });
 

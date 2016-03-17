@@ -12,7 +12,7 @@ var stateHome = {
     url        : '/',
     name       : 'home',
     views      : {
-        common : {
+        wide : {
             templateUrl: 'landing.template.html',
             controller : 'CioLandingCtrl as vm',
         },

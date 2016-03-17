@@ -1,13 +1,108 @@
-h1.border-bottom {{ 'auth.Profile' | translate }}
+//- sign in and sign up buttons
+#sign
+    a.btn.btn-link(data-ng-click="signOut()") Sign Out
 
+h1 Profile
 table.table.table-striped
     tbody
         tr
-            td Username
-            td {{ vm.modelUser.username }}
+            th.left Name:
+            td.left
+                .text-primary(data-ng-if="vm.modelUser.profile.name.first || \
+                        vm.modelUser.profile.name.last")
+                    |{{ vm.modelUser.profile.name.first }} {{ vm.modelUser.profile.name.last }}
+                .text-muted(data-ng-if="!vm.modelUser.profile.name.first && \
+                        !vm.modelUser.profile.name.last")
+                    |No name defined, yet.
+            td.right
+                button.btn.btn-link
+                    i.fa.fa-pencil
+                    |&nbsp;Edit
         tr
-            td Email
-            td {{ vm.modelUser.email }}
+            th.left Gender:
+            td.left
+                .text-primary(data-ng-if="vm.modelUser.profile.gender")
+                    |{{ vm.modelUser.profile.gender }}
+                .text-muted(data-ng-if="!vm.modelUser.profile.gender")
+                    |No gender defined, yet.
+            td.right
+                button.btn.btn-link
+                    i.fa.fa-pencil
+                    |&nbsp;Edit
+        tr
+            th.left Date of birth:
+            td.left
+                .text-primary(data-ng-if="vm.modelUser.profile.dateOfBirth")
+                    |{{ vm.modelUser.profile.dateOfBirth }}
+                .text-muted(data-ng-if="!vm.modelUser.profile.dateOfBirth")
+                    |No date of birth defined, yet.
+            td.right
+                button.btn.btn-link
+                    i.fa.fa-pencil
+                    |&nbsp;Edit
+        tr
+            th.left Address:
+            td.left
+                .text-muted(data-ng-if="!vm.modelUser.profile.address.street && \
+                        !vm.modelUser.profile.address.city && \
+                        !vm.modelUser.profile.address.zipcode")
+                    |No address defined, yet.
+                .text-primary(data-ng-if="vm.modelUser.profile.address.street || \
+                        vm.modelUser.profile.address.city || \
+                        vm.modelUser.profile.address.zipcode")
+                    |{{ vm.modelUser.profile.address.street }}<br /> 
+                    |{{ vm.modelUser.profile.address.zipcode }} 
+                    |{{ vm.modelUser.profile.address.city }} 
+            td.right
+                button.btn.btn-link
+                    i.fa.fa-pencil
+                    |&nbsp;Edit
+        tr
+            th.left Username:
+            td.left
+                .text-primary
+                    |{{ vm.modelUser.username }}
+                .text-muted(data-ng-if="vm.modelUser.updatedUsernameAt")
+                    |(last updated at: {{ vm.modelUser.updatedUsernameAt }})
+                .text-muted(data-ng-if="!vm.modelUser.updatedUsernameAt")
+                    |(never updated)
+            td.right
+                button.btn.btn-link
+                    i.fa.fa-pencil
+                    |&nbsp;Edit
+        tr
+            th.left Password:
+            td.left
+                .text-primary
+                    |****
+                .text-muted(data-ng-if="vm.modelUser.updatedPasswordAt")
+                    |(last updated at: {{ vm.modelUser.updatedPasswordAt }})
+                .text-muted(data-ng-if="!vm.modelUser.updatedPasswordAt")
+                    |(never updated)
+            td.right
+                button.btn.btn-link
+                    i.fa.fa-pencil
+                    |&nbsp;Edit
+        tr
+            th.left Email:
+            td.left
+                .text-primary
+                    |{{ vm.modelUser.email }} 
+                .text-muted(data-ng-if="vm.modelUser.isVerified")
+                    |(verified)
+                .text-muted(data-ng-if="!vm.modelUser.isVerified")
+                    |(not verified, yet)
+            td.right
+                button.btn.btn-link(data-ng-if="!vm.modelUser.isVerified")
+                    i.fa.fa-check
+                    |&nbsp;Send verification email
+                button.btn.btn-link
+                    i.fa.fa-pencil
+                    |&nbsp;Edit
+        tr
+            td(colspan="3")
+                .text-muted
+                    |{{ vm.modelUser.createdAt | date }}
 
 //- form(name="vm.formAccount")
     //- fieldset.row
