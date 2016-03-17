@@ -18,54 +18,58 @@ var Schema   = mongoose.Schema;
  * @type {Schema}
  */
 var objAuth = {
+
+    // user personal data
     profile: {
         dateOfBirth: Date,
         gender: {
-            type    : String,
+            type: String,
             validate: /male|female|other/,
         },
         name: {
             first: String,
-            last : String,
+            last: String,
         },
         address: {
-            street : String,
-            city   : String,
+            street: String,
+            city: String,
             zipcode: String,
         },
     },
-    emails: [{
-        address: {
-            type    : String,
-            validate: {
-                validator: _validateEmail,
-                message  : settings.errors.common.emailInvalid.message,
-            } 
+
+    // user account data
+    email: {
+        type: String,
+        validate: {
+            validator: _validateEmail,
+            message: settings.errors.common.emailInvalid.message,
         },
-        isVerified: {
-            type   : Boolean,
-            default: false
-        },
-    }],    
-    isAdmin : {
-        type   : Boolean,
-        default: false
     },
     username: {
-        type    : String,
+        type: String,
         required: true,
-        min     : 3,
-        max     : 20
+        min: 3,
+        max: 20
     },
     password: {
         salt: {
-            type    : String,
+            type: String,
             required: true
         },
         hash: {
-            type    : String,
+            type: String,
             required: true
         },
+    },
+
+    // flags
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    isAdmin : {
+        type   : Boolean,
+        default: false
     },
 };
 var schemaAuth = new Schema(objAuth, { collection: 'users' });

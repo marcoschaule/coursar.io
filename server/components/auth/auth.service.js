@@ -41,8 +41,8 @@ function signIn(objSignIn, objInfo, objSession, callback) {
     var objErrorReturn;
 
     return Auth.findOne({ $or: [
-            { 'username'          : regexUsername },
-            { 'emails.0.address'  : regexUsername },
+            { 'username': regexUsername },
+            { 'email'   : regexUsername },
         ] }, (objErr, objUser) => {
         
         if (objErr) {
@@ -103,7 +103,7 @@ function signUp(objSignUp, callback) {
 
             return Auth.findOne({ $or: [
                 { 'username': { $regex: objSignUp.username, $options: 'i' } },
-                { 'emails': { $elemMatch: { address: { $regex: objSignUp.email, $options: 'i' } } } },
+                { 'email'   : { $regex: objSignUp.email,    $options: 'i' } },
             ] }, (objErr, objUser) => {
                 if (objErr) {
                     console.error(objErr);
@@ -113,7 +113,7 @@ function signUp(objSignUp, callback) {
                     console.error(settings.errors.signUp.usernameNotAvailable);
                     return _callback(settings.errors.signUp.generalError);
                 }
-                else if (objUser && objUser.profile && _indexOfEmailInArray(objUser.emails, objSignUp.email) >= 0) {
+                else if (objUser && objUser.profile && objSignUp.email) {
                     console.error(settings.errors.signUp.emailNotAvailable);
                     return _callback(settings.errors.signUp.generalError);
                 }
@@ -130,10 +130,7 @@ function signUp(objSignUp, callback) {
             // create a new authenticated user
             var objUser = new Auth({
                 username: objSignUp.username,
-                emails  : [{
-                    address : objSignUp.email,
-                    verified: false,
-                }],
+                email   : objSignUp.email,
                 password: {
                     hash: objPassword.hash,
                     salt: objPassword.salt,
@@ -213,7 +210,7 @@ function forgotUsername(strEmail, callback) {
         // get the user ID from the email
         (_callback) => {
 
-            return Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
+            return Auth.findOne({ 'email': regexEmail }, (objErr, objUser) => {
                 if (objErr) {
                     console.error(objErr);
                     return _callback(objErr);
@@ -266,7 +263,7 @@ function forgotPassword(strEmail, callback) {
         // get the user ID from the email
         (_callback) => {
 
-            return Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
+            return Auth.findOne({ 'email': regexEmail }, (objErr, objUser) => {
                 if (objErr) {
                     console.error(objErr);
                     return _callback(objErr);
@@ -399,7 +396,7 @@ function setEmail(strUserId, strEmailNew, callback) {
     var numPosition = -1;
 
     return Auth.findOne({ _id: strUserId }, (objErr, objUser) => {
-        if (objErr || !objUser || !objUser.profile || !objUser.emails) {
+        if (objErr || !objUser || !objUser.profile || !objUser.email) {
             return callback(true);
         }
 
@@ -577,7 +574,7 @@ function isUsernameAvailable(strUsername, callback) {
 function isEmailAvailable(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
 
-    return Auth.find({ 'emails': { $elemMatch: { 'address': regexEmail } } },
+    return Auth.find({ 'email': regexEmail },
             (objErr, arrEmails) => {
 
         if (objErr) {
@@ -653,7 +650,7 @@ function _generateResetPasswordRedisEntry(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
     var objHash, strRId;
 
-    return Auth.findOne({ 'emails.0.address': regexEmail }, (objErr, objUser) => {
+    return Auth.findOne({ 'email': regexEmail }, (objErr, objUser) => {
         if (objErr) {
             return callback(objErr);
         }
