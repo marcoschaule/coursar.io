@@ -184,7 +184,10 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
             return _sendRequestFinal(strMethod, objRequest, function(objErr, objResult) {
 
                 // if there is an error, try x times to repeat the request
-                if (objErr && !objResult.redirect && (_numRepeatCounterLocal-=1) >= 0) {
+                if (objErr &&
+                        !objResult.redirect &&
+                        !objResult.disableRepeater &&
+                        (_numRepeatCounterLocal-=1) >= 0) {
                     return $timeout(__sendRequest, _numRepeatPeriod);
                 }
 

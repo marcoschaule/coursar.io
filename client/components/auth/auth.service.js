@@ -32,6 +32,7 @@ function Service(CioComService) {
     var _strUrlSignIn         = '/sign-in';
     var _strUrlSignUp         = '/sign-up';
     var _strUrlSignOut        = '/sign-out';
+    var _strUrlVerifyEmail    = '/verify-email';
     var _strUrlForgotUsername = '/forgot-username';
     var _strUrlForgotPassword = '/forgot-password';
     var _strUrlResetPassword  = '/reset-password';
@@ -56,6 +57,7 @@ function Service(CioComService) {
     service.signIn           = signIn;
     service.signUp           = signUp;
     service.signOut          = signOut;
+    service.verifyEmail      = verifyEmail;
     service.forgotUsername   = forgotUsername;
     service.forgotPassword   = forgotPassword;
     service.resetPassword    = resetPassword;
@@ -143,6 +145,27 @@ function Service(CioComService) {
         var objRequest = {
             id       : 'sign-out',
             url      : _strUrlSignOut,
+        };
+        return CioComService.put(objRequest, callback);
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function verify the user's email.
+     * @public
+     * 
+     * @param {Object}   objData      object of user data
+     * @param {String}   objData.rid  string of Redis session ID
+     * @param {Function} callback     function for callback
+     */
+    function verifyEmail(objData, callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        var objRequest = {
+            id       : 'verify-email',
+            url      : _strUrlVerifyEmail,
+            data     : objData,
         };
         return CioComService.put(objRequest, callback);
     }

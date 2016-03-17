@@ -53,6 +53,24 @@ var stateAuthSignOut = {
     },
 };
 
+
+// *****************************************************************************
+
+/**
+ * State of email verification view.
+ * @type {Object}
+ */
+var stateAuthVerifyEmail = {
+    url   : '/verify-email/:strRId',
+    name  : 'verifyEmail',
+    views : {
+        simple: {
+            controller : 'CioVerifyEmailCtrl as vm',
+            templateUrl: 'verify-email.template.html',
+        },
+    },
+};
+
 // *****************************************************************************
 
 /**
@@ -115,6 +133,7 @@ angular
             .state(stateAuthSignIn)
             .state(stateAuthSignUp)
             .state(stateAuthSignOut)
+            .state(stateAuthVerifyEmail)
             .state(stateAuthForgotUsername)
             .state(stateAuthForgotPassword)
             .state(stateAuthResetPassword)

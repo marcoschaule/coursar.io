@@ -38,46 +38,70 @@ var SignUp         = AuthRessources.SignUp;
 function signIn(objSignIn, objInfo, objSession, callback) {
     var regexUsername = new RegExp('^' + objSignIn.username + '$', 'i');
     var objUserReturn = {};
-    var objErrorReturn;
+    var objErrorReturn, strUserId;
 
-    return Auth.findOne({ $or: [
-            { 'username': regexUsername },
-            { 'email'   : regexUsername },
-        ] }, (objErr, objUser) => {
-        
-        if (objErr) {
-            return callback(settings.errors.signIn.generalError);
-        }
-        else if (!objUser || !objUser.compare(objSignIn.password)) {
-            return callback({ err: settings.errors.signIn.usernameOrPasswordWrong, redirect: true });
-        }
+    return async.waterfall([
 
-        // get MongoDB user id
-        var strUserId = objUser._id.toString();
+        // find user by username or email and compare password
+        (_callback) => {
 
-        // this will be stored in redis
-        objSession.userId       = strUserId;
-        objSession.createdAt    = Date.now();
-        objSession.updatedAt    = Date.now();
-        objSession.sessionAge   = settings.auth.session.sessionAge;
-        objSession.isRemembered = objSignIn.isRemembered;
-        objSession.ua           = objInfo.ua;
-        objSession.ip           = objInfo.ip;
-        objSession.ipo          = null;
-        objSession.isSignedIn   = true;
+            return Auth.findOne({ $or: [
+                    { 'username': regexUsername },
+                    { 'email'   : regexUsername },
+                ] }, (objErr, objUser) => {
+                
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback({ err: settings.errors.signIn.generalError });
+                }
+                else if (!objUser || !objUser.compare(objSignIn.password)) {
+                    console.error(settings.errors.signIn.usernameOrPasswordWrong);
+                    return _callback({ err: settings.errors.signIn.usernameOrPasswordWrong, redirect: true });
+                }
+                return _callback(null, objUser);
+            });
+        },
 
-        return _generateSession(objSession, (objErr, strToken) => {
-            if (objErr) {
-                return callback(objErr);
-            }
+        // setup session data
+        (objUser, _callback) => {
 
-            // this will be send back to the user
-            objUserReturn._id       = strUserId;
-            objUserReturn.username  = objUser.username;
+            // get MongoDB user id
+            strUserId = objUser._id.toString();
 
-            return callback(null, objUserReturn, strToken);
-        });
-    });
+            // this will be stored in redis
+            objSession.userId       = strUserId;
+            objSession.username     = objUser.username;
+            objSession.email        = objUser.email;
+            objSession.createdAt    = Date.now();
+            objSession.updatedAt    = Date.now();
+            objSession.sessionAge   = settings.auth.session.sessionAge;
+            objSession.isRemembered = objSignIn.isRemembered;
+            objSession.ua           = objInfo.ua;
+            objSession.ip           = objInfo.ip;
+            objSession.ipo          = null;
+            objSession.isSignedIn   = true;
+
+            return _callback(null, objUser);
+        },
+
+        // generate session
+        (objUser, _callback) => {
+
+            return _generateSession(objSession, (objErr, strToken) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+
+                // this will be send back to the user
+                objUserReturn._id       = strUserId;
+                objUserReturn.username  = objUser.username;
+
+                return _callback(null, objUserReturn, strToken);
+            });
+        },
+
+    ], callback);
 }
 
 // *****************************************************************************
@@ -146,29 +170,8 @@ function signUp(objSignUp, callback) {
             });
         },
 
-        // set the Redis entry and receive the Redis ID
-        (strUserId, _callback) => {
-
-            return libRedis.setRedisEntryForEmailVerification(strUserId, (objErr, strRId) => {
-                if (objErr) {
-                    console.error(objErr);
-                    return _callback(settings.errors.signUp.generalError);
-                }
-                return _callback(null, strRId);
-            });
-        },
-
-        // send the email address validation email to the user
-        (strRId, _callback) => {
-
-            return libEmail.sendEmailVerifyEmail(objSignUp.email, strRId, (objErr, objResult) => {
-                if (objErr) {
-                    console.error(objErr);
-                    return _callback(settings.errors.signUp.generalError);
-                }
-                return _callback(null);
-            });
-        },
+        // send verification email to the user
+        sendVerificationEmail,
 
     ], callback);
 }
@@ -185,6 +188,105 @@ function signUp(objSignUp, callback) {
  */
 function signOut(objSession, callback) {
     return objSession.destroy(objErr => callback(null));
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to send the verification email.
+ *
+ * @public
+ * @param {String}   objSession  object
+ * @param {Function} callback   function for callback
+ */
+function sendVerificationEmail(objSession, callback) {
+    var strUserId = objSession.userId;
+
+    if (!objSession || !objSession.userId || !objSession.email) {
+        return callback(objErrs.common.sessionMissing);
+    }
+
+    return async.waterfall([
+
+        // set the Redis entry and receive the Redis ID
+        (_callback) => {
+
+            return libRedis.setRedisEntryForEmailVerification(strUserId, (objErr, strRId) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.sendVerificationEmail.generalError);
+                }
+                return _callback(null, strRId);
+            });
+        },
+
+        // send the email address validation email to the user
+        (strRId, _callback) => {
+
+            return libEmail.sendEmailVerifyEmail(objSession.email, strRId, (objErr, objResult) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.sendVerificationEmail.generalError);
+                }
+                return _callback(null);
+            });
+        },
+
+    ], callback);
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to verify the user's email.
+ *
+ * @public
+ * @param {String}   strRId    string of the Redis entry ID
+ * @param {Function} callback  function for callback
+ */
+function verifyEmail(strRId, callback) {
+    var strUserId;
+
+    return async.waterfall([
+    
+        // get user id from Redis entry by key to test if email fits
+        (_callback) => {
+
+            return libRedis.getRedisEntry(strRId, (objErr, objEntry) => {
+                if (objErr && objErr.disableRepeater) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+                else if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.verifyEmail.generalError);
+                }
+                return _callback(null, objEntry.userId);
+            });
+        },
+
+        // verify user from database by user id AND email
+        (strUserId, _callback) => {
+
+            return Auth.update({ _id: strUserId },
+                    { $set: { isVerified: true } },
+                    (objErr, objUser) => {
+
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(settings.errors.verifyEmail.generalError);
+                }
+                return _callback(null);
+            });
+        },
+
+        // delete Redis entry by key
+        (_callback) => {
+
+            return libRedis.deleteRedisEntry(strRId, _callback);
+        },
+
+    ], callback);
 }
 
 // *****************************************************************************
@@ -721,18 +823,20 @@ function _deleteResetPasswordRedisEntry(strRId, callback) {
 // Exports
 // *****************************************************************************
 
-module.exports.signIn              = signIn;
-module.exports.signUp              = signUp;
-module.exports.signOut             = signOut;
-module.exports.forgotUsername      = forgotUsername;
-module.exports.forgotPassword      = forgotPassword;
-module.exports.resetPassword       = resetPassword;
-module.exports.setEmail            = setEmail;
-module.exports.checkSignedIn       = checkSignedIn;
-module.exports.touchSignedIn       = touchSignedIn;
-module.exports.isSignedIn          = isSignedIn;
-module.exports.isUsernameAvailable = isUsernameAvailable;
-module.exports.isEmailAvailable    = isEmailAvailable;
+module.exports.signIn                = signIn;
+module.exports.signUp                = signUp;
+module.exports.signOut               = signOut;
+module.exports.forgotUsername        = forgotUsername;
+module.exports.forgotPassword        = forgotPassword;
+module.exports.resetPassword         = resetPassword;
+module.exports.sendVerificationEmail = sendVerificationEmail;
+module.exports.verifyEmail           = verifyEmail;
+module.exports.setEmail              = setEmail;
+module.exports.checkSignedIn         = checkSignedIn;
+module.exports.touchSignedIn         = touchSignedIn;
+module.exports.isSignedIn            = isSignedIn;
+module.exports.isUsernameAvailable   = isUsernameAvailable;
+module.exports.isEmailAvailable      = isEmailAvailable;
 
 // *****************************************************************************
 

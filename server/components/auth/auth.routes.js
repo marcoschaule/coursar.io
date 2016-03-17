@@ -41,6 +41,8 @@ function init(app, env) {
  */
 function setPublicRoutes() {
 
+    // GET routes (static)
+
     // PUT routes
     _app.put('/sign-in',     
             AuthCtrl.signIn);
@@ -48,6 +50,10 @@ function setPublicRoutes() {
             AuthCtrl.signUp);
     _app.put('/sign-out',    
             AuthCtrl.signOut);
+    _app.put('/send-verification-email',    
+            AuthCtrl.sendVerificationEmail);
+    _app.put('/verify-email',
+            AuthCtrl.verifyEmail);
     _app.put('/forgot-username',    
             AuthCtrl.forgotUsername);
     _app.put('/forgot-password',    

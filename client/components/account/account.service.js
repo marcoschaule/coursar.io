@@ -32,6 +32,7 @@ function Service(CioComService) {
     var _strUrlUserRead   = '/user/read';
     var _strUrlUserUpdate = '/user/update';
     var _strUrlUserDelete = '/user/delete';
+    var _strVerifyEmail   = '/send-verification-email';
 
     // *****************************************************************************
     // Public variables
@@ -43,7 +44,8 @@ function Service(CioComService) {
     // Service function linking
     // *****************************************************************************
 
-    service.readUser = readUser;
+    service.readUser              = readUser;
+    service.sendVerificationEmail = sendVerificationEmail;
 
     // *****************************************************************************
     // Service function definitions
@@ -61,6 +63,30 @@ function Service(CioComService) {
         var objRequest = {
             id : 'read-user',
             url: _strUrlUserRead,
+        };
+        return CioComService.put(objRequest, function(objErr, objUser) {
+            if (objErr) {
+                return callback(objErr);
+            }
+            service.objUser = objUser;
+            return callback(null, objUser);
+        });
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to send the verification email.
+     *
+     * @public
+     * @param {Function} callback  function for callback
+     */
+    function sendVerificationEmail(callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        var objRequest = {
+            id : 'send-verification-email',
+            url: _strVerifyEmail,
         };
         return CioComService.put(objRequest, function(objErr, objUser) {
             if (objErr) {

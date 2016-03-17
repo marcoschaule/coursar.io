@@ -1,5 +1,5 @@
 /**
- * @name        CioResetPasswordCtrl
+ * @name        CioVerifyEmailCtrl
  * @author      Marc Stark <self@marcstark.com>
  * @file        This file is an AngularJS controller.
  * 
@@ -15,7 +15,7 @@
 
 angular
     .module('cio-controllers')
-    .controller('CioResetPasswordCtrl', Controller);
+    .controller('CioVerifyEmailCtrl', Controller);
 
 // *****************************************************************************
 // Controller definition function
@@ -33,37 +33,36 @@ function Controller($state, CioAuthService) {
     // *****************************************************************************
 
     vm.states = {
-        passwordReset: false
+        emailVerified: false
     };
 
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
 
-    vm.resetPassword = resetPassword;
+    vm.verifyEmail = verifyEmail;
 
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
 
     /**
-     * Controller function to reset the password.
+     * Controller function to verify the user's email.
      * @public
      */
-    function resetPassword() {
+    function verifyEmail() {
         var objData = {
-            rid     : $state.params.strRId,
-            password: vm.modelResetPassword.password,
+            rid: $state.params.strRId,
         };
 
-        return CioAuthService.resetPassword(objData, function(objErr) {
-            vm.states.passwordReset = true;
+        return CioAuthService.verifyEmail(objData, function(objErr) {
+            vm.states.emailVerified = true;
 
-            if (objErr && '2302' === objErr.code) {
-                vm.states.passwordReset = 'expired';
+            if (objErr && '2312' === objErr.code) {
+                vm.states.emailVerified = 'expired';
             }
             else if (objErr) {
-                vm.states.passwordReset = 'error';
+                vm.states.emailVerified = 'error';
             }
         });
     }
@@ -79,6 +78,7 @@ function Controller($state, CioAuthService) {
         if (!$state.params.strRId) {
             $state.go('home');
         }
+        verifyEmail();
     } _init();
 
     // *****************************************************************************

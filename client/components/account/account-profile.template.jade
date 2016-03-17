@@ -93,7 +93,9 @@ table.table.table-striped
                 .text-muted(data-ng-if="!vm.modelUser.isVerified")
                     |(not verified, yet)
             td.right
-                button.btn.btn-link(data-ng-if="!vm.modelUser.isVerified")
+                button.btn.btn-link(
+                        data-ng-if="!vm.modelUser.isVerified",
+                        data-ng-click="vm.sendVerificationEmail()")
                     i.fa.fa-check
                     |&nbsp;Send verification email
                 button.btn.btn-link

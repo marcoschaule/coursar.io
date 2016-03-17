@@ -81,7 +81,6 @@ function deleteRedisEntry(strKey, callback) {
 function _setexRedisEntry(strKey, strHash, numMaxAge, callback) {
     return redis.setex(strKey, numMaxAge, strHash, objErr => {
         if (objErr) {
-            console.error(objErr);
             return callback(objErr);
         }
         return callback(null);
@@ -117,7 +116,6 @@ function _setRedisEntryForEmailVerificationOrPasswordReset(
     
     return _setexRedisEntry(strKey, strHash, numMaxAge, objErr => {
         if (objErr) {
-            console.error(objErr);
             return callback(objErr);
         }
         return callback(null, strRId);
@@ -137,8 +135,13 @@ function _setRedisEntryForEmailVerificationOrPasswordReset(
 function _performDefaultQuery(strAction, strKey, callback) {
     return redis[strAction](strKey, (objErr, objReply) => {
         if (objErr) {
-            console.error(objErr);
             return callback(objErr);
+        }
+        else if (!objReply) {
+            return callback({
+                err: settings.errors.verifyEmail.sessionExpired,
+                disableRepeater: true,
+            });
         }
         return callback(null, objReply && JSON.parse(objReply));
     });

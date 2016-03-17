@@ -1,0 +1,23 @@
+include _mixins.include.jade
+
+.wrapper
+    +subnavigationBackToHomepage()
+
+.wrapper(data-ng-if="true === vm.states.emailVerified")
+    h1.border-bottom Email successfully verified.
+    .text-success
+        i.fa.fa-check
+        span &nbsp;Your email is verified. You can close this window now.
+    
+.wrapper(data-ng-if="'error' === vm.states.emailVerified")
+    h1.border-bottom Error trying to verify email.
+    .text-danger
+        i.fa.fa-ban
+        span &nbsp;An error occurred while trying to verify email. Please try again.
+
+.wrapper(data-ng-if="'expired' === vm.states.emailVerified")
+    h1.border-bottom Email verification session expired.
+    .text-danger
+        i.fa.fa-ban
+        span &nbsp;Your email verification session is expired. Please try again.
+    

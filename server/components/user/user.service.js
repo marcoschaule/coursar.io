@@ -26,7 +26,6 @@ function readUser(strUserId, callback) {
         if (objErr) {
             return callback(objErr);
         }
-        console.log(">>> Debug ====================; objUser:", objUser, '\n\n');
         if (!objUser || !objUser._id || !objUser.username || !objUser.email) {
             return callback(true);
         }

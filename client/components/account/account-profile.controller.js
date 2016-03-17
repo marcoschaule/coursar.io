@@ -36,13 +36,17 @@ function Controller($rootScope, $state, CioAccountService) {
         isUsernameInputActive: false,
         isPasswordInputActive: false,
     };
+    vm.states = {
+        verificationEmailSend: false,
+    };
     vm.modelUser = null;
 
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
 
-    vm.readUser = readUser;
+    vm.readUser              = readUser;
+    vm.sendVerificationEmail = sendVerificationEmail;
 
     // *****************************************************************************
     // Controller function definitions
@@ -55,6 +59,20 @@ function Controller($rootScope, $state, CioAccountService) {
     function readUser() {
         return CioAccountService.readUser(function(objErr, objUser) {
             vm.modelUser = CioAccountService.objUser;
+        });
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Controller function to send verification email.
+     */
+    function sendVerificationEmail() {
+        return CioAccountService.sendVerificationEmail(function(objErr) {
+            if (objErr) {
+                return (vm.states.verificationEmailSend = 'error');
+            }
+            return (vm.states.verificationEmailSend = true);
         });
     }
 

@@ -14,12 +14,14 @@ if (!global.settings) {
     global.settings = {};
 }
 settings.errors = {
-    common             : {},
-    signIn             : {},
-    signUp             : {},
-    signOut            : {},
-    resetPassword      : {},
-    checkAuthentication: {},
+    common               : {},
+    signIn               : {},
+    signUp               : {},
+    signOut              : {},
+    sendVerificationEmail: {},
+    verifyEmail          : {},
+    resetPassword        : {},
+    checkAuthentication  : {},
 };
 
 // *****************************************************************************
@@ -46,6 +48,18 @@ settings.errors.common.callbackMissing = {
     status : 500,
     code   : '1001',
     message: 'Callback is missing!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for the "common" scenario "callback missing".
+ * @type {Object}
+ */
+settings.errors.common.sessionMissing = {
+    status : 500,
+    code   : '1002',
+    message: 'Session missing!',
 };
 
 // *****************************************************************************
@@ -199,6 +213,72 @@ settings.errors.signOut.tokenMissing = {
 };
 
 // *****************************************************************************
+// Errors for "send verification email"
+// *****************************************************************************
+
+/**
+ * Error object for "send verification email" scenario "".
+ * @type {Object}
+ */
+settings.errors.sendVerificationEmail.generalError = {
+    status : 500,
+    code   : '2301',
+    message: 'An unexpected error happened while send the verification email!',
+};
+
+// *****************************************************************************
+// Errors for "verify email"
+// *****************************************************************************
+
+/**
+ * Error object for "verify email" scenario "general error".
+ * @type {Object}
+ */
+settings.errors.verifyEmail.generalError = {
+    status : 500,
+    code   : '2311',
+    message: 'An unexpected error happened while verifying your email!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for "verify email" scenario "general error".
+ * @type {Object}
+ */
+settings.errors.verifyEmail.sessionExpired = {
+    status : 401,
+    code   : '2312',
+    message: 'Email verification session is expired!',
+};
+
+// *****************************************************************************
+// Errors for "reset password"
+// *****************************************************************************
+
+/**
+ * Error object for "reset password" scenario "general error".
+ * @type {Object}
+ */
+settings.errors.resetPassword.generalError = {
+    status : 500,
+    code   : '2401',
+    message: 'General error with password reset!',
+};
+
+// *****************************************************************************
+
+/**
+ * Error object for "reset password" scenario "session expired".
+ * @type {Object}
+ */
+settings.errors.resetPassword.sessionExpired = {
+    status : 500,
+    code   : '2402',
+    message: 'Reset password session is expired!',
+};
+
+// *****************************************************************************
 // Errors for "check authentication"
 // *****************************************************************************
 
@@ -222,32 +302,6 @@ settings.errors.checkAuthentication.refreshTokenInvalid = {
     status : 401,
     code   : '2012',
     message: 'Refresh token expired!',
-};
-
-// *****************************************************************************
-// Errors for "reset password"
-// *****************************************************************************
-
-/**
- * Error object for "reset password" scenario "general error".
- * @type {Object}
- */
-settings.errors.resetPassword.generalError = {
-    status : 500,
-    code   : '2301',
-    message: 'General error with password reset!',
-};
-
-// *****************************************************************************
-
-/**
- * Error object for "reset password" scenario "session expired".
- * @type {Object}
- */
-settings.errors.resetPassword.sessionExpired = {
-    status : 500,
-    code   : '2302',
-    message: 'Reset password session is expired!',
 };
 
 // *****************************************************************************

@@ -161,17 +161,34 @@ function _validateEmail(strEmail) {
 // *****************************************************************************
 
 /**
+ * Helper function to generate the password salt.
+ *
+ * @private
+ * @return {String}  string of the salt to be generated
+ */
+function _generateSalt() {
+
+    // create the salt string
+    var strSalt = CryptoJS.lib.WordArray.random(128/8).toString();
+
+    return strSalt;
+}
+
+// *****************************************************************************
+
+/**
  * Helper function to encrypt a password to be saved as a hash with a salt
  * in the database.
  *
  * @private
  * @param  {String} strPassword  string of user password
+ * @param  {String} [strSalt]    (optional) string of user generated salt
  * @return {Object}              Object of salt and hash
  */
-function _encrypt(strPassword) {
-
-    // create the salt string
-    var strSalt = CryptoJS.lib.WordArray.random(128/8).toString();
+function _encrypt(strPassword, strSalt) {
+    if (!strSalt) {
+        strSalt = _generateSalt();
+    }
 
     // create the hash
     var strHash = CryptoJS.PBKDF2(strPassword, strSalt, { keySize: 512/32 }).toString();
@@ -187,15 +204,15 @@ function _encrypt(strPassword) {
  *
  * @private
  * @param  {String}  strPassword  string of given password
- * @param  {String}  strSalt      string of stored salt
- * @param  {String}  strHash      string of stored hash
  * @return {Boolean}              true if both are equal
  */
 function _compare(strPassword) {
     /*jshint validthis: true */
 
+    var objPassword = _encrypt(strPassword, this.password.salt);
+
     // test if password and salt generate the same key
-    return (this.password.hash === CryptoJS.PBKDF2(strPassword, this.password.salt, { keySize: 512/32 })).toString();
+    return (objPassword.hash === this.password.hash);
 }
 
 // *****************************************************************************

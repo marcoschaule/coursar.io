@@ -16,8 +16,8 @@ var AuthService = require('./auth.service.js');
  * @public
  * @param {Object}   req                    object of Express request
  * @param {Object}   req.body               object of request body
- * @param {Object}   req.body.username      string of new user's username
- * @param {Object}   req.body.password      string of new user's password
+ * @param {String}   req.body.username      string of new user's username
+ * @param {String}   req.body.password      string of new user's password
  * @param {Boolean}  req.body.isRemembered  true if user wants to be reminded
  * @param {Object}   res                    object of Express response
  * @param {Function} next                   function of callback for next middleware
@@ -67,8 +67,8 @@ function signIn(req, res, next) {
  * @param {Object}   req                object of Express request
  * @param {Object}   req.body           object of request body
  * @param {Object}   req.body.email     string of new user's email
- * @param {Object}   req.body.username  string of new user's username
- * @param {Object}   req.body.password  string of new user's password
+ * @param {String}   req.body.username  string of new user's username
+ * @param {String}   req.body.password  string of new user's password
  * @param {Object}   res                object of Express response
  * @param {Function} next               function of callback for next middleware
  */
@@ -104,19 +104,61 @@ function signOut(req, res, next) {
 // *****************************************************************************
 
 /**
+ * Controller function to verify the email.
+ * 
+ * @public
+ * @param {Object}   req                 object of express default request
+ * @param {Object}   res                 object of express default response
+ * @param {Object}   req.session         object of user's session
+ * @param {String}   req.session.userId  string of the user's MongoDB ID
+ * @param {Function} next                function for next middleware
+ */
+function sendVerificationEmail(req, res, next) {
+    return AuthService.sendVerificationEmail(req.session, objErr => {
+        if (objErr) {
+            return res.status(objErr.status || 500).json({ err: objErr });
+        }
+        return res.status(201).json({ success: true });
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to verify the email.
+ * 
+ * @public
+ * @param {Object}   req              object of express default request
+ * @param {Object}   res              object of express default response
+ * @param {Object}   req.body         object of request parameters
+ * @param {String}   req.body.strRId  string of the Redis entry ID
+ * @param {Function} next             function for next middleware
+ */
+function verifyEmail(req, res, next) {
+    return AuthService.verifyEmail(req.body.rid, objErr => {
+        if (objErr) {
+            return res.status(objErr.status || 500).json(objErr);
+        }
+        return res.status(201).json({ success: true });
+    });
+}
+
+// *****************************************************************************
+
+/**
  * Controller function to request the username if forgotten.
  * 
  * @public
  * @param {Object}   req             object of default express request
  * @param {Object}   req.body        object of request body
- * @param {Object}   req.body.email  string of the user's email
+ * @param {String}   req.body.email  string of the user's email
  * @param {Object}   res             object of default express response
  * @param {Function} next            function for next middleware
  */
 function forgotUsername(req, res, next) {
     return AuthService.forgotUsername(req.body.email, objErr => {
         if (objErr) {
-            return res.status(500).json({});
+            return res.status(objErr.status || 500).json({});
         }
         return res.status(201).json({});
     });
@@ -130,7 +172,7 @@ function forgotUsername(req, res, next) {
  * @public
  * @param {Object}   req             object of default express request
  * @param {Object}   req.body        object of request body
- * @param {Object}   req.body.email  string of the user's email
+ * @param {String}   req.body.email  string of the user's email
  * @param {Object}   res             object of default express response
  * @param {Function} next            function for next middleware
  */
@@ -152,7 +194,7 @@ function forgotPassword(req, res, next) {
  * @param {Object}   req                object of default express request
  * @param {Object}   req.body           object of request body
  * @param {Object}   req.body.rid       string of the Redis id from the email
- * @param {Object}   req.body.password  string of the new password
+ * @param {String}   req.body.password  string of the new password
  * @param {Object}   res                object of default express response
  * @param {Function} next               function for next middleware
  */
@@ -162,6 +204,38 @@ function resetPassword(req, res, next) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
         return res.status(201).json({ success: true });
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to check if the user is still signed in.
+ * 
+ * @public
+ * @param {Object}   req          object of express default request
+ * @param {Object}   res.session  object of user's session
+ * @param {Object}   res          object of express default response
+ * @param {Function} next         function for next middleware
+ */
+function checkSignedIn(req, res, next) {
+    return AuthService.checkSignedIn(req.session, next);
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to refresh the session on user action.
+ * 
+ * @public
+ * @param {Object}   req          object of express default request
+ * @param {Object}   req.session  object of user's session
+ * @param {Object}   res          object of express default response
+ * @param {Function} next         function for next middleware
+ */
+function touchSignedIn(req, res, next) {
+    return AuthService.touchSignedIn(req.session, objErr => {
+        return next();
     });
 }
 
@@ -189,8 +263,8 @@ function isSignedIn(req, res, next) {
  * @public
  * @param {Object}   req                object of default express request
  * @param {Object}   req.body           object of request body
- * @param {Object}   req.body.email     string of the email to be tested
- * @param {Object}   req.body.username  string of the username to be tested
+ * @param {String}   req.body.email     string of the email to be tested
+ * @param {String}   req.body.username  string of the username to be tested
  * @param {Object}   res                object of default express response
  * @param {Function} next               function for next middleware
  */
@@ -206,36 +280,6 @@ function isAvailable(req, res, next) {
             return next(objErr);
         }
         return res.status(200).json({ isAvailable: !!isAvailable });
-    });
-}
-
-// *****************************************************************************
-
-/**
- * Controller function to check if the user is still signed in.
- * 
- * @public
- * @param {Object}   req   object of express default request
- * @param {Object}   res   object of express default response
- * @param {Function} next  function for next middleware
- */
-function checkSignedIn(req, res, next) {
-    return AuthService.checkSignedIn(req.session, next);
-}
-
-// *****************************************************************************
-
-/**
- * Controller function to refresh the session on user action.
- * 
- * @public
- * @param {Object}   req   object of express default request
- * @param {Object}   res   object of express default response
- * @param {Function} next  function for next middleware
- */
-function touchSignedIn(req, res, next) {
-    return AuthService.touchSignedIn(req.session, objErr => {
-        return next();
     });
 }
 
@@ -271,17 +315,19 @@ function authorize(req, res, next) {
 // Exports
 // *****************************************************************************
 
-module.exports.signIn         = signIn;
-module.exports.signUp         = signUp;
-module.exports.signOut        = signOut;
-module.exports.forgotUsername = forgotUsername;
-module.exports.forgotPassword = forgotPassword;
-module.exports.resetPassword  = resetPassword;
-module.exports.isSignedIn     = isSignedIn;
-module.exports.isAvailable    = isAvailable;
-module.exports.checkSignedIn  = checkSignedIn;
-module.exports.touchSignedIn  = touchSignedIn;
-module.exports.authorize      = authorize;
+module.exports.signIn                = signIn;
+module.exports.signUp                = signUp;
+module.exports.signOut               = signOut;
+module.exports.forgotUsername        = forgotUsername;
+module.exports.forgotPassword        = forgotPassword;
+module.exports.resetPassword         = resetPassword;
+module.exports.sendVerificationEmail = sendVerificationEmail;
+module.exports.verifyEmail           = verifyEmail;
+module.exports.checkSignedIn         = checkSignedIn;
+module.exports.touchSignedIn         = touchSignedIn;
+module.exports.isSignedIn            = isSignedIn;
+module.exports.isAvailable           = isAvailable;
+module.exports.authorize             = authorize;
 
 // *****************************************************************************
 // Helpers

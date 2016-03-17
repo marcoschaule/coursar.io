@@ -41,6 +41,7 @@
     "express": "^5.0.0-alpha.2",
     "express-session": "^1.12.1",
     "helmet": "^1.0.1",
+    "jade": "^1.11.0",
     "jwt-redis-session": "^1.0.3",
     "mongoose": "^4.3.7",
     "node-svgcaptcha": "^1.0.1",
