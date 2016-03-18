@@ -1,0 +1,6 @@
+{
+    "from"   : "\"Coursar.io\" <info@coursar.io>",
+    "subject": "Security Protection",
+    "text"   : "Your account might be compromised. Due to our protective intervention response you receive this email to be informed. Please change your password.",
+    "html"   : "<h1>Your account might be compromised.</h1>\n\n<p>Due to our protective intervention response you receive this email to be informed. Please change your password.</p>"
+}

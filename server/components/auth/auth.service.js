@@ -603,12 +603,13 @@ function checkSignedIn(objSession, objInfo, callback) {
     // If current and last IP are not different and last IP is not null,
     // sign out to prevent from token hijacking.
     else if (null !== objSession.ipLast && objSession.ipCurrent !== objInfo.ip) {
-        console.error('IP is different. Sign out!');
         isIpDifferent = true;
     }
 
-    if (isUserAgentDifferent) {
-        console.error('User agent different. Sign out!');
+    // if user agent or IP is different, send an intervention email
+    if (isUserAgentDifferent || isIpDifferent) {
+        console.error('User agent or IP different. Sign out!');
+        libEmail.sendEmailIntervention(objSession.email);
     }
 
     // if session is not remembered and older than "sessionAge", destroy it

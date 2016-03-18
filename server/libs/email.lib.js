@@ -15,11 +15,13 @@ var regexLink      = new RegExp('\\$\\{link\\}', 'gim');
 
 // email templates
 var objTemplateEmailVerifyEmail =
-    require('../templates/emails/verify-email.template.json');
+    require('../templates/emails/verify-email.email-template.json');
 var objTemplateEmailForgotUsername =
-    require('../templates/emails/forgot-username.template.json');
+    require('../templates/emails/forgot-username.email-template.json');
 var objTemplateEmailForgotPassword =
-    require('../templates/emails/forgot-password.template.json');
+    require('../templates/emails/forgot-password.email-template.json');
+var objTemplateEmailIntervention =
+    require('../templates/emails/intervention.email-template.json');
 
 // *****************************************************************************
 // Library function definitions
@@ -29,11 +31,12 @@ var objTemplateEmailForgotPassword =
  * Library function to send and email in the "verify email" process.
  * 
  * @public
- * @param {String}   strEmail  string address the email is send to
- * @param {String}   strRId    string if the Redis ID
- * @param {Function} callback  function for callback
+ * @param {String}   strEmail    string address the email is send to
+ * @param {String}   strRId      string if the Redis ID
+ * @param {Function} [callback]  (optional) function for callback
  */
 function sendEmailVerifyEmail(strEmail, strRId, callback) {
+    callback = ('function' === typeof callback && callback || function(){});
     return _sendEmailForVerifyEmailOrForgotPassword(
             'verify-email', strEmail, strRId, callback);
 }
@@ -44,11 +47,12 @@ function sendEmailVerifyEmail(strEmail, strRId, callback) {
  * Library function to send and email in the "forget password" process.
  * 
  * @public
- * @param {String}   strEmail     string address the email is send to
- * @param {String}   strUsername  string of username to be replaced
- * @param {Function} callback     function for callback
+ * @param {String}   strEmail       string address the email is send to
+ * @param {String}   strUsername    string of username to be replaced
+ * @param {Function} [callback]     (optional) function for callback
  */
 function sendEmailForgotUsername(strEmail, strUsername, callback) {
+    callback = ('function' === typeof callback && callback || function(){});
     return _sendEmailForForgotUsername(
             strEmail, strUsername, callback);
 }
@@ -59,17 +63,54 @@ function sendEmailForgotUsername(strEmail, strUsername, callback) {
  * Library function to send and email in the "forget password" process.
  * 
  * @public
- * @param {String}   strEmail  string address the email is send to
- * @param {String}   strRId    string if the Redis ID
- * @param {Function} callback  function for callback
+ * @param {String}   strEmail    string address the email is send to
+ * @param {String}   strRId      string if the Redis ID
+ * @param {Function} [callback]  (optional) function for callback
  */
 function sendEmailForgotPassword(strEmail, strRId, callback) {
+    callback = ('function' === typeof callback && callback || function(){});
     return _sendEmailForVerifyEmailOrForgotPassword(
             'reset-password', strEmail, strRId, callback);
 }
 
 // *****************************************************************************
+
+/**
+ * Library function to send an email for security intervention.
+ *
+ * @public
+ * @param {String}   strEmail    string of address the email is send to
+ * @param {Function} [callback]  (optional) function for callback
+ */
+function sendEmailIntervention(strEmail, callback) {
+    callback = ('function' === typeof callback && callback || function(){});
+    return _sendEmail(objTemplateEmailIntervention,
+        strEmail, callback);
+}
+
+// *****************************************************************************
 // Helper function definitions
+// *****************************************************************************
+
+/**
+ * Helper function to send an email without change.
+ *
+ * @private
+ * @param {String}   objTemplate  object of the template content
+ * @param {String}   strEmail     string of address the email is send to
+ * @param {Function} callback     function for callback
+ */
+function _sendEmail(objTemplate, strEmail, callback) {
+    var objMailOptions;
+
+    objMailOptions    = clone(objTemplate);
+    objMailOptions.to = strEmail;
+
+    // send mail with defined transport object
+    return transporter.sendMail(objMailOptions, (objErr, objReply) => 
+        callback(objErr, objReply && objReply.repsonse));
+}
+
 // *****************************************************************************
 
 /**
@@ -126,8 +167,9 @@ function _sendEmailForVerifyEmailOrForgotPassword(
 // *****************************************************************************
 
 module.exports.sendEmailVerifyEmail    = sendEmailVerifyEmail;
+module.exports.sendEmailVerifyEmail    = sendEmailVerifyEmail;
 module.exports.sendEmailForgotUsername = sendEmailForgotUsername;
-module.exports.sendEmailForgotPassword = sendEmailForgotPassword;
+module.exports.sendEmailIntervention   = sendEmailIntervention;
 
 // *****************************************************************************
 
