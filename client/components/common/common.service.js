@@ -337,20 +337,20 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      */
     function _handleTokens(headers) {
         var strAccessToken = headers('X-Access-Token');
+        var strCsrfToken   = headers('X-CSRF-Token');
+
         if ('delete' === strAccessToken) {
             $window.localStorage.removeItem('accessToken');
         }
         else if (strAccessToken) {
             $window.localStorage.accessToken = strAccessToken;
         }
-        
-        // var strCsrfToken   = headers('X-CSRF-Token');
-        // if ('delete' === strCsrfToken) {
-        //     $window.localStorage.removeItem('csrfToken');
-        // }
-        // else if (strCsrfToken) {
-        //     $window.localStorage.csrfToken = strCsrfToken;
-        // }
+        if ('delete' === strCsrfToken) {
+            $window.localStorage.removeItem('csrfToken');
+        }
+        else if (strCsrfToken) {
+            $window.localStorage.csrfToken = strCsrfToken;
+        }
     }
 
     // *****************************************************************************
@@ -367,9 +367,9 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         if ($window.localStorage.accessToken) {
             objHeaders['X-Access-Token'] = $window.localStorage.accessToken;
         }
-        // if ($window.localStorage.csrfToken) {
-        //     objHeaders['X-CSRF-Token'] = $window.localStorage.csrfToken;
-        // }
+        if ($window.localStorage.csrfToken) {
+            objHeaders['X-CSRF-Token'] = $window.localStorage.csrfToken;
+        }
         return objHeaders;
     }
 

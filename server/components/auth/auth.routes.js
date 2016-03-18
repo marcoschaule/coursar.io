@@ -41,22 +41,24 @@ function init(app, env) {
  */
 function setPublicRoutes() {
 
+    // GET routes (static)
+
     // PUT routes
-    _app.put('/sign-in',
+    _app.put('/sign-in',     
             AuthCtrl.signIn);
-    _app.put('/sign-up',
+    _app.put('/sign-up',     
             AuthCtrl.signUp);
-    _app.put('/sign-out',
+    _app.put('/sign-out',    
             AuthCtrl.signOut);
-    _app.put('/send-verification-email',
+    _app.put('/send-verification-email',    
             AuthCtrl.sendVerificationEmail);
     _app.put('/verify-email',
             AuthCtrl.verifyEmail);
-    _app.put('/forgot-username',
+    _app.put('/forgot-username',    
             AuthCtrl.forgotUsername);
-    _app.put('/forgot-password',
+    _app.put('/forgot-password',    
             AuthCtrl.forgotPassword);
-    _app.put('/reset-password',
+    _app.put('/reset-password',    
             AuthCtrl.resetPassword);
     _app.put('/is-available',
             AuthCtrl.isAvailable);
