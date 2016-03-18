@@ -20,6 +20,8 @@ require('./settings/paths.settings.js');
 require('./settings/captcha.settings.js');
 
 // requires
+var https           = require('https');
+var fs              = require('fs');
 var express         = require('express');
 var redis           = require('redis');
 var mongoose        = require('mongoose');
@@ -35,6 +37,13 @@ var port            = (process.env.PORT     || settings.general.system.port)*1;
 var app             = express();
 var strStaticFolder = path.join(__dirname, '../.build/', env);
 var objRedisClient, objRedisSettings;
+
+var objServerOptions = {
+    key               : fs.readFileSync('./.ssh/server.key'),
+    cert              : fs.readFileSync('./.ssh/server.crt'),
+    requestCert       : false,
+    rejectUnauthorized: false,
+};
 
 // *****************************************************************************
 // Redis and MongoDB setup
@@ -102,9 +111,13 @@ app.use((objErr, req, res, next) => {
 // Startup
 // *****************************************************************************
 
-app.listen(port, () => {
+var server = https.createServer(objServerOptions, app).listen(3000, function() {
     console.log(`Node-Server running on port ${port} in environment ${env}!`);
 });
+
+// app.listen(port, () => {
+//     console.log(`Node-Server running on port ${port} in environment ${env}!`);
+// });
 
 // *****************************************************************************
 // Helper functions
