@@ -77,8 +77,8 @@ function signIn(objSignIn, objInfo, objSession, callback) {
             objSession.sessionAge   = settings.auth.session.sessionAge;
             objSession.isRemembered = objSignIn.isRemembered;
             objSession.ua           = objInfo.ua;
-            objSession.ip           = objInfo.ip;
-            objSession.ipo          = null;
+            objSession.ipCurrent    = objInfo.ip;
+            objSession.ipLast       = null;
             objSession.isSignedIn   = true;
 
             return _callback(null, objUser);
@@ -563,9 +563,10 @@ function setEmail(strUserId, strEmailNew, callback) {
  *
  * @public
  * @param {Object}   objSession  object of the user's session
+ * @param {Object}   objInfo     object of the request information
  * @param {Function} callback    function for callback
  */
-function checkSignedIn(objSession, callback) {
+function checkSignedIn(objSession, objInfo, callback) {
     var _isSignedIn      = isSignedIn(objSession);
     var objIsNotSignedIn = { isSignedIn: false };
 
@@ -585,20 +586,37 @@ function checkSignedIn(objSession, callback) {
         !!objSession.isRemembered &&
         isSessionOlderThanMaxAge &&
         isSessionOlderThanSessionAge;
-
-    // console.log(">>> Debug ====================; objSession.isRemembered:", objSession.isRemembered);
-    // console.log(">>> Debug ====================; isSessionOlderThanSessionAge:", isSessionOlderThanSessionAge);
-    // console.log(">>> Debug ====================; isSessionOlderThanMaxAge:", isSessionOlderThanMaxAge);
-    // console.log(">>> Debug ====================; isSessionNotRememberedAndOlderThanSessionAge:", isSessionNotRememberedAndOlderThanSessionAge);
-    // console.log(">>> Debug ====================; isSessionRememberedAndOlderThanMaxAge:", isSessionRememberedAndOlderThanMaxAge, '\n\n');
+    var isUserAgentDifferent = objSession.ua !== objInfo.ua;
+    var isIpDifferent = false;
 
     // set a new "updatedAt" date
     objSession.updatedAt = Date.now();
 
+    // If last IP is not set, yet, and the current IP is different from the
+    // saved UP, update current and last. From then on, the current and the last
+    // should be different.
+    if (null === objSession.ipLast && objSession.ipCurrent !== objInfo.ip) {
+        objSession.ipLast    = objSession.ipCurrent;
+        objSession.ipCurrent = objInfo.ip;
+    }
+
+    // If current and last IP are not different and last IP is not null,
+    // sign out to prevent from token hijacking.
+    else if (null !== objSession.ipLast && objSession.ipCurrent !== objInfo.ip) {
+        console.error('IP is different. Sign out!');
+        isIpDifferent = true;
+    }
+
+    if (isUserAgentDifferent) {
+        console.error('User agent different. Sign out!');
+    }
+
     // if session is not remembered and older than "sessionAge", destroy it
     // or if session is remembered but older than "maxAge" and "sessionage"
     if (isSessionNotRememberedAndOlderThanSessionAge ||
-            isSessionRememberedAndOlderThanMaxAge) {
+            isSessionRememberedAndOlderThanMaxAge ||
+            isUserAgentDifferent ||
+            isIpDifferent) {
         
         return objSession.destroy(objErr => {
             return callback(objIsNotSignedIn);

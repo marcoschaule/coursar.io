@@ -33,11 +33,7 @@ function signIn(req, res, next) {
     };
 
     // create object for additional (user) information
-    objInfo = {
-        ua: req.headers['user-agent'],
-        ip: req.headers['x-forwarded-for'] ||
-            req.connection.remoteAddress,
-    };
+    objInfo = _getRequestInfo(req);
 
     return AuthService.signIn(objUser, objInfo, req.session, (objErr, objProfile, strToken) => {
         if (objErr) {
@@ -224,7 +220,8 @@ function resetPassword(req, res, next) {
  * @param {Function} next         function for next middleware
  */
 function checkSignedIn(req, res, next) {
-    return AuthService.checkSignedIn(req.session, next);
+    var objInfo = _getRequestInfo(req);
+    return AuthService.checkSignedIn(req.session, objInfo, next);
 }
 
 // *****************************************************************************
@@ -302,7 +299,9 @@ function isAvailable(req, res, next) {
  * @param {Function} next  function for next middleware
  */
 function authorize(req, res, next) {
-    return AuthService.checkSignedIn(req.session, objErr => {
+    var objInfo = _getRequestInfo(req);
+
+    return AuthService.checkSignedIn(req.session, objInfo, objErr => {
         if (objErr) {
             console.error(objErr);
             return next({ err: 'Error: user is not signed in!', redirect: true, status: 401 });
@@ -314,6 +313,28 @@ function authorize(req, res, next) {
 
         return next(null);
     });
+}
+
+// *****************************************************************************
+// Helper functions
+// *****************************************************************************
+
+/**
+ * Helper function to gather the request information like IP and user agent.
+ *
+ * @private
+ * @param  {Object} req          object of express default request
+ * @param  {Object} req.headers  object of the user request header
+ * @return {Object}              object of the request info
+ */
+function _getRequestInfo(req) {
+    var objInfo = {
+        ua: req.headers['user-agent'],
+        ip: req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress,
+    };
+
+    return objInfo;
 }
 
 // *****************************************************************************
