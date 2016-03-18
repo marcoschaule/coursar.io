@@ -93,6 +93,7 @@ function signOut(req, res, next) {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
+        res.set('X-Access-Token', 'delete');
         return res.status(200).json({ isRedirect: true });
     });
 }
@@ -304,12 +305,12 @@ function authorize(req, res, next) {
     return AuthService.checkSignedIn(req.session, objInfo, objErr => {
         if (objErr) {
             console.error(objErr);
+            res.set('X-Access-Token', 'delete');
             return next({ err: 'Error: user is not signed in!', redirect: true, status: 401 });
         }
         
         // set access token and CSRF token in header
         res.set('X-Access-Token', req.session.jwt);
-        res.set('X-CSRF-Token',   'CSRF-Token');
 
         return next(null);
     });
