@@ -171,7 +171,16 @@ function signUp(objSignUp, callback) {
         },
 
         // send verification email to the user
-        sendVerificationEmail,
+        (strUserId, _callback) => {
+
+            return sendVerificationEmail(strUserId, objSignUp.email, objErr => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+                return _callback(null);
+            });
+        },
 
     ], callback);
 }
@@ -196,13 +205,12 @@ function signOut(objSession, callback) {
  * Service function to send the verification email.
  *
  * @public
- * @param {String}   objSession  object
+ * @param {String}   strUserId  string of user's id
+ * @param {String}   strEmail   string of user's email
  * @param {Function} callback   function for callback
  */
-function sendVerificationEmail(objSession, callback) {
-    var strUserId = objSession.userId;
-
-    if (!objSession || !objSession.userId || !objSession.email) {
+function sendVerificationEmail(strUserId, strEmail, callback) {
+    if (!strUserId || !strEmail) {
         return callback(objErrs.common.sessionMissing);
     }
 
@@ -223,7 +231,7 @@ function sendVerificationEmail(objSession, callback) {
         // send the email address validation email to the user
         (strRId, _callback) => {
 
-            return libEmail.sendEmailVerifyEmail(objSession.email, strRId, (objErr, objResult) => {
+            return libEmail.sendEmailVerifyEmail(strEmail, strRId, (objErr, objResult) => {
                 if (objErr) {
                     console.error(objErr);
                     return _callback(settings.errors.sendVerificationEmail.generalError);
@@ -252,7 +260,7 @@ function verifyEmail(strRId, callback) {
         // get user id from Redis entry by key to test if email fits
         (_callback) => {
 
-            return libRedis.getRedisEntry(strRId, (objErr, objEntry) => {
+            return libRedis.getRedisEntry('ever:' + strRId, (objErr, objEntry) => {
                 if (objErr && objErr.disableRepeater) {
                     console.error(objErr);
                     return _callback(objErr);
@@ -283,7 +291,7 @@ function verifyEmail(strRId, callback) {
         // delete Redis entry by key
         (_callback) => {
 
-            return libRedis.deleteRedisEntry(strRId, _callback);
+            return libRedis.deleteRedisEntry('ever:' + strRId, _callback);
         },
 
     ], callback);

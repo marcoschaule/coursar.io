@@ -15,7 +15,7 @@ table.table.table-striped
                         !vm.modelUser.profile.name.last")
                     |No name defined, yet.
             td.right
-                button.btn.btn-link
+                a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
         tr
@@ -26,7 +26,7 @@ table.table.table-striped
                 .text-muted(data-ng-if="!vm.modelUser.profile.gender")
                     |No gender defined, yet.
             td.right
-                button.btn.btn-link
+                a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
         tr
@@ -37,7 +37,7 @@ table.table.table-striped
                 .text-muted(data-ng-if="!vm.modelUser.profile.dateOfBirth")
                     |No date of birth defined, yet.
             td.right
-                button.btn.btn-link
+                a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
         tr
@@ -54,7 +54,7 @@ table.table.table-striped
                     |{{ vm.modelUser.profile.address.zipcode }} 
                     |{{ vm.modelUser.profile.address.city }} 
             td.right
-                button.btn.btn-link
+                a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
         tr
@@ -67,7 +67,7 @@ table.table.table-striped
                 .text-muted(data-ng-if="!vm.modelUser.updatedUsernameAt")
                     |(never updated)
             td.right
-                button.btn.btn-link
+                a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
         tr
@@ -93,12 +93,20 @@ table.table.table-striped
                 .text-muted(data-ng-if="!vm.modelUser.isVerified")
                     |(not verified, yet)
             td.right
-                button.btn.btn-link(
+                a.btn.btn-link(
                         data-ng-if="!vm.modelUser.isVerified",
-                        data-ng-click="vm.sendVerificationEmail()")
-                    i.fa.fa-check
-                    |&nbsp;Send verification email
-                button.btn.btn-link
+                        data-ng-click="true !== vm.states.verificationEmailSend && \
+                            vm.sendVerificationEmail()")
+                    span.text-primary(data-ng-if="false === vm.states.verificationEmailSend")
+                        i.fa.fa-envelope
+                        |&nbsp;Send verification email
+                    span.text-success(data-ng-if="true === vm.states.verificationEmailSend")
+                        i.fa.fa-check
+                        |&nbsp;Email verification send
+                    span.text-danger(data-ng-if="'error' === vm.states.verificationEmailSend")
+                        i.fa.fa-ban.text-danger
+                        |&nbsp;An unexpected error occurred. Please try again.
+                a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
         tr

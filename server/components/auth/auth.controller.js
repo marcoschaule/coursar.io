@@ -111,10 +111,15 @@ function signOut(req, res, next) {
  * @param {Object}   res                 object of express default response
  * @param {Object}   req.session         object of user's session
  * @param {String}   req.session.userId  string of the user's MongoDB ID
+ * @param {String}   req.session.email   string of the user's email
  * @param {Function} next                function for next middleware
  */
 function sendVerificationEmail(req, res, next) {
-    return AuthService.sendVerificationEmail(req.session, objErr => {
+    return AuthService.sendVerificationEmail(
+            req.session.userId,
+            req.session.email,
+            objErr => {
+        
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }

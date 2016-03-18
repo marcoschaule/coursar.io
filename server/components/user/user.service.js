@@ -31,10 +31,11 @@ function readUser(strUserId, callback) {
         }
 
         objUserResult = {
-            _id     : objUser._id.toString(),
-            profile : objUser.profile,
-            username: objUser.username,
-            email   : objUser.email,
+            _id       : objUser._id.toString(),
+            profile   : objUser.profile,
+            username  : objUser.username,
+            email     : objUser.email,
+            isVerified: objUser.isVerified,
         };
 
         return callback(null, objUserResult);
