@@ -20,22 +20,20 @@ require('./settings/paths.settings.js');
 require('./settings/captcha.settings.js');
 
 // requires
-var express               = require('express');
-var redis                 = require('redis');
-var mongoose              = require('mongoose');
-var morgan                = require('morgan');
-var path                  = require('path');
-var childProcess          = require('child_process');
-var bodyParser            = require('body-parser');
-var csrf                  = require('csurf');
-var JWTRedisSession       = require('jwt-redis-session');
+var express         = require('express');
+var redis           = require('redis');
+var mongoose        = require('mongoose');
+var morgan          = require('morgan');
+var path            = require('path');
+var childProcess    = require('child_process');
+var bodyParser      = require('body-parser');
+var JWTRedisSession = require('jwt-redis-session');
 
 // setup
-var env                   = (process.env.NODE_ENV || 'dev');
-var port                  = (process.env.PORT     || settings.general.system.port)*1;
-var app                   = express();
-var strStaticFolder       = path.join(__dirname, '../.build/', env);
-var csrfProtection        = csrf({ sessionKey: 'session' });
+var env             = (process.env.NODE_ENV || 'dev');
+var port            = (process.env.PORT     || settings.general.system.port)*1;
+var app             = express();
+var strStaticFolder = path.join(__dirname, '../.build/', env);
 var objRedisClient, objRedisSettings;
 
 // *****************************************************************************
@@ -65,13 +63,6 @@ global.clients = { redis: objRedisClient };
 app.use(express.static(strStaticFolder));
 app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
-
-// app.use(function addCSRFToken(req, res, next) {
-//     if (req.csrfToken) {
-//         res.set('x-csrf-token', req.csrfToken());
-//     }
-//     return next();
-// });
 
 // disabling
 app.disable('x-powered-by');

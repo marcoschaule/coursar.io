@@ -24,6 +24,7 @@ function createUser(req, res, next) {}
  */
 function readUser(req, res, next) {
     var strUserId = req.session.userId;
+    console.log(">>> Debug ====================; req.headers:", req.headers, '\n\n');
 
     return UserService.readUser(strUserId, (objErr, objUser) => {
         if (objErr) {

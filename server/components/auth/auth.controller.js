@@ -309,7 +309,7 @@ function authorize(req, res, next) {
         
         // set access token and CSRF token in header
         res.set('X-Access-Token', req.session.jwt);
-        res.set('X-CSRF-Token',   'CSRF-Token');
+        // res.set('X-CSRF-Token',   'CSRF-Token');
 
         return next(null);
     });
