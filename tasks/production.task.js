@@ -11,6 +11,8 @@ var gulpif     = require('gulp-if');
 var uglify     = require('gulp-uglify');
 var cssnano    = require('gulp-cssnano');
 var ngAnnotate = require('gulp-ng-annotate');
+var util       = require('gulp-util');
+var htmlmin    = require('gulp-html-minifier');
 
 // *****************************************************************************
 // Basic tasks - production
@@ -21,15 +23,12 @@ var ngAnnotate = require('gulp-ng-annotate');
  * build task to run before.
  */
 gulp.task('create:prod', () => gulp
-    .src('client/components/layout/layout.jade')
-    .pipe(jade())
-    .pipe(prettify({ indent_size: 4 }))
+    .src('./.build/dev/layout.html')
     .pipe(useref())
-    .pipe(gulpif('*.js', 
-        ngAnnotate({ add: true, single_quotes: true }),
-        uglify()
-    ))
+    .pipe(gulpif('*.js', ngAnnotate({ add: true, single_quotes: true })))
+    .pipe(gulpif('*.js', uglify().on('error', util.log)))
     .pipe(gulpif('*.css', cssnano()))
+    .pipe(gulpif('*.html', htmlmin({ collapseWhitespace: true })))
     .pipe(gulp.dest('./.build/prod/'))
 );
 
