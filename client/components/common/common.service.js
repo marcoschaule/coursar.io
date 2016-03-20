@@ -196,7 +196,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
                 // if backend responds with a redirect, perform it
                 if ($state.current.private && objResult.redirect) {
-                    return $state.transitionTo('signIn');
+                    return $state.go('signIn');
                 }
 
                 // if any other error occured, return that error

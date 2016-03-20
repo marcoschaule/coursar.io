@@ -114,7 +114,7 @@ function _runAuthentication($rootScope, $state, CioAuthService) {
         return CioAuthService.testSignedIn(function(objErr, isSignedIn) {
             if (objErr || !isSignedIn) {
                 objEvent.preventDefault();
-                return $state.transitionTo('signIn');
+                return $state.go('signIn');
             }
             return;
         });
