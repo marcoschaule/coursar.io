@@ -4,11 +4,14 @@ module.exports = function(gulp) { 'use strict';
 // Includes and definitions
 // *****************************************************************************
 
-var runSequence = require('run-sequence');
-var stylus      = require('gulp-stylus');
-var gulpif      = require('gulp-if');
-var replace     = require('gulp-replace');
-var flatten     = require('gulp-flatten');
+var runSequence  = require('run-sequence');
+var stylus       = require('gulp-stylus');
+var gulpif       = require('gulp-if');
+var replace      = require('gulp-replace');
+var flatten      = require('gulp-flatten');
+var autoprefixer = require('gulp-autoprefixer');
+
+var autoPrefBrowserSupport = 'last 5 versions';
 
 // *****************************************************************************
 // Basic tasks - styles
@@ -34,6 +37,10 @@ gulp.task('styles-user:dev', () => gulp
     .src(['client/components/**/*.styl'])
     .pipe(stylus())
     .pipe(flatten())
+    .pipe(autoprefixer({
+        browsers: [autoPrefBrowserSupport],
+        cascade : false,
+    }))
     .pipe(gulp.dest('./.build/dev/styles/'))
 );
 
@@ -47,6 +54,10 @@ gulp.task('styles-vendor:dev', () => gulp
     .src(['./.build/vendor/**/*.css', '!./.build/vendor/**/*.min.css'])
     .pipe(gulpif(_testForFile('font-awesome'), replace(/..\/fonts/g, '../../fonts')))
     .pipe(flatten())
+    .pipe(autoprefixer({
+        browsers: [autoPrefBrowserSupport],
+        cascade : false,
+    }))
     .pipe(gulp.dest('./.build/dev/styles/vendor'))
 );
 
@@ -56,8 +67,8 @@ gulp.task('styles-vendor:dev', () => gulp
 
 /**
  * Helper function to test if a file is within the pipeline.
- * @private
  * 
+ * @private
  * @param  {String}  strFileName  string of the file name
  * @return {Boolean}              true if the file was found
  */

@@ -18,6 +18,7 @@ global.port = 3000;
 // Load external subtasks
 // *****************************************************************************
 
+require('./tasks/lint.task.js')(gulp);
 require('./tasks/clean.task.js')(gulp);
 require('./tasks/assets.task.js')(gulp);
 require('./tasks/templates.task.js')(gulp);
@@ -40,6 +41,7 @@ require('./tasks/watchers.js')(gulp);
  * Task to build the development files.
  */
 gulp.task('build:dev', callback => runSequence(
+    ['lint:js', 'lint:json'],
     ['clean:dev'],
     ['scripts:dev', 'styles:dev', 'fonts:dev', 'assets:dev', 'lang:dev', 'templates'],
     callback
@@ -51,6 +53,7 @@ gulp.task('build:dev', callback => runSequence(
  * Task to build the production files.
  */
 gulp.task('build:prod', callback => runSequence(
+    ['lint:js', 'lint:json'],
     ['scripts:dev', 'styles:dev', 'layout:dev'],
     ['clean:prod', 'create:prod'],
     ['fonts:prod', 'assets:prod'],
