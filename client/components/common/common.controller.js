@@ -49,7 +49,7 @@ function Controller($rootScope, $state, CioAuthService) {
      */
     function signOut() {
         return CioAuthService.signOut(function() {
-            return $state.go('home');
+            return $state.go('signIn');
         });
     }
 
