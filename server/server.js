@@ -90,7 +90,7 @@ userRouter.private();
 
 app.use((objErr, req, res, next) => {
     if (objErr && 'GET' === req.method) {
-        res.status(401).redirect('/');
+        return res.status(401).redirect('/');
     }
     else if (objErr) {
         return res.status(objErr.status || 500).json(objErr);

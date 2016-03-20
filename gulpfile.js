@@ -43,7 +43,7 @@ require('./tasks/watchers.js')(gulp);
 gulp.task('build:dev', callback => runSequence(
     ['lint:js', 'lint:json'],
     ['clean:dev'],
-    ['scripts:dev', 'styles:dev', 'fonts:dev', 'assets:dev', 'lang:dev', 'templates'],
+    ['layout:dev', 'scripts:dev', 'styles:dev', 'fonts:dev', 'assets:dev', 'lang:dev', 'templates'],
     callback
 ));
 
@@ -54,7 +54,7 @@ gulp.task('build:dev', callback => runSequence(
  */
 gulp.task('build:prod', callback => runSequence(
     ['lint:js', 'lint:json'],
-    ['scripts:dev', 'styles:dev', 'layout:dev'],
+    ['layout:dev', 'scripts:dev', 'styles:dev'],
     ['clean:prod', 'create:prod'],
     ['fonts:prod', 'assets:prod'],
     callback

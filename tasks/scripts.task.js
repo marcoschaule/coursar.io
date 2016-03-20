@@ -6,6 +6,8 @@ module.exports = function(gulp) { 'use strict';
 
 var runSequence = require('run-sequence');
 var flatten     = require('gulp-flatten');
+var gulpif      = require('gulp-if');
+var ts          = require('gulp-typescript');
 
 // *****************************************************************************
 // Basic tasks - scripts
@@ -30,9 +32,13 @@ gulp.task('scripts:dev', callback => runSequence(
 gulp.task('scripts-user:dev', () => gulp
     .src([
         'client/libs/**/*.js',
+        // 'client/libs/**/*.ts',
         'client/client.js',
-        'client/components/**/*.js'
+        // 'client/client.ts',
+        'client/components/**/*.js',
+        // 'client/components/**/*.ts',
     ])
+    // .pipe(ts({ allowJs: true }))
     .pipe(flatten())
     .pipe(gulp.dest('./.build/dev/scripts/'))
 );
