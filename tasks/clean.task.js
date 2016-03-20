@@ -30,4 +30,14 @@ gulp.task('clean:prod', () => {
 
 // *****************************************************************************
 
+/**
+ * Task to delete all files and folders in
+ * the server folder.
+ */
+gulp.task('clean:server', () => {
+    return del(['./.build/server']);
+});
+
+// *****************************************************************************
+
 };
