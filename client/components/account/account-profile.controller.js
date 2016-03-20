@@ -54,6 +54,7 @@ function Controller($rootScope, $state, CioAccountService) {
 
     /**
      * Controller function to read the user from the server.
+     * 
      * @public
      */
     function readUser() {
@@ -64,8 +65,18 @@ function Controller($rootScope, $state, CioAccountService) {
 
     // *****************************************************************************
 
+    function updateUser() {
+        return CioAccountService.updateUser(vm.modelUser, function(objErr) {
+
+        });
+    }
+
+    // *****************************************************************************
+
     /**
      * Controller function to send verification email.
+     *
+     * @public
      */
     function sendVerificationEmail() {
         return CioAccountService.sendVerificationEmail(function(objErr) {

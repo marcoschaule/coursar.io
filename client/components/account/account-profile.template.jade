@@ -1,48 +1,127 @@
 //- sign in and sign up buttons
-#sign
-    a.btn.btn-link(data-ng-click="signOut()") Sign Out
+#sign: a.btn.btn-link(data-ng-click="signOut()") Sign Out
 
 h1 Profile
-table.table.table-striped
-    tbody
-        tr
-            th.left Name:
-            td.left
+form(name="vm.formAccountProfile", data-ng-submit="")
+    .container-fluid.table.table-striped
+        
+        //- Name show
+        .row(data-ng-if="'name' !== vm.states.activeField")
+            .col-xs-2.left Name:
+            .col-xs-8.left
                 .text-primary(data-ng-if="vm.modelUser.profile.name.first || \
                         vm.modelUser.profile.name.last")
                     |{{ vm.modelUser.profile.name.first }} {{ vm.modelUser.profile.name.last }}
                 .text-muted(data-ng-if="!vm.modelUser.profile.name.first && \
                         !vm.modelUser.profile.name.last")
                     |No name defined, yet.
-            td.right
-                a.btn.btn-link
+            .col-xs-2.right
+                a.btn.btn-link(data-ng-click="vm.states.activeField = 'name'")
                     i.fa.fa-pencil
                     |&nbsp;Edit
-        tr
-            th.left Gender:
-            td.left
+        
+        //- Name edit
+        .row.active(data-ng-if="'name' === vm.states.activeField")
+            .col-xs-2.left Name:
+            .col-xs-10.left(
+                    data-ng-class="{ 'has-error': \
+                        vm.formAccount.nameFirst.$invalid &&\
+                        vm.formAccount.nameFirst.$dirty }")
+                fieldset.horizontal
+                    label(for="account-name-first")
+                        |First name:
+                    input#account-name-first.form-control(
+                            type="text",
+                            name="nameFirst",
+                            alt="{{ 'auth.firstName' | translate }}",
+                            placeholder="{{ 'auth.nameFirst' | translate }}",
+                            data-ng-required="true",
+                            data-ng-minlength="3",
+                            data-ng-model="vm.modelUser.profile.name.first",
+                            cio-input-account-event="vm.isAvailable('nameFirst')")
+                fieldset.horizontal
+                    label(for="account-name-last")
+                        |Last name:
+                    input#account-name-last.form-control(
+                            type="text",
+                            name="nameLast",
+                            alt="{{ 'auth.lastName' | translate }}",
+                            placeholder="{{ 'auth.nameLast' | translate }}",
+                            data-ng-required="true",
+                            data-ng-minlength="3",
+                            data-ng-model="vm.modelUser.profile.name.last",
+                            cio-input-account-event="vm.isAvailable('nameLast')")
+                fieldset.right
+                    a.btn.btn-link(
+                            data-ng-click="vm.states.activeField = null") Cancel
+                    |&nbsp;
+                    button.btn.btn-primary Save
+
+        //- ********************************************************************
+        
+        .row(data-ng-if="'gender' !== vm.states.activeField")
+            .col-xs-2.left Gender:
+            .col-xs-8.left
                 .text-primary(data-ng-if="vm.modelUser.profile.gender")
                     |{{ vm.modelUser.profile.gender }}
                 .text-muted(data-ng-if="!vm.modelUser.profile.gender")
                     |No gender defined, yet.
-            td.right
-                a.btn.btn-link
+            .col-xs-2.right
+                a.btn.btn-link(data-ng-click="vm.states.activeField = 'gender'")
                     i.fa.fa-pencil
                     |&nbsp;Edit
-        tr
-            th.left Date of birth:
-            td.left
+
+        //- Name edit
+        .row.active(data-ng-if="'gender' === vm.states.activeField")
+            .col-xs-2.left Gender:
+            .col-xs-10.left
+                fieldset
+                    label.radio-inline
+                        input#account-gender-female(
+                                type="radio",
+                                name="genderFemale",
+                                value="female",
+                                data-ng-model="vm.modelUser.profile.gender",
+                                cio-input-account-event="vm.isAvailable('genderFemale')")
+                        |Female
+                    label.radio-inline
+                        input#account-gender-male(
+                                type="radio",
+                                name="genderMale",
+                                value="male",
+                                data-ng-model="vm.modelUser.profile.gender",
+                                cio-input-account-event="vm.isAvailable('genderMale')")
+                        |Male
+                    label.radio-inline
+                        input#account-gender-other(
+                                type="radio",
+                                name="genderOther",
+                                value="other",
+                                data-ng-model="vm.modelUser.profile.gender",
+                                cio-input-account-event="vm.isAvailable('genderOther')")
+                        |Other
+                fieldset.right
+                    a.btn.btn-link(
+                            data-ng-click="vm.states.activeField = null") Cancel
+                    |&nbsp;
+                    button.btn.btn-primary Save
+        
+        //- ********************************************************************
+        
+        .row
+            .col-xs-2.left Date of birth:
+            .col-xs-8.left
                 .text-primary(data-ng-if="vm.modelUser.profile.dateOfBirth")
                     |{{ vm.modelUser.profile.dateOfBirth }}
                 .text-muted(data-ng-if="!vm.modelUser.profile.dateOfBirth")
                     |No date of birth defined, yet.
-            td.right
+            .col-xs-2.right
                 a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
-        tr
-            th.left Address:
-            td.left
+        .row
+            .col-xs-2.left Address:
+            .col-xs-8.left
                 .text-muted(data-ng-if="!vm.modelUser.profile.address.street && \
                         !vm.modelUser.profile.address.city && \
                         !vm.modelUser.profile.address.zipcode")
@@ -53,46 +132,46 @@ table.table.table-striped
                     |{{ vm.modelUser.profile.address.street }}<br /> 
                     |{{ vm.modelUser.profile.address.zipcode }} 
                     |{{ vm.modelUser.profile.address.city }} 
-            td.right
+            .col-xs-2.right
                 a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
-        tr
-            th.left Username:
-            td.left
+        .row
+            .col-xs-2.left Username:
+            .col-xs-8.left
                 .text-primary
                     |{{ vm.modelUser.username }}
                 .text-muted(data-ng-if="vm.modelUser.updatedUsernameAt")
                     |(last updated at: {{ vm.modelUser.updatedUsernameAt }})
                 .text-muted(data-ng-if="!vm.modelUser.updatedUsernameAt")
                     |(never updated)
-            td.right
+            .col-xs-2.right
                 a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
-        tr
-            th.left Password:
-            td.left
+        .row
+            .col-xs-2.left Password:
+            .col-xs-8.left
                 .text-primary
                     |****
                 .text-muted(data-ng-if="vm.modelUser.updatedPasswordAt")
                     |(last updated at: {{ vm.modelUser.updatedPasswordAt }})
                 .text-muted(data-ng-if="!vm.modelUser.updatedPasswordAt")
                     |(never updated)
-            td.right
+            .col-xs-2.right
                 button.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
-        tr
-            th.left Email:
-            td.left
+        .row
+            .col-xs-2.left Email:
+            .col-xs-8.left
                 .text-primary
                     |{{ vm.modelUser.email }} 
                 .text-muted(data-ng-if="vm.modelUser.isVerified")
                     |(verified)
                 .text-muted(data-ng-if="!vm.modelUser.isVerified")
                     |(not verified, yet)
-            td.right
+            .col-xs-2.right
                 a.btn.btn-link(
                         data-ng-if="!vm.modelUser.isVerified",
                         data-ng-click="true !== vm.states.verificationEmailSend && \
@@ -109,27 +188,7 @@ table.table.table-striped
                 a.btn.btn-link
                     i.fa.fa-pencil
                     |&nbsp;Edit
-        tr
-            td(colspan="3")
+        .row
+            .col-xs-12.right
                 .text-muted
-                    |{{ vm.modelUser.createdAt | date }}
-
-//- form(name="vm.formAccount")
-    //- fieldset.row
-    //-     .col-xs-3
-    //-         label(for="account-username")
-    //-             |{{ 'auth.Username' | translate }}:
-    //-     .col-xs-9(data-ng-class="{ 'has-error': \
-    //-             vm.formAccount.username.$invalid &&\
-    //-             vm.formAccount.username.$dirty }")
-    //-         input#account-username.form-control(
-    //-                 data-ng-class="{ inactive: !vm.flags.isUsernameInputActive }",
-    //-                 type="text",
-    //-                 name="username",
-    //-                 alt="{{ 'auth.Username' | translate }}",
-    //-                 placeholder="{{ 'auth.Username' | translate }}",
-    //-                 data-ng-disabled="!vm.flags.isUsernameInputActive",
-    //-                 data-ng-required="true",
-    //-                 data-ng-minlength="3",
-    //-                 data-ng-model="vm.modelAccount.username",
-    //-                 cio-input-account-event="vm.isAvailable('Username')")
+                    |Created at: {{ vm.modelUser.createdAt | date }}
