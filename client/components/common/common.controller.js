@@ -21,6 +21,7 @@ angular
 // Controller definition function
 // *****************************************************************************
 
+/* @ngInject */
 function Controller($rootScope, $state, CioAuthService) {
     var vm = this;
 
@@ -58,10 +59,6 @@ function Controller($rootScope, $state, CioAuthService) {
 
     // *****************************************************************************
 }
-
-// *****************************************************************************
-
-Controller.$inject = ['$rootScope', '$state', 'CioAuthService'];
 
 // *****************************************************************************
 

@@ -21,6 +21,7 @@ angular
 // Service definition function
 // *****************************************************************************
 
+/* @ngInject */
 function Service($rootScope, $state, $window, $timeout, $http, $q) {
     var service = {};
 
@@ -379,10 +380,6 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
     // *****************************************************************************
 }
-
-// *****************************************************************************
-
-Service.$inject = ['$rootScope', '$state', '$window', '$timeout', '$http', '$q'];
 
 // *****************************************************************************
 

@@ -7,6 +7,9 @@ module.exports = function(gulp) { 'use strict';
 var wrap   = require('gulp-wrap');
 var extend = require('gulp-extend');
 
+var _arrLangKeys = ['en-US', 'de-DE'];
+var _arrEnvs     = ['dev']; //, 'prod'];
+
 // *****************************************************************************
 // Basic tasks - languages
 // *****************************************************************************
@@ -19,37 +22,49 @@ gulp.task('lang:dev', ['lang:dev:en-US', 'lang:dev:de-DE']);
 // *****************************************************************************
 
 /**
- * Task to concat translations of "en-US".
+ * Task to concat all translations of all environments.
  */
-gulp.task('lang:dev:en-US',
-    () => gulp
-        .src(['client/components/**/*.en-US.json'])
-        .pipe(extend('translation.en-US.js')) //use .js extension since we plan to wrap 
-        .pipe(wrap(_wrapInTranslateProvider('en-US')))
-        .pipe(gulp.dest('./.build/dev/scripts/'))
-);
-
-// *****************************************************************************
-
-/**
- * Task to concat translations of "de-DE".
- */
-gulp.task('lang:dev:de-DE',
-    () => gulp
-        .src(['client/components/**/*.de-DE.json'])
-        .pipe(extend('translation.de-DE.js')) //use .js extension since we plan to wrap 
-        .pipe(wrap(_wrapInTranslateProvider('de-DE')))
-        .pipe(gulp.dest('./.build/dev/scripts/'))
-);
+_gulpMakeAllLangTasks();
 
 // *****************************************************************************
 // Helper functions
 // *****************************************************************************
 
 /**
- * Helper function to generate a translation configuration wrapper.
+ * Helper function to make all language tasks with all environments and
+ * all language keys.
+ */
+function _gulpMakeAllLangTasks() {
+    return _arrEnvs.forEach(strEnv => {
+        return _arrLangKeys.forEach(strLangKey => _gulpTaskLang(strEnv, strLangKey));
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to set up the language task.
+ *
  * @private
+ * @param {String} strEnv      string of the environment like "dev" and "prod"
+ * @param {String} strLangKey  string of the language key like "en-US"
+ */
+function _gulpTaskLang(strEnv, strLangKey) {
+    gulp.task(`lang:${strEnv}:${strLangKey}`,
+        () => gulp
+            .src([`client/components/**/*.${strLangKey}.json`])
+            .pipe(extend(`translation.${strLangKey}.js`)) //use .js extension since we plan to wrap 
+            .pipe(wrap(_wrapInTranslateProvider(strLangKey)))
+            .pipe(gulp.dest(`./.build/${strEnv}/scripts/`))
+    );
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to generate a translation configuration wrapper.
  * 
+ * @private
  * @param  {String} strLanguage  string of the language key like "en-US"
  * @return {String}              string of the wrapper
  */

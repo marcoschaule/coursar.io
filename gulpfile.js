@@ -42,8 +42,8 @@ require('./tasks/watchers.js')(gulp);
 gulp.task('build:dev', callback => runSequence(
     ['clean:dev'],
     ['scripts:dev', 'styles:dev', 'fonts:dev', 'assets:dev', 'lang:dev', 'layout:dev', 'templates'],
-    callback)
-);
+    callback
+));
 
 // *****************************************************************************
 
@@ -51,8 +51,9 @@ gulp.task('build:dev', callback => runSequence(
  * Task to build the production files.
  */
 gulp.task('build:prod', callback => runSequence(
+    ['clean:prod'],
     ['scripts:dev', 'styles:dev'],
-    ['clean:prod', 'create:prod', 'fonts:prod', 'assets:prod', 'lang:prod'],
+    ['clean:prod', 'create:prod'], //, 'fonts:prod'], //, 'assets:prod'],
     callback
 ));
 
@@ -85,9 +86,26 @@ gulp.task('run:dev', callback => {
 // *****************************************************************************
 
 /**
- * Default task.
+ * Task to run all development tasks.
+ */
+gulp.task('run:prod', callback => {
+    global.env  = 'dev';
+    global.port = 3000;
+
+    return runSequence(
+        ['build:prod'],
+        ['server-redis', 'server-mongodb', 'server-express'],
+        callback);
+});
+
+// *****************************************************************************
+
+/**
+ * Default tasks.
  */
 gulp.task('default', ['run:dev']);
+gulp.task('dev',     ['run:dev']);
+gulp.task('prod',    ['run:prod']);
 
 // *****************************************************************************
 

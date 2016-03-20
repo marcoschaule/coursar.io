@@ -21,6 +21,7 @@ angular
 // Controller definition function
 // *****************************************************************************
 
+/* @ngInject */
 function Controller($timeout, $state, CioAuthService) {
     var vm = this;
 
@@ -83,10 +84,6 @@ function Controller($timeout, $state, CioAuthService) {
 
     // *****************************************************************************
 }
-
-// *****************************************************************************
-
-Controller.$inject = ['$timeout', '$state', 'CioAuthService'];
 
 // *****************************************************************************
 

@@ -21,6 +21,7 @@ angular
 // Directive definition function
 // *****************************************************************************
 
+/* @ngInject */
 function Directive($filter) {
     var directive = {};
 

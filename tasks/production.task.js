@@ -4,12 +4,13 @@ module.exports = function(gulp) { 'use strict';
 // Includes and definitions
 // *****************************************************************************
 
-var jade     = require('gulp-jade');
-var prettify = require('gulp-prettify');
-var useref   = require('gulp-useref');
-var gulpif   = require('gulp-if');
-var uglify   = require('gulp-uglify');
-var cssnano  = require('gulp-cssnano');
+var jade       = require('gulp-jade');
+var prettify   = require('gulp-prettify');
+var useref     = require('gulp-useref');
+var gulpif     = require('gulp-if');
+var uglify     = require('gulp-uglify');
+var cssnano    = require('gulp-cssnano');
+var ngAnnotate = require('gulp-ng-annotate');
 
 // *****************************************************************************
 // Basic tasks - production
@@ -24,7 +25,10 @@ gulp.task('create:prod', () => gulp
     .pipe(jade())
     .pipe(prettify({ indent_size: 4 }))
     .pipe(useref())
-    .pipe(gulpif('*.js', uglify()))
+    .pipe(gulpif('*.js', 
+        ngAnnotate({ add: true, single_quotes: true }),
+        uglify()
+    ))
     .pipe(gulpif('*.css', cssnano()))
     .pipe(gulp.dest('./.build/prod/'))
 );

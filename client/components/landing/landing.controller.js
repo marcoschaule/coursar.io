@@ -21,6 +21,7 @@ angular
 // Controller definition function
 // *****************************************************************************
 
+/* @ngInject */
 function Controller() {
     var vm = this;
 
