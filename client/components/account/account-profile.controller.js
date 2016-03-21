@@ -25,33 +25,36 @@ angular
 function Controller($rootScope, $state, CioAccountService) {
     var vm = this;
 
-    // *****************************************************************************
+    // *************************************************************************
     // Private variables
-    // *****************************************************************************
+    // *************************************************************************
 
-    // *****************************************************************************
+    var _oneTwoYear       = 365*24*60*60*1000;
+    var _numTwoYears      =   2 * _oneTwoYear;
+    var _numHunYears      = 100 * _oneTwoYear;
+    var _regexDateOfBirth = /^((\d{4})-(\d{2})-(\d{2})|(\d{2})\/(\d{2})\/(\d{4}))$/;
+
+    // *************************************************************************
     // Public variables
-    // *****************************************************************************
+    // *************************************************************************
 
-    vm.flags = {
-        isUsernameInputActive: false,
-        isPasswordInputActive: false,
-    };
     vm.states = {
-        verificationEmailSend: false,
+        activeField: null,
     };
     vm.modelUser = null;
 
-    // *****************************************************************************
+    // *************************************************************************
     // Controller function linking
-    // *****************************************************************************
+    // *************************************************************************
 
     vm.readUser              = readUser;
+    vm.updateUser            = updateUser;
     vm.sendVerificationEmail = sendVerificationEmail;
+    vm.testDateOfBirth       = testDateOfBirth;
 
-    // *****************************************************************************
+    // *************************************************************************
     // Controller function definitions
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Controller function to read the user from the server.
@@ -59,20 +62,27 @@ function Controller($rootScope, $state, CioAccountService) {
      * @public
      */
     function readUser() {
-        return CioAccountService.readUser(function(objErr, objUser) {
+        return CioAccountService.processUser(function(objErr, objUser) {
             vm.modelUser = CioAccountService.objUser;
+            vm.states.activeField = null;
         });
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
+    /**
+     * Controller function to update the user information on the server.
+     *
+     * @public
+     */
     function updateUser() {
-        return CioAccountService.updateUser(vm.modelUser, function(objErr) {
-
+        return CioAccountService.processUser(vm.modelUser, function(objErr, objUser) {
+            vm.modelUser = CioAccountService.objUser;
+            vm.states.activeField = null;
         });
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Controller function to send verification email.
@@ -88,15 +98,38 @@ function Controller($rootScope, $state, CioAccountService) {
         });
     }
 
-    // *****************************************************************************
+    // *************************************************************************
+
+    /**
+     * Controller function to test the date of birth.
+     *
+     * @public
+     */
+    function testDateOfBirth() {
+        if (!vm.modelUser.profile || !vm.modelUser.profile.dateOfBirth) {
+            return;
+        }
+
+        var strDate = vm.modelUser.profile.dateOfBirth;
+        var isValid = true;
+
+        isValid = isValid && _regexDateOfBirth.test(strDate);
+        isValid = isValid && !!(new Date(strDate)).getDate();
+        isValid = isValid && Date.now() - _numTwoYears > Date.parse(strDate);
+        isValid = isValid && Date.now() - _numHunYears < Date.parse(strDate);
+
+        vm.formAccountProfile.dateOfBirth.$setValidity('invalid', isValid);
+    }
+
+    // *************************************************************************
     // Helper function definitions
-    // *****************************************************************************
+    // *************************************************************************
 
     function _init() {
         readUser();
     } _init();
 
-    // *****************************************************************************
+    // *************************************************************************
 }
 
 // *****************************************************************************

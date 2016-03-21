@@ -22,7 +22,9 @@ var objAuth = {
     // user personal data
     profile: {
         name: {
+            title: String,
             first: String,
+            middle: String,
             last: String,
         },
         dateOfBirth: Date,

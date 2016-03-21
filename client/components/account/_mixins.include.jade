@@ -1,0 +1,56 @@
+mixin input(objOptions)
+    if (!objOptions.isLabelHidden)
+        label(for="#{objOptions.id}") #{objOptions.label}:
+    if (objOptions['data-ng-model'])
+        input.form-control&attributes({
+            "id"                         : objOptions['id'],
+            "alt"                        : objOptions['label'],
+            "type"                       : objOptions['type'],
+            "name"                       : objOptions['name'],
+            "placeholder"                : objOptions['label'],
+            "data-ng-class"              : objOptions['data-ng-class'],
+            "data-ng-model"              : objOptions['data-ng-model'],
+            "data-ng-pattern"            : objOptions['data-ng-pattern'],
+            "data-ng-required"           : objOptions['data-ng-required'],
+            "data-ng-minlength"          : objOptions['data-ng-minlength'],
+            "data-ng-maxlength"          : objOptions['data-ng-maxlength'],
+            "data-cio-input-change-event": objOptions['data-cio-input-change-event'],
+        })
+
+mixin inputText(objOptions)
+    - objOptions.type = 'text';
+    +input(objOptions)
+
+mixin inputDate(objOptions)
+    - objOptions.type = 'date';
+    +input(objOptions)
+
+mixin inputTextRequired(objOptions)
+    - objOptions.type       = 'text';
+    - objOptions.isRequired = true;
+    +input(objOptions)
+
+mixin inputRadio(objOptions)
+    label.radio-inline
+        input&attributes({
+            "type"         : "radio",
+            "id"           : objOptions['id'],
+            "alt"          : objOptions['label'],
+            "name"         : objOptions['name'],
+            "value"        : objOptions['value'],
+            "data-ng-model": objOptions['data-ng-model']
+        })
+        |#{objOptions.label}
+
+mixin accountProfileButtonEdit(strNgClick)
+    a.btn.btn-link&attributes({
+        "alt"          : "Edit",
+        "data-ng-click": "vm.states.activeField = '" + strNgClick + "'",
+    })
+        i.fa.fa-pencil
+        |&nbsp;Edit
+
+mixin accountProfileButtonsCancelAndSave(strDisabledCondition)
+    a.btn.btn-link(data-ng-click="vm.states.activeField = null") Cancel
+    span &nbsp;
+    button.btn.btn-primary(data-ng-disabled="#{strDisabledCondition}") Save

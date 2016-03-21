@@ -4,7 +4,11 @@
 // Includes and definitions
 // *****************************************************************************
 
-var User = require('../auth/auth.schema.js').Auth;
+var async       = require('async');
+var clone       = require('clone');
+var moment      = require('moment');
+var User        = require('../auth/auth.schema.js').Auth;
+var AuthService = require('../auth/auth.service.js');
 
 // *****************************************************************************
 // Service functions
@@ -18,8 +22,6 @@ var User = require('../auth/auth.schema.js').Auth;
  * @param {Function} callback   function for callback
  */
 function readUser(strUserId, callback) {
-    callback = 'function' === typeof callback && callback || function(){};
-
     var objUserResult;
 
     return User.findOne({ _id: strUserId }, (objErr, objUser) => {
@@ -31,14 +33,72 @@ function readUser(strUserId, callback) {
         }
 
         objUserResult = {
-            _id       : objUser._id.toString(),
-            profile   : objUser.profile,
+            profile   : JSON.parse(JSON.stringify(objUser.profile)),
             username  : objUser.username,
             email     : objUser.email,
             isVerified: objUser.isVerified,
         };
 
+        // parse date into readable value
+        if (objUser.profile && objUser.profile.dateOfBirth) {
+            objUserResult.profile.dateOfBirth =
+                moment(objUser.profile.dateOfBirth).format('MM/DD/YYYY');
+        }
+
         return callback(null, objUserResult);
+    });
+    
+    function pad(s) {
+        return (s < 10) ? '0' + s : s;
+    }
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to update user data and get the updated user.
+ * This function calls the "readUser" function if successful.
+ *
+ * @public
+ * @param {String}   strUserId      string of the MongoDB ID of the user to be updated
+ * @param {Obejct}   objUserUpdate  object of the user data to be updated
+ * @param {Function} callback       function for callback
+ */
+function updateUser(strUserId, objUserUpdate, callback) {
+    var isDateValid, arrSeries = [];
+
+    // if date of birth is given, try to convert it to a valid date
+    if (objUserUpdate.profile && objUserUpdate.profile.dateOfBirth) {
+        if (!_testDate(objUserUpdate.profile.dateOfBirth)) {
+            return callback('Invalid date!');
+        }
+        objUserUpdate.profile.dateOfBirth = Date.parse(objUserUpdate.profile.dateOfBirth);
+    }
+
+    // if necessary, test if username is available
+    if (!objUserUpdate.username) {
+        arrSeries.push((_callback) => AuthService.isUsernameAvailable(
+                objUserUpdate.username, _callback));
+    }
+    
+    // if necessary, test if email is available
+    if (!objUserUpdate.email) {
+        arrSeries.push((_callback) => AuthService.isEmailAvailable(
+                objUserUpdate.email, _callback));
+    }
+
+    // add user update step
+    arrSeries.push((_callback) => User.update(
+            { _id: strUserId },
+            { $set: objUserUpdate },
+            (objErr, objModified) => _callback(objErr)));
+
+    return async.series(arrSeries, objErr => {
+        if (objErr) {
+            console.error(objErr);
+            return callback(objErr);
+        }
+        return readUser(strUserId, callback);
     });
 }
 
@@ -46,11 +106,34 @@ function readUser(strUserId, callback) {
 // Helper functions
 // *****************************************************************************
 
+/**
+ * Helper function to test the date for valid format and limits.
+ *
+ * @private
+ * @param  {String}  strDate  string of the date to be tested
+ * @return {Boolean}          true if date is valid
+ */
+function _testDate(strDate) {
+    var _oneTwoYear       = 365*24*60*60*1000;
+    var _numTwoYears      =   2 * _oneTwoYear;
+    var _numHunYears      = 100 * _oneTwoYear;
+    var _regexDateOfBirth = /^((\d{4})-(\d{2})-(\d{2})|(\d{2})\/(\d{2})\/(\d{4}))$/;
+    var isValid           = true;
+
+    isValid = isValid && _regexDateOfBirth.test(strDate);
+    isValid = isValid && !!(new Date(strDate)).getDate();
+    isValid = isValid && Date.now() - _numTwoYears > Date.parse(strDate);
+    isValid = isValid && Date.now() - _numHunYears < Date.parse(strDate);
+
+    return isValid;
+}
+
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.readUser = readUser;
+module.exports.readUser   = readUser;
+module.exports.updateUser = updateUser;
 
 // *****************************************************************************
 

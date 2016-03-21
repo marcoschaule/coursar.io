@@ -29,7 +29,6 @@ function Service(CioComService) {
     // Private variables
     // *****************************************************************************
 
-    var _strUrlUserCreate = '/user/create';
     var _strUrlUserRead   = '/user/read';
     var _strUrlUserUpdate = '/user/update';
     var _strUrlUserDelete = '/user/delete';
@@ -45,7 +44,7 @@ function Service(CioComService) {
     // Service function linking
     // *****************************************************************************
 
-    service.readUser              = readUser;
+    service.processUser           = processUser;
     service.sendVerificationEmail = sendVerificationEmail;
 
     // *****************************************************************************
@@ -53,23 +52,45 @@ function Service(CioComService) {
     // *****************************************************************************
 
     /**
-     * Service method to read the user from server.
+     * Service method to read, update or delete the user on/from server.
      * @public
      * 
-     * @param {Function} callback  function for callback
+     * @param {Object}   [mixData]  (optional) data object with either 'delete'
+     *                              or user object to be updated
+     * @param {Function} callback   function for callback
      */
-    function readUser(callback) {
-        callback = 'function' === typeof callback && callback || function(){};
+    function processUser(mixData, callback) {
+        var strUrl, objRequest;
 
-        var objRequest = {
-            id : 'read-user',
-            url: _strUrlUserRead,
+        if ('function' === typeof mixData && !callback) {
+            callback = mixData;
+        }
+        else if ('function' !== typeof callback) {
+            callback = function(){};
+        }
+
+        // URL depends on action to be performed
+        strUrl = 'delete'   ===        mixData && _strUrlUserDelete ||
+                 'object'   === typeof mixData && _strUrlUserUpdate ||
+                 'function' === typeof mixData && _strUrlUserRead;
+
+        objRequest = {
+            id  : 'process-user',
+            url : strUrl,
         };
+
+        // in case of an update, add user object to request
+        if (strUrl === _strUrlUserUpdate) {
+            objRequest.data = { user: mixData };
+        }
+
         return CioComService.put(objRequest, function(objErr, objUser) {
             if (objErr) {
                 return callback(objErr);
             }
-            service.objUser = objUser;
+            if (objUser) {
+                service.objUser = objUser;
+            }
             return callback(null, objUser);
         });
     }
