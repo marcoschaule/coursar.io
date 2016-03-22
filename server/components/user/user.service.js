@@ -31,7 +31,7 @@ function readUser(strUserId, callback) {
             return callback(objErr);
         }
         if (!objUser || !objUser._id || !objUser.username || !objUser.email) {
-            return callback(true);
+            return callback({ err: { message: 'User not found!' } });
         }
 
         objUserResult = {
@@ -132,10 +132,20 @@ function updateUser(objSession, objUserUpdate, callback) {
 
 // *****************************************************************************
 
-function deleteUser(strUserId, strPassword, callback) {
-    var objPassword = User.encrypt(objPassword.password);
+/**
+ * Service function to delete the user's account.
+ *
+ * @public
+ * @param {Object}   objSession   object of the session to be deleted
+ * @param {String}   strPassword  string of the user's password
+ * @param {Function} callback     function for callback
+ */
+function deleteUser(objSession, strPassword, callback) {
+    var strUserId   = objSession.userId;
+    var objPassword = User.encrypt(strPassword);
+    var objUserCopy;
 
-    return async.series([
+    return async.waterfall([
 
         // test password
         (_callback) => {
@@ -145,7 +155,7 @@ function deleteUser(strUserId, strPassword, callback) {
                     console.error(objErr);
                     return _callback({ err: settings.errors.signIn.generalError });
                 }
-                else if (!objUser || !objUser.compare(objSignIn.password)) {
+                else if (!objUser || !objUser.compare(strPassword)) {
                     console.error(settings.errors.signIn.usernameOrPasswordWrong);
                     return _callback({ err: settings.errors.signIn.usernameOrPasswordWrong, redirect: true });
                 }
@@ -154,14 +164,51 @@ function deleteUser(strUserId, strPassword, callback) {
         },
 
         // copy user into "usersDeleted" database
-        (_callback) => {
+        (objUser, _callback) => {
 
+            // create new user object
+            var userDeleted    = new UserDeleted(objUser);
+            userDeleted._idOld = objUser._id;
+
+            // save the new copy into deleted database
+            return userDeleted.save(objErr => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+                return _callback(null);
+            });
         },
 
         // delete user in "users" database
-        (_callback) => {},
+        (_callback) => {
+            return User.remove({ _id: strUserId }, objErr => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+                return _callback(null);
+            });
+        },
 
-    ], callback);
+        // delete session
+        (_callback) => {
+            return AuthService.deleteSession(objSession, objErr => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback(objErr);
+                }
+                return _callback(null);
+            });
+        },
+
+    // waterfall callback
+    ], objErr => {
+        if (objErr) {
+            return callback(objErr);
+        }
+        return callback(null, { redirect: true });
+    });
 }
 
 // *****************************************************************************
@@ -251,6 +298,7 @@ function _testDate(strDate) {
 module.exports.readUser       = readUser;
 module.exports.updateUser     = updateUser;
 module.exports.updatePassword = updatePassword;
+module.exports.deleteUser     = deleteUser;
 
 // *****************************************************************************
 

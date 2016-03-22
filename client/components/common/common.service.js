@@ -45,18 +45,19 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     // Service function linking
     // *****************************************************************************
 
-    service.get    = get;
-    service.post   = post;
-    service.put    = put;
-    service.patch  = patch;
-    service.remove = remove;
+    service.get         = get;
+    service.post        = post;
+    service.put         = put;
+    service.patch       = patch;
+    service.remove      = remove;
+    service.deleteToken = deleteToken;
 
     // *****************************************************************************
     // Service function definitions
     // *****************************************************************************
 
     /**
-     * Function to send a "GET" request to the server.
+     * Service function to send a "GET" request to the server.
      * @public
      *
      * @param {Object}   objRequest                      object of request info and data
@@ -74,7 +75,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     // *****************************************************************************
 
     /**
-     * Function to send a "POST" request to the server.
+     * Service function to send a "POST" request to the server.
      * 
      * @public
      * @param {Object}   objRequest                      object of request info and data
@@ -93,7 +94,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     // *****************************************************************************
 
     /**
-     * Function to send a "PUT" request to the server.
+     * Service function to send a "PUT" request to the server.
      * 
      * @public
      * @param {Object}   objRequest                      object of request info and data
@@ -112,7 +113,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     // *****************************************************************************
 
     /**
-     * Function to send a "GET" request to the server.
+     * Service function to send a "GET" request to the server.
      * 
      * @public
      * @param {Object}   objRequest                      object of request info and data
@@ -131,7 +132,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     // *****************************************************************************
 
     /**
-     * Function to send a "DELETE" request to the server.
+     * Service function to send a "DELETE" request to the server.
      * 
      * @public
      * @param {Object}   objRequest                      object of request info and data
@@ -145,6 +146,24 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
      */
     function remove(objRequest, callback) {
         return _prepareRequest('DELETE', objRequest, callback);
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to delete a token from the local storage.
+     *
+     * @public
+     * @param {String} strTokenName  string of the name of the token
+     */
+    function deleteToken(strTokenName) {
+        if ('X-Access-Token' === strTokenName) {
+            strTokenName = 'accessToken';
+        }
+        else if ('X-CSRF-Token' === strTokenName) {
+            strTokenName = 'csrfToken';
+        }
+        return $window.localStorage.removeItem(strTokenName);
     }
 
     // *****************************************************************************
@@ -196,6 +215,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
 
                 // if backend responds with a redirect, perform it
                 if ($state.current.private && objResult.redirect) {
+                    deleteToken('accessToken');
                     return $state.go('signIn');
                 }
 

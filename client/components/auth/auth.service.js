@@ -91,6 +91,7 @@ function Service(CioComService) {
             isTimeout: true,
         };
 
+        CioComService.deleteToken('accessToken');
         return CioComService.put(objRequest, function(objErr, objData) {
             if (objErr) {
                 return callback(objErr);
@@ -124,6 +125,7 @@ function Service(CioComService) {
             isTimeout: true,
         };
 
+        CioComService.deleteToken('accessToken');
         return CioComService.put(objRequest, function(objErr, objData) {
             if (objErr) {
                 return callback(objErr);
@@ -147,6 +149,8 @@ function Service(CioComService) {
             id       : 'sign-out',
             url      : _strUrlSignOut,
         };
+
+        CioComService.deleteToken('accessToken');
         return CioComService.put(objRequest, callback);
     }
 
@@ -189,6 +193,8 @@ function Service(CioComService) {
             url      : _strUrlForgotUsername,
             data     : objData,
         };
+
+        CioComService.deleteToken('accessToken');
         return CioComService.put(objRequest, callback);
     }
 
@@ -210,6 +216,8 @@ function Service(CioComService) {
             url      : _strUrlForgotPassword,
             data     : objData,
         };
+
+        CioComService.deleteToken('accessToken');
         return CioComService.put(objRequest, callback);
     }
 
@@ -232,6 +240,8 @@ function Service(CioComService) {
             url      : _strUrlResetPassword,
             data     : objData,
         };
+
+        CioComService.deleteToken('accessToken');
         return CioComService.put(objRequest, callback);
     }
 

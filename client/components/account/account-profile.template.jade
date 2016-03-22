@@ -367,19 +367,40 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
 
         //- ********************************************************************
     
-        //- delete account
-        .row
-            .col-xs-12.right
-                .btn.btn-link: .text-danger
-                    i.fa.fa-times
-                    span &nbsp;Delete account for good
-
-        //- ********************************************************************
-
-        .row
+        //- last row
+        .row(data-ng-if="'delete' !== vm.states.activeField")
             .col-xs-12.right
                 .text-muted
                     span Last sign in at: 
                     strong {{ vm.modelUser.lastSignInAt | date:"MM/dd/yyyy, hh:mm a" }}, 
                     span First sign up at: 
                     strong {{ vm.modelUser.firstSignUpAt | date:"MM/dd/yyyy, hh:mm a" }}
+                    span &nbsp;&nbsp;|&nbsp;&nbsp;
+                    a.text-danger(data-ng-click="vm.states.activeField = 'delete'")
+                        |Delete account
+        .row(data-ng-if="'delete' === vm.states.activeField")
+            .col-xs-2: strong Confirm:
+            .col-xs-10.left(data-ng-class="{ 'has-error': \
+                    vm.formAccountProfile.passwordCurrent.$invalid &&\
+                    vm.formAccountProfile.passwordCurrent.$dirty }")
+                fieldset
+                    +inputPassword({
+                        "id"           : "account-password-delete",
+                        "label"        : "Password",
+                        "name"         : "passwordDelete",
+                        "data-ng-model": "vm.modelPasswords.passwordDelete",
+                        "isLabelHidden": true
+                    })
+                fieldset(data-ng-if="'incorrect' === vm.states.passwordDelete")
+                    .alert.alert-danger
+                        i.fa.fa-ban
+                        span &nbsp;Current password incorrect!
+                .alert.alert-danger.
+                    Do you really want to delete your account for good?
+                fieldset.right
+                    +accountProfileButtonsCancelAndSaveDelete('\
+                        !vm.modelPasswords.passwordDelete')
+
+        //- ********************************************************************
+
+        

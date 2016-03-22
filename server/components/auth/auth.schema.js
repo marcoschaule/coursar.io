@@ -5,8 +5,10 @@
 // ********************************************************************************
 
 var CryptoJS = require('crypto-js');
+var clone    = require('clone');
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
+var ObjectId = Schema.ObjectId;
 
 // *****************************************************************************
 // Schemata
@@ -90,7 +92,6 @@ var objAuth = {
         type: Date,
         default: null,
     },
-    
 
     // flags
     isVerified: {
@@ -102,8 +103,11 @@ var objAuth = {
         default: false
     },
 };
-var schemaAuth         = new Schema(objAuth, { collection: 'users' });
-var schemaUsersDeleted = new Schema(objAuth, { collection: 'usersDeleted' });
+var objAuthDeleted     = clone(objAuth);
+objAuthDeleted._idOld  = ObjectId;
+
+var schemaAuth        = new Schema(objAuth,        { collection: 'users' });
+var schemaUserDeleted = new Schema(objAuthDeleted, { collection: 'usersDeleted' });
 
 // *****************************************************************************
 // Schema methods and statics
@@ -117,8 +121,8 @@ schemaAuth.methods.compare = _compare;
 // Model definitions
 // *****************************************************************************
 
-var User         = mongoose.model('User',         schemaAuth, 'users');
-var UsersDeleted = mongoose.model('UsersDeleted', schemaAuth, 'usersDeleted');
+var User        = mongoose.model('User',         schemaAuth, 'users');
+var UserDeleted = mongoose.model('UserDeleted', schemaAuth, 'usersDeleted');
 
 // *****************************************************************************
 // Custom validators
@@ -233,12 +237,12 @@ function _compare(strPassword) {
 // Exports
 // *****************************************************************************
 
-module.exports.Auth               = User;
-module.exports.User               = User;
-module.exports.UsersDeleted       = UsersDeleted;
-module.exports.schemaAuth         = schemaAuth;
-module.exports.schemaUsersDeleted = schemaUsersDeleted;
-module.exports.objAuth            = objAuth;
+module.exports.Auth              = User;
+module.exports.User              = User;
+module.exports.UserDeleted       = UserDeleted;
+module.exports.schemaAuth        = schemaAuth;
+module.exports.schemaUserDeleted = schemaUserDeleted;
+module.exports.objAuth           = objAuth;
 
 // ********************************************************************************
 

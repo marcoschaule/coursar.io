@@ -58,6 +58,7 @@ function Controller($rootScope, $state, CioAccountService, CioAuthService) {
     vm.readUser              = readUser;
     vm.updateUser            = updateUser;
     vm.updatePassword        = updatePassword;
+    vm.deleteUser            = deleteUser;
     vm.sendVerificationEmail = sendVerificationEmail;
     vm.testDateOfBirth       = testDateOfBirth;
     vm.isAvailable           = isAvailable;
@@ -103,10 +104,24 @@ function Controller($rootScope, $state, CioAccountService, CioAuthService) {
      */
     function updatePassword() {
         return CioAccountService.processPasswords(vm.modelPasswords, function(objErr) {
+            vm.modelPasswords = {};
             if (objErr) {
                 return (vm.states.password = 'incorrect');
             }
+            vm.modelUser.updatedPasswordAt = new Date();
             vm.states.activeField = null;
+        });
+    }
+
+    // *************************************************************************
+
+    /**
+     * Controller function to delete the user's account for good.
+     * 
+     * @public
+     */
+    function deleteUser() {
+        return CioAccountService.deleteUser(vm.modelPasswords.passwordDelete, function(objErr) {
         });
     }
 

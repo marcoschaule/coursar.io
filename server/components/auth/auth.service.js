@@ -19,6 +19,27 @@ var Auth           = AuthRessources.Auth;
 var SignUp         = AuthRessources.SignUp;
 
 // *****************************************************************************
+// Exports
+// *****************************************************************************
+
+module.exports.signIn                = signIn;
+module.exports.signUp                = signUp;
+module.exports.signOut               = signOut;
+module.exports.forgotUsername        = forgotUsername;
+module.exports.forgotPassword        = forgotPassword;
+module.exports.resetPassword         = resetPassword;
+module.exports.sendVerificationEmail = sendVerificationEmail;
+module.exports.verifyEmail           = verifyEmail;
+module.exports.setEmail              = setEmail;
+module.exports.checkSignedIn         = checkSignedIn;
+module.exports.touchSignedIn         = touchSignedIn;
+module.exports.updateSession         = touchSignedIn;
+module.exports.deleteSession         = deleteSession;
+module.exports.isSignedIn            = isSignedIn;
+module.exports.isUsernameAvailable   = isUsernameAvailable;
+module.exports.isEmailAvailable      = isEmailAvailable;
+
+// *****************************************************************************
 // Service functions
 // *****************************************************************************
 
@@ -664,6 +685,21 @@ function touchSignedIn(objSession, callback) {
 // *****************************************************************************
 
 /**
+ * Service function to delete the user's session.
+ *
+ * @public
+ * @param {Object}   objSession  object of JWT session
+ * @param {Function} [callback]  (optional) function for callback
+ */
+function deleteSession(objSession, callback) {
+    callback = 'function' === typeof callback && callback || function(){};
+    console.log(">>> Debug ====================; objSession:", objSession, '\n\n');
+    return objSession.destroy(callback);
+}
+
+// *****************************************************************************
+
+/**
  * Service function to test whether a user is signed in.
  * 
  * @public
@@ -856,26 +892,6 @@ function _deleteResetPasswordRedisEntry(strRId, callback) {
         return callback(null);
     });
 }
-
-// *****************************************************************************
-// Exports
-// *****************************************************************************
-
-module.exports.signIn                = signIn;
-module.exports.signUp                = signUp;
-module.exports.signOut               = signOut;
-module.exports.forgotUsername        = forgotUsername;
-module.exports.forgotPassword        = forgotPassword;
-module.exports.resetPassword         = resetPassword;
-module.exports.sendVerificationEmail = sendVerificationEmail;
-module.exports.verifyEmail           = verifyEmail;
-module.exports.setEmail              = setEmail;
-module.exports.checkSignedIn         = checkSignedIn;
-module.exports.touchSignedIn         = touchSignedIn;
-module.exports.updateSession         = touchSignedIn;
-module.exports.isSignedIn            = isSignedIn;
-module.exports.isUsernameAvailable   = isUsernameAvailable;
-module.exports.isEmailAvailable      = isEmailAvailable;
 
 // *****************************************************************************
 

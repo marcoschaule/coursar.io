@@ -156,6 +156,16 @@ mixin accountProfileButtonsCancelAndSave(strDisabledCondition)
 
 //- ****************************************************************************
 
+mixin accountProfileButtonsCancelAndSaveDelete(strDisabledCondition)
+    a.btn.btn-link(data-ng-click="vm.states.activeField = null; \
+            vm.formAccountProfile.$setPristine()") No
+    span &nbsp;
+    a.btn.btn-primary(
+            data-ng-click="vm.deleteUser()",
+            data-ng-disabled="#{strDisabledCondition}") Yes
+
+//- ****************************************************************************
+
 mixin accountProfileButtonsCancelAndSavePasswords(strDisabledCondition)
     a.btn.btn-link(data-ng-click="vm.states.activeField = null; \
             vm.formAccountProfile.$setPristine()") Cancel

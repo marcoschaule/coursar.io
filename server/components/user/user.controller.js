@@ -27,6 +27,7 @@ function readUser(req, res, next) {
 
     return UserService.readUser(strUserId, (objErr, objUser) => {
         if (objErr) {
+            console.error(objErr);
             return next(objErr);
         }
         return res.status(200).json(objUser);
@@ -70,7 +71,33 @@ function updateUser(req, res, next) {
 
 // *****************************************************************************
 
-function deleteUser(req, res, next) {}
+/**
+ * Controller function to delete the user's account.
+ * 
+ * @public
+ * @param {Object}   req                object of Express' default request
+ * @param {Object}   req.body           object of the request body
+ * @param {String}   req.body.password  string of the user's current password
+ * @param {Object}   req.session        object of the request session
+ * @param {Object}   res                object of Express' default response
+ * @param {Function} next               function of callback for next middleware
+ */
+function deleteUser(req, res, next) {
+    var strUserId   = req.session.userId;
+    var strPassword = req.body.password;
+
+    if (!strUserId || !strPassword) {
+        return next({ err: 'An unexpected error occurred!' });
+    }
+
+    return UserService.deleteUser(req.session, strPassword, objErr => {
+        if (objErr) {
+            return next(objErr);
+        }
+        res.set('X-Access-Token', 'delete');
+        return res.status(201).json({ success: true, redirect: true });
+    });
+}
 
 // *****************************************************************************
 
@@ -102,7 +129,7 @@ function updatePassword(req, res, next) {
         if (objErr) {
             return next(objErr);
         }
-        return res.status(200).json('success');
+        return res.status(201).json({ success: true });
     });
 }
 

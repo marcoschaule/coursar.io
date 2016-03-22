@@ -25,9 +25,9 @@ angular
 function Service(CioComService) {
     var service = {};
 
-    // *****************************************************************************
+    // *************************************************************************
     // Private variables
-    // *****************************************************************************
+    // *************************************************************************
 
     var _strUrlUserRead            = '/user/read';
     var _strUrlUserUpdate          = '/user/update';
@@ -35,23 +35,24 @@ function Service(CioComService) {
     var _strUrlUserUpdatePasswords = '/user/update-password';
     var _strVerifyEmail            = '/send-verification-email';
 
-    // *****************************************************************************
+    // *************************************************************************
     // Public variables
-    // *****************************************************************************
+    // *************************************************************************
 
     service.objUser = {};
 
-    // *****************************************************************************
+    // *************************************************************************
     // Service function linking
-    // *****************************************************************************
+    // *************************************************************************
 
     service.processUser           = processUser;
     service.processPasswords      = processPasswords;
+    service.deleteUser            = deleteUser;
     service.sendVerificationEmail = sendVerificationEmail;
 
-    // *****************************************************************************
+    // *************************************************************************
     // Service function definitions
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Service method to read, update or delete the user on/from server.
@@ -97,11 +98,12 @@ function Service(CioComService) {
         });
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Service function to update the user's password.
-     * 
+     *
+     * @public
      * @param {Object}   objPasswords                  object of the passwords
      * @param {String}   objPasswords.passwordCurrent  string of the user's current password
      * @param {String}   objPasswords.passwordNew      string of the user's new password
@@ -116,7 +118,25 @@ function Service(CioComService) {
         return CioComService.put(objRequest, callback);
     }
 
-    // *****************************************************************************
+    // *************************************************************************
+
+    /**
+     * Service function to delete the user.
+     *
+     * @public
+     * @param {String}   strPassword  string of the user's current password
+     * @param {Function} callback     function for callback
+     */
+    function deleteUser(strPassword, callback) {
+        var objRequest = {
+            id  : 'delete-user',
+            url : _strUrlUserDelete,
+            data: { password: strPassword },
+        };
+        return CioComService.put(objRequest, callback);
+    }
+
+    // *************************************************************************
 
     /**
      * Service function to send the verification email.
@@ -140,15 +160,15 @@ function Service(CioComService) {
         });
     }
 
-    // *****************************************************************************
+    // *************************************************************************
     // Helper function definitions
-    // *****************************************************************************
+    // *************************************************************************
 
-    // *****************************************************************************
+    // *************************************************************************
 
     return service;
 
-    // *****************************************************************************
+    // *************************************************************************
 }
 
 // *****************************************************************************
