@@ -22,7 +22,7 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller($timeout, $state, CioAuthService) {
+function Controller($state, CioAuthService) {
     var vm = this;
 
     // *****************************************************************************

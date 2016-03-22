@@ -1,46 +1,142 @@
+mixin statusFields(objOptions)
+    
+    //- if username or email has not been changed, yet
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-muted",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'pristine'",
+    })
+        i.fa.fa-times
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.PleaseEnter' | translate }}
+    
+    //- if username or email request is pending
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-muted",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'pending'",
+    })
+        i.fa.fa-spinner.fa-spin
+        |&nbsp;{{ 'auth.CheckingAvailability' | translate }}...
+    
+    //- if username or email is available
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-success",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'available'",
+    })
+        i.fa.fa-check
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsAvailable' | translate }}
+    
+    //- if username or email is not available
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'notAvailable'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsNotAvailable' | translate }}
+
+    //- if username or email are too short
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'tooShort'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsTooShort' | translate }}
+    
+    //- if username or email are too long
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'tooLong'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsTooLong' | translate }}
+    
+    //- if username or email are required
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'required'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.ThisFieldIsRequired' | translate }}
+    
+    //- if username or email are invalid
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'invalid'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsNotValid' | translate }}
+    
+    //- if username or email are invalid
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'error'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.ErrorGeneral' | translate }}
+
+//- ****************************************************************************
+
 mixin input(objOptions)
+    - objOptions.placeholder = objOptions.label;
+    - objOptions.alt         = objOptions.label;
+
     if (!objOptions.isLabelHidden)
         label(for="#{objOptions.id}") #{objOptions.label}:
     if (objOptions['data-ng-model'])
-        input.form-control&attributes({
-            "id"                         : objOptions['id'],
-            "alt"                        : objOptions['label'],
-            "type"                       : objOptions['type'],
-            "name"                       : objOptions['name'],
-            "placeholder"                : objOptions['label'],
-            "data-ng-class"              : objOptions['data-ng-class'],
-            "data-ng-model"              : objOptions['data-ng-model'],
-            "data-ng-pattern"            : objOptions['data-ng-pattern'],
-            "data-ng-required"           : objOptions['data-ng-required'],
-            "data-ng-minlength"          : objOptions['data-ng-minlength'],
-            "data-ng-maxlength"          : objOptions['data-ng-maxlength'],
-            "data-cio-input-change-event": objOptions['data-cio-input-change-event'],
-        })
+        input.form-control&attributes(objOptions)
+        //- input.form-control
+
+//- ****************************************************************************
 
 mixin inputText(objOptions)
     - objOptions.type = 'text';
     +input(objOptions)
 
+//- ****************************************************************************
+
+mixin inputPassword(objOptions)
+    - objOptions.type = 'password';
+    +input(objOptions)
+
+//- ****************************************************************************
+
 mixin inputDate(objOptions)
     - objOptions.type = 'date';
     +input(objOptions)
+
+//- ****************************************************************************
 
 mixin inputTextRequired(objOptions)
     - objOptions.type       = 'text';
     - objOptions.isRequired = true;
     +input(objOptions)
 
+//- ****************************************************************************
+
 mixin inputRadio(objOptions)
+    - objOptions.type = 'radio';
+    - objOptions.alt  = objOptions.label;
     label.radio-inline
-        input&attributes({
-            "type"         : "radio",
-            "id"           : objOptions['id'],
-            "alt"          : objOptions['label'],
-            "name"         : objOptions['name'],
-            "value"        : objOptions['value'],
-            "data-ng-model": objOptions['data-ng-model']
-        })
+        input&attributes(objOptions)
         |#{objOptions.label}
+
+//- ****************************************************************************
+
+mixin inputPasswordSwitcher(objOptions, isVisible)
+    - objOptions.alt = objOptions.label;
+    if (!objOptions.isLabelHidden)
+        label(for="#{objOptions.id}") #{objOptions.label}:
+    if (objOptions['data-ng-model'])
+        .input-group(data-ng-if="!#{isVisible}")
+            input.form-control(type="password")&attributes(objOptions)
+            .input-group-addon.filled
+                a.addon-filler(data-ng-click="#{isVisible} = !#{isVisible}")
+                    i.fa.fa-eye-slash
+        .input-group(data-ng-if="#{isVisible}")
+            input.form-control(type="text")&attributes(objOptions)
+            .input-group-addon.filled
+                a.addon-filler(data-ng-click="#{isVisible} = !#{isVisible}")
+                    i.fa.fa-eye
+
+//- ****************************************************************************
 
 mixin accountProfileButtonEdit(strNgClick)
     a.btn.btn-link&attributes({
@@ -50,7 +146,22 @@ mixin accountProfileButtonEdit(strNgClick)
         i.fa.fa-pencil
         |&nbsp;Edit
 
+//- ****************************************************************************
+
 mixin accountProfileButtonsCancelAndSave(strDisabledCondition)
-    a.btn.btn-link(data-ng-click="vm.states.activeField = null") Cancel
+    a.btn.btn-link(data-ng-click="vm.states.activeField = null; \
+            vm.formAccountProfile.$setPristine()") Cancel
     span &nbsp;
     button.btn.btn-primary(data-ng-disabled="#{strDisabledCondition}") Save
+
+//- ****************************************************************************
+
+mixin accountProfileButtonsCancelAndSavePasswords(strDisabledCondition)
+    a.btn.btn-link(data-ng-click="vm.states.activeField = null; \
+            vm.formAccountProfile.$setPristine()") Cancel
+    span &nbsp;
+    a.btn.btn-primary(
+            data-ng-click="vm.updatePassword()",
+            data-ng-disabled="#{strDisabledCondition}") Save
+
+//- ****************************************************************************

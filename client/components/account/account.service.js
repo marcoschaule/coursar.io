@@ -29,10 +29,11 @@ function Service(CioComService) {
     // Private variables
     // *****************************************************************************
 
-    var _strUrlUserRead   = '/user/read';
-    var _strUrlUserUpdate = '/user/update';
-    var _strUrlUserDelete = '/user/delete';
-    var _strVerifyEmail   = '/send-verification-email';
+    var _strUrlUserRead            = '/user/read';
+    var _strUrlUserUpdate          = '/user/update';
+    var _strUrlUserDelete          = '/user/delete';
+    var _strUrlUserUpdatePasswords = '/user/update-password';
+    var _strVerifyEmail            = '/send-verification-email';
 
     // *****************************************************************************
     // Public variables
@@ -45,6 +46,7 @@ function Service(CioComService) {
     // *****************************************************************************
 
     service.processUser           = processUser;
+    service.processPasswords      = processPasswords;
     service.sendVerificationEmail = sendVerificationEmail;
 
     // *****************************************************************************
@@ -93,6 +95,25 @@ function Service(CioComService) {
             }
             return callback(null, objUser);
         });
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to update the user's password.
+     * 
+     * @param {Object}   objPasswords                  object of the passwords
+     * @param {String}   objPasswords.passwordCurrent  string of the user's current password
+     * @param {String}   objPasswords.passwordNew      string of the user's new password
+     * @param {Function} callback                      function for callback
+     */
+    function processPasswords(objPasswords, callback) {
+        var objRequest = {
+            id  : 'process-passwords',
+            url : _strUrlUserUpdatePasswords,
+            data: { passwords: objPasswords },
+        };
+        return CioComService.put(objRequest, callback);
     }
 
     // *****************************************************************************

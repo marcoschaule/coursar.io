@@ -36,6 +36,7 @@ var objAuth = {
             street: String,
             zipcode: String,
             city: String,
+            additional: String,
         },
     },
 
@@ -65,22 +66,31 @@ var objAuth = {
     },
 
     // time stamps
-    createdAt: {
+    firstSignUpAt: {
         type: Date,
-        default: Date.now,
+        default: null,
+    },
+    lastSignInAt: {
+        type: Date,
+        default: null,
+    },
+    lastResetPasswordAt: {
+        type: Date,
+        default: null,
     },
     updatedUsernameAt: {
         type: Date,
-        default: Date.now,
+        default: null,
     },
     updatedEmailAt: {
         type: Date,
-        default: Date.now,
+        default: null,
     },
     updatedPasswordAt: {
         type: Date,
-        default: Date.now,
+        default: null,
     },
+    
 
     // flags
     isVerified: {
@@ -92,7 +102,8 @@ var objAuth = {
         default: false
     },
 };
-var schemaAuth = new Schema(objAuth, { collection: 'users' });
+var schemaAuth         = new Schema(objAuth, { collection: 'users' });
+var schemaUsersDeleted = new Schema(objAuth, { collection: 'usersDeleted' });
 
 // *****************************************************************************
 // Schema methods and statics
@@ -106,7 +117,8 @@ schemaAuth.methods.compare = _compare;
 // Model definitions
 // *****************************************************************************
 
-var Auth = mongoose.model('Auth', schemaAuth, 'users');
+var User         = mongoose.model('User',         schemaAuth, 'users');
+var UsersDeleted = mongoose.model('UsersDeleted', schemaAuth, 'usersDeleted');
 
 // *****************************************************************************
 // Custom validators
@@ -221,9 +233,12 @@ function _compare(strPassword) {
 // Exports
 // *****************************************************************************
 
-module.exports.Auth         = Auth;
-module.exports.schemaAuth   = schemaAuth;
-module.exports.objAuth      = objAuth;
+module.exports.Auth               = User;
+module.exports.User               = User;
+module.exports.UsersDeleted       = UsersDeleted;
+module.exports.schemaAuth         = schemaAuth;
+module.exports.schemaUsersDeleted = schemaUsersDeleted;
+module.exports.objAuth            = objAuth;
 
 // ********************************************************************************
 

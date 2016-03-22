@@ -4,11 +4,13 @@
 // Includes and definitions
 // *****************************************************************************
 
-var async       = require('async');
-var clone       = require('clone');
-var moment      = require('moment');
-var User        = require('../auth/auth.schema.js').Auth;
-var AuthService = require('../auth/auth.service.js');
+var async          = require('async');
+var clone          = require('clone');
+var moment         = require('moment');
+var UserRessources = require('../auth/auth.schema.js');
+var AuthService    = require('../auth/auth.service.js');
+var User           = UserRessources.User;
+var UserDeleted    = UserRessources.UserDeleted;
 
 // *****************************************************************************
 // Service functions
@@ -33,10 +35,16 @@ function readUser(strUserId, callback) {
         }
 
         objUserResult = {
-            profile   : JSON.parse(JSON.stringify(objUser.profile)),
-            username  : objUser.username,
-            email     : objUser.email,
-            isVerified: objUser.isVerified,
+            profile            : JSON.parse(JSON.stringify(objUser.profile)),
+            username           : objUser.username,
+            email              : objUser.email,
+            isVerified         : objUser.isVerified,
+            firstSignUpAt      : objUser.firstSignUpAt,
+            lastSignInAt       : objUser.lastSignInAt,
+            lastResetPasswordAt: objUser.lastResetPasswordAt,
+            updatedUsernameAt  : objUser.updatedUsernameAt,
+            updatedEmailAt     : objUser.updatedEmailAt,
+            updatedPasswordAt  : objUser.updatedPasswordAt,
         };
 
         // parse date into readable value
@@ -60,12 +68,14 @@ function readUser(strUserId, callback) {
  * This function calls the "readUser" function if successful.
  *
  * @public
- * @param {String}   strUserId      string of the MongoDB ID of the user to be updated
- * @param {Obejct}   objUserUpdate  object of the user data to be updated
+ * @param {Object}   objSession     object of the users session
+ * @param {Object}   objUserUpdate  object of the user data to be updated
  * @param {Function} callback       function for callback
  */
-function updateUser(strUserId, objUserUpdate, callback) {
-    var isDateValid, arrSeries = [];
+function updateUser(objSession, objUserUpdate, callback) {
+    var strUserId = objSession.userId;
+    var arrSeries = [];
+    var isDateValid;
 
     // if date of birth is given, try to convert it to a valid date
     if (objUserUpdate.profile && objUserUpdate.profile.dateOfBirth) {
@@ -76,15 +86,33 @@ function updateUser(strUserId, objUserUpdate, callback) {
     }
 
     // if necessary, test if username is available
-    if (!objUserUpdate.username) {
-        arrSeries.push((_callback) => AuthService.isUsernameAvailable(
+    if (objUserUpdate.username) {
+        arrSeries.push(_callback => AuthService.isUsernameAvailable(
                 objUserUpdate.username, _callback));
+        arrSeries.push(_callback => User.update(
+                { _id : strUserId },
+                { $set: { updatedUsernameAt: new Date() } },
+                _callback)
+        );
+        arrSeries.push(_callback => {
+            objSession.username = objUserUpdate.username;
+            return AuthService.updateSession(objSession, _callback);
+        });
     }
     
     // if necessary, test if email is available
-    if (!objUserUpdate.email) {
-        arrSeries.push((_callback) => AuthService.isEmailAvailable(
+    if (objUserUpdate.email) {
+        arrSeries.push(_callback => AuthService.isEmailAvailable(
                 objUserUpdate.email, _callback));
+        arrSeries.push(_callback => User.update(
+                { _id : strUserId },
+                { $set: { updatedEmailAt: new Date() } },
+                _callback)
+        );
+        arrSeries.push(_callback => {
+            objSession.email = objUserUpdate.email;
+            return AuthService.updateSession(objSession, _callback);
+        });
     }
 
     // add user update step
@@ -100,6 +128,94 @@ function updateUser(strUserId, objUserUpdate, callback) {
         }
         return readUser(strUserId, callback);
     });
+}
+
+// *****************************************************************************
+
+function deleteUser(strUserId, strPassword, callback) {
+    var objPassword = User.encrypt(objPassword.password);
+
+    return async.series([
+
+        // test password
+        (_callback) => {
+
+            return User.findOne({ _id: strUserId }, (objErr, objUser) => {
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback({ err: settings.errors.signIn.generalError });
+                }
+                else if (!objUser || !objUser.compare(objSignIn.password)) {
+                    console.error(settings.errors.signIn.usernameOrPasswordWrong);
+                    return _callback({ err: settings.errors.signIn.usernameOrPasswordWrong, redirect: true });
+                }
+                return _callback(null, objUser);
+            });
+        },
+
+        // copy user into "usersDeleted" database
+        (_callback) => {
+
+        },
+
+        // delete user in "users" database
+        (_callback) => {},
+
+    ], callback);
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to update the user's password.
+ *
+ * @public
+ * @param {String}   strUserId                    current user's id
+ * @param {Object}   objPassword                  object of the passwords
+ * @param {String}   objPassword.passwordCurrent  string of the user's current password
+ * @param {String}   objPassword.passwordNew      string of the user's new password
+ * @param {Function} callback                     function for callback
+ */
+function updatePassword(strUserId, objPassword, callback) {
+    var objPasswordNew = User.encrypt(objPassword.passwordNew);
+
+    return async.waterfall([
+    
+        // find the user and test the password
+        (_callback) => {
+            return User.findOne({ _id: strUserId }, (objErr, objUser) => {
+                
+                if (objErr) {
+                    console.error(objErr);
+                    return _callback({ err: settings.errors.signIn.generalError });
+                }
+                else if (!objUser || !objUser.compare(objPassword.passwordCurrent)) {
+                    console.error({ err: { message: 'Password incorrect!'}, disableRepeater: true });
+                    return _callback({ err: { message: 'Password incorrect!'}, disableRepeater: true });
+                }
+                return _callback(null);
+            });
+        },
+
+        // save the new password
+        (_callback) => {
+            return User.update(
+                    { _id: strUserId },
+                    { $set: {
+                        'password.salt'    : objPasswordNew.salt,
+                        'password.hash'    : objPasswordNew.hash,
+                        'updatedPasswordAt': new Date(),
+                    } },
+                    (objErr, objModified) => {
+               
+                if (objErr) {
+                   console.error(objErr);
+                   return _callback({ err: settings.errors.resetPassword.generalError });
+                }
+                return _callback(null);
+            });
+        },
+    ], callback);
 }
 
 // *****************************************************************************
@@ -132,8 +248,9 @@ function _testDate(strDate) {
 // Exports
 // *****************************************************************************
 
-module.exports.readUser   = readUser;
-module.exports.updateUser = updateUser;
+module.exports.readUser       = readUser;
+module.exports.updateUser     = updateUser;
+module.exports.updatePassword = updatePassword;
 
 // *****************************************************************************
 

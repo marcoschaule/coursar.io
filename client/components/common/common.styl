@@ -9,7 +9,13 @@ body, html
     background-image url('../assets/tile-light.gif')
 fieldset
     margin 0.5rem 0
-    
+fieldset:first-child
+    margin-top 0
+label
+    font-weight normal
+a
+    cursor pointer
+
 // *****************************************************************************
 // Common ids
 // *****************************************************************************
@@ -76,6 +82,23 @@ fieldset
 .vmargin-4rem
     height 4rem
     width 100%
+
+// paddings
+.vpadding-half-rem
+    padding-bottom .5rem
+    padding-top .5rem
+.vpadding-1rem
+    padding-bottom 1rem
+    padding-top 1rem
+.vpadding-2rem
+    padding-bottom 2rem
+    padding-top 2rem
+.vpadding-3rem
+    padding-bottom 3rem
+    padding-top 3rem
+.vpadding-4rem
+    padding-bottom 4rem
+    padding-top 4rem
 
 // margins
 .margin-top-half-rem
@@ -208,6 +231,15 @@ input:-webkit-autofill, input:-webkit-autofill:focus
     padding 8px 10px
 .alert.alert-xs
     padding 4px 5px
+.alert.alert-muted
+    background-color #eee
+    color rgb(119, 119, 119)
+    border-color #ddd
+.alert > a
+    color inherit
+    text-decoration underline
+.alert > a:hover
+    text-decoration none
 
 input.inactive
     box-shadow none !important
@@ -217,9 +249,9 @@ input.inactive
 .table.table-striped > .row
     border-top 1px solid #ddd
     padding .5rem 0
-.table.table-striped > .row div:first-child
+.table.table-striped > .row > div:first-child
     padding-left 0
-.table.table-striped > .row div:last-child
+.table.table-striped > .row > div:last-child
     padding-right 0
 .table.table-striped > .row.active
     padding 1rem 0
@@ -235,6 +267,13 @@ fieldset.horizontal > label
 fieldset.horizontal > input
     width 80%
     float left
+
+.input-group-addon.filled
+    padding 0
+.addon-filler
+    padding 6px 12px
+a.addon-filler
+    cursor pointer
 
 // *****************************************************************************
 // Google's reCaptcha overrides

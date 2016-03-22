@@ -4,18 +4,41 @@ include _mixins.include.jade
 #sign: a.btn.btn-link(data-ng-click="signOut()") Sign Out
 
 h1 Profile
+
+.alert.alert-danger(data-ng-if="!vm.modelUser.isVerified && false === \
+        vm.states.verificationEmailSend")
+    span Warning! Your email address is not verified, yet.&nbsp;&nbsp;
+    a(data-ng-click="vm.sendVerificationEmail()")
+        i.fa.fa-envelope
+        |&nbsp;Send verification email.
+
+.alert.alert-success(data-ng-if="!vm.modelUser.isVerified && true === \
+        vm.states.verificationEmailSend")
+    i.fa.fa-check
+    span &nbsp;Email verification send.
+
+.alert.alert-danger(data-ng-if="'!vm.modelUser.isVerified && error' === \
+        vm.states.verificationEmailSend")
+    i.fa.fa-ban.text-danger
+    span &nbsp;An unexpected error occurred. Please try again.
+
 form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
     .container-fluid.table.table-striped
+
+        //- ********************************************************************
         
         //- Name show
         .row(data-ng-if="'name' !== vm.states.activeField")
-            .col-xs-2.left Name:
+            .col-xs-2.left: strong Name:
             .col-xs-8.left
                 .text-primary(data-ng-if="\
                         vm.modelUser.profile.name.first || \
                         vm.modelUser.profile.name.middle || \
                         vm.modelUser.profile.name.last")
-                    |{{ vm.modelUser.profile.name.first }} {{ vm.modelUser.profile.name.last }}
+                    |{{ vm.modelUser.profile.name.title }}
+                    |{{ vm.modelUser.profile.name.first }}
+                    |{{ vm.modelUser.profile.name.middle }}
+                    |{{ vm.modelUser.profile.name.last }}
                 .text-muted(data-ng-if="\
                         !vm.modelUser.profile.name.first && \
                         !vm.modelUser.profile.name.middle && \
@@ -26,10 +49,10 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
         
         //- Name edit
         .row.active(data-ng-if="'name' === vm.states.activeField")
-            .col-xs-2.left Name:
+            .col-xs-2.left: strong Name:
             .col-xs-10.left(data-ng-class="{ 'has-error': \
-                    vm.formAccount.nameFirst.$invalid &&\
-                    vm.formAccount.nameFirst.$dirty }")
+                    vm.formAccountProfile.nameFirst.$invalid &&\
+                    vm.formAccountProfile.nameFirst.$dirty }")
                 fieldset.horizontal
                     +inputText({
                         "id"           : "account-name-title",
@@ -63,19 +86,23 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
 
         //- ********************************************************************
         
+        //- Gender show
         .row(data-ng-if="'gender' !== vm.states.activeField")
-            .col-xs-2.left Gender:
+            .col-xs-2.left: strong Gender:
             .col-xs-8.left
                 .text-primary(data-ng-if="vm.modelUser.profile.gender")
-                    |{{ vm.modelUser.profile.gender }}
+                    i.fa.fa-venus(data-ng-if="'female' === vm.modelUser.profile.gender")
+                    i.fa.fa-mars(data-ng-if="'male' === vm.modelUser.profile.gender")
+                    i.fa.fa-transgender(data-ng-if="'other' === vm.modelUser.profile.gender")
+                    |&nbsp;{{ vm.modelUser.profile.gender }}
                 .text-muted(data-ng-if="!vm.modelUser.profile.gender")
                     |No gender defined, yet.
             .col-xs-2.right
                 +accountProfileButtonEdit('gender')
 
-        //- Name edit
+        //- Gender edit
         .row.active(data-ng-if="'gender' === vm.states.activeField")
-            .col-xs-2.left Gender:
+            .col-xs-2.left: strong Gender:
             .col-xs-10.left
                 fieldset
                     +inputRadio({
@@ -104,8 +131,9 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
 
         //- ********************************************************************
         
+        //- Date of birth show
         .row(data-ng-if="'dateOfBirth' !== vm.states.activeField")
-            .col-xs-2.left Date of birth:
+            .col-xs-2.left: strong Date of birth:
             .col-xs-8.left
                 .text-primary(data-ng-if="vm.modelUser.profile.dateOfBirth")
                     |{{ vm.modelUser.profile.dateOfBirth }}
@@ -116,10 +144,9 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
             .col-xs-2.right
                 +accountProfileButtonEdit('dateOfBirth')
 
-        //- ********************************************************************
-
+        //- Date of birth edit
         .row.active(data-ng-if="'dateOfBirth' === vm.states.activeField")
-            .col-xs-2.left Date of birth:
+            .col-xs-2.left: strong Date of birth:
             .col-xs-10.left(data-ng-class="{ 'has-error': \
                     vm.formAccountProfile.dateOfBirth.$invalid }")
                 fieldset
@@ -131,19 +158,23 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
                         "data-cio-input-change-event": "vm.testDateOfBirth()",
                         "isLabelHidden"              : true
                     })
-                    .alert.alert-sm.alert-info.margin-top-half-rem(
+                fieldset
+                    .alert.alert-sm.alert-info(
                             data-ng-if="vm.formAccountProfile.dateOfBirth.$valid")
-                        |Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
-                    .alert.alert-sm.alert-danger.margin-top-half-rem(
+                        i.fa.fa-info-circle
+                        |&nbsp;Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
+                    .alert.alert-sm.alert-danger(
                             data-ng-if="vm.formAccountProfile.dateOfBirth.$invalid")
-                        |Invalid format or date! Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
+                        i.fa.fa-ban
+                        |&nbsp;Invalid format or date! Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
                 fieldset.right
                     +accountProfileButtonsCancelAndSave('vm.formAccountProfile.dateOfBirth.$invalid')
 
         //- ********************************************************************
 
-        .row
-            .col-xs-2.left Address:
+        //- Address show
+        .row(data-ng-if="'address' !== vm.states.activeField")
+            .col-xs-2.left: strong Address:
             .col-xs-8.left
                 .text-muted(data-ng-if="!vm.modelUser.profile.address.street && \
                         !vm.modelUser.profile.address.city && \
@@ -152,70 +183,203 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
                 .text-primary(data-ng-if="vm.modelUser.profile.address.street || \
                         vm.modelUser.profile.address.city || \
                         vm.modelUser.profile.address.zipcode")
-                    |{{ vm.modelUser.profile.address.street }}<br /> 
-                    |{{ vm.modelUser.profile.address.zipcode }} 
-                    |{{ vm.modelUser.profile.address.city }} 
+                    span {{ vm.modelUser.profile.address.street }}
+                    span(data-ng-if="vm.modelUser.profile.address.street") ,&nbsp;
+                    span {{ vm.modelUser.profile.address.zipcode }} 
+                    span {{ vm.modelUser.profile.address.city }} 
+                .text-muted(data-ng-if="vm.modelUser.profile.address.additional")
+                    span ({{ vm.modelUser.profile.address.additional }})
             .col-xs-2.right
-                +accountProfileButtonEdit()
+                +accountProfileButtonEdit('address')
+
+        //- Address edit
+        .row.active(data-ng-if="'address' === vm.states.activeField")
+            .col-xs-2.left: strong Address:
+            .col-xs-10.left
+                fieldset.horizontal
+                    +inputText({
+                        "id"           : "account-address-street",
+                        "label"        : "Street",
+                        "name"         : "addressStreet",
+                        "data-ng-model": "vm.modelUser.profile.address.street",
+                    })
+                fieldset.horizontal
+                    +inputText({
+                        "id"           : "account-address-zipcode",
+                        "label"        : "Zip code",
+                        "name"         : "addressZipcode",
+                        "data-ng-model": "vm.modelUser.profile.address.zipcode",
+                    })
+                fieldset.horizontal
+                    +inputText({
+                        "id"           : "account-address-city",
+                        "label"        : "City",
+                        "name"         : "addressCity",
+                        "data-ng-model": "vm.modelUser.profile.address.city",
+                    })
+                fieldset.horizontal
+                    +inputText({
+                        "id"           : "account-address-additional",
+                        "label"        : "Additional",
+                        "name"         : "addressAdditional",
+                        "data-ng-model": "vm.modelUser.profile.address.additional",
+                    })
+                fieldset.right
+                    +accountProfileButtonsCancelAndSave()
 
         //- ********************************************************************
 
-        .row
-            .col-xs-2.left Username:
+        //- Username show
+        .row(data-ng-if="'username' !== vm.states.activeField")
+            .col-xs-2.left: strong Username:
             .col-xs-8.left
                 .text-primary
                     |{{ vm.modelUser.username }}
                 .text-muted(data-ng-if="vm.modelUser.updatedUsernameAt")
-                    |(last updated at: {{ vm.modelUser.updatedUsernameAt }})
+                    span (last updated at: 
+                    strong {{ vm.modelUser.updatedUsernameAt | date:"MM/dd/yyyy, hh:mm a" }}
+                    span )
                 .text-muted(data-ng-if="!vm.modelUser.updatedUsernameAt")
                     |(never updated)
             .col-xs-2.right
-                +accountProfileButtonEdit()
+                +accountProfileButtonEdit('username')
+
+        //- Username edit
+        .row.active(data-ng-if="'username' === vm.states.activeField")
+            .col-xs-2.left: strong Username:
+            .col-xs-10.left(data-ng-class="{ 'has-error': \
+                    vm.formAccountProfile.username.$invalid &&\
+                    vm.formAccountProfile.username.$dirty }")
+                fieldset
+                    +inputText({
+                        "id"                         : "account-username",
+                        "label"                      : "Username",
+                        "name"                       : "username",
+                        "data-ng-model"              : "vm.modelUser.username",
+                        "data-cio-input-change-event": "vm.isAvailable('username')",
+                        "data-ng-required"           : "true",
+                        "isLabelHidden"              : true
+                    })
+                fieldset
+                    +statusFields({
+                        "name" : "username",
+                        "class": "alert alert",
+                    })
+                fieldset.right
+                    +accountProfileButtonsCancelAndSave('\
+                        vm.formAccountProfile.username.$invalid || \
+                        !vm.modelUser.username \
+                    ')
 
         //- ********************************************************************
 
-        .row
-            .col-xs-2.left Password:
+        //- Email show
+        .row(data-ng-if="'email' !== vm.states.activeField")
+            .col-xs-2.left: strong Email:
             .col-xs-8.left
                 .text-primary
-                    |****
+                    span {{ vm.modelUser.email }}&nbsp;&nbsp;
+                    span.text-muted(data-ng-if="vm.modelUser.isVerified") (verified)
+                .text-muted(data-ng-if="vm.modelUser.updatedEmailAt")
+                    span (last updated at: 
+                    strong {{ vm.modelUser.updatedEmailAt | date:"MM/dd/yyyy, hh:mm a" }}
+                    span )
+                .text-muted(data-ng-if="!vm.modelUser.updatedEmailAt")
+                    span (never updated)
+            .col-xs-2.right
+                +accountProfileButtonEdit('email')
+
+        //- Email edit
+        .row.active(data-ng-if="'email' === vm.states.activeField")
+            .col-xs-2.left: strong Email:
+            .col-xs-10.left(data-ng-class="{ 'has-error': \
+                    vm.formAccountProfile.email.$invalid &&\
+                    vm.formAccountProfile.email.$dirty }")
+                fieldset
+                    +inputText({
+                        "id"                         : "account-email",
+                        "label"                      : "Email",
+                        "name"                       : "email",
+                        "data-ng-model"              : "vm.modelUser.email",
+                        "data-cio-input-change-event": "vm.isAvailable('email')",
+                        "data-ng-required"           : "true",
+                        "isLabelHidden"              : true
+                    })
+                fieldset
+                    +statusFields({
+                        "name" : "email",
+                        "class": "alert alert",
+                    })
+                fieldset.right
+                    +accountProfileButtonsCancelAndSave('\
+                        vm.formAccountProfile.email.$invalid || \
+                        !vm.modelUser.email \
+                    ')
+
+        //- ********************************************************************
+
+        //- Password show
+        .row(data-ng-if="'password' !== vm.states.activeField")
+            .col-xs-2.left: strong Password:
+            .col-xs-8.left
+                .text-primary
+                    span *********
                 .text-muted(data-ng-if="vm.modelUser.updatedPasswordAt")
-                    |(last updated at: {{ vm.modelUser.updatedPasswordAt }})
+                    span (last updated at: 
+                    strong {{ vm.modelUser.updatedPasswordAt | date:"MM/dd/yyyy, hh:mm a" }}
+                    span )
                 .text-muted(data-ng-if="!vm.modelUser.updatedPasswordAt")
-                    |(never updated)
+                    span (never updated)
             .col-xs-2.right
-                +accountProfileButtonEdit()
+                +accountProfileButtonEdit('password')
+
+        //- Password edit
+        .row.active(data-ng-if="'password' === vm.states.activeField")
+            .col-xs-2.left: strong Password:
+            .col-xs-10.left(data-ng-class="{ 'has-error': \
+                    vm.formAccountProfile.passwordCurrent.$invalid &&\
+                    vm.formAccountProfile.passwordCurrent.$dirty }")
+                fieldset.horizontal
+                    +inputPasswordSwitcher({
+                        "id"           : "account-password-new",
+                        "label"        : "New password",
+                        "name"         : "passwordNew",
+                        "data-ng-model": "vm.modelPasswords.passwordNew",
+                    }, 'vm.isPasswordNewVisible')
+                fieldset.horizontal
+                    +inputPasswordSwitcher({
+                        "id"           : "account-password-current",
+                        "label"        : "Current password",
+                        "name"         : "passwordCurrent",
+                        "data-ng-model": "vm.modelPasswords.passwordCurrent",
+                    }, 'vm.isPasswordCurrentVisible')
+                fieldset(data-ng-if="'incorrect' === vm.states.password")
+                    .alert.alert-danger
+                        i.fa.fa-ban
+                        span &nbsp;Current password incorrect!
+                fieldset.right
+                    +accountProfileButtonsCancelAndSavePasswords('\
+                        vm.formAccountProfile.passwordCurrent.$invalid || \
+                        vm.formAccountProfile.passwordNew.$invalid ||\
+                        !vm.modelPasswords.passwordCurrent || \
+                        !vm.modelPasswords.passwordNew \
+                    ')
 
         //- ********************************************************************
-
+    
+        //- delete account
         .row
-            .col-xs-2.left Email:
-            .col-xs-8.left
-                .text-primary
-                    |{{ vm.modelUser.email }} 
-                .text-muted(data-ng-if="vm.modelUser.isVerified")
-                    |(verified)
-                .text-muted(data-ng-if="!vm.modelUser.isVerified")
-                    |(not verified, yet)
-            .col-xs-2.right
-                a.btn.btn-link(
-                        data-ng-if="!vm.modelUser.isVerified",
-                        data-ng-click="true !== vm.states.verificationEmailSend && \
-                            vm.sendVerificationEmail()")
-                    span.text-primary(data-ng-if="false === vm.states.verificationEmailSend")
-                        i.fa.fa-envelope
-                        |&nbsp;Send verification email
-                    span.text-success(data-ng-if="true === vm.states.verificationEmailSend")
-                        i.fa.fa-check
-                        |&nbsp;Email verification send
-                    span.text-danger(data-ng-if="'error' === vm.states.verificationEmailSend")
-                        i.fa.fa-ban.text-danger
-                        |&nbsp;An unexpected error occurred. Please try again.
-                +accountProfileButtonEdit()
+            .col-xs-12.right
+                .btn.btn-link: .text-danger
+                    i.fa.fa-times
+                    span &nbsp;Delete account for good
 
         //- ********************************************************************
 
         .row
             .col-xs-12.right
                 .text-muted
-                    |Created at: {{ vm.modelUser.createdAt | date }}
+                    span Last sign in at: 
+                    strong {{ vm.modelUser.lastSignInAt | date:"MM/dd/yyyy, hh:mm a" }}, 
+                    span First sign up at: 
+                    strong {{ vm.modelUser.firstSignUpAt | date:"MM/dd/yyyy, hh:mm a" }}

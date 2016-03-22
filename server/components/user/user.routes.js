@@ -51,10 +51,11 @@ function setPublicRoutes() {
 function setPrivateRoutes() {
 
     // PUT routes
-    _app.put('/user/create', UserCtrl.createUser);
-    _app.put('/user/read',   UserCtrl.readUser);
-    _app.put('/user/update', UserCtrl.updateUser);
-    _app.put('/user/delete', UserCtrl.deleteUser);
+    _app.put('/user/create',          UserCtrl.createUser);
+    _app.put('/user/read',            UserCtrl.readUser);
+    _app.put('/user/update',          UserCtrl.updateUser);
+    _app.put('/user/delete',          UserCtrl.deleteUser);
+    _app.put('/user/update-password', UserCtrl.updatePassword);
 }
 
 // *****************************************************************************

@@ -84,6 +84,14 @@ function signIn(objSignIn, objInfo, objSession, callback) {
             return _callback(null, objUser);
         },
 
+        // update sign in
+        (objUser, _callback) => {
+            return Auth.update(
+                    { _id: objUser._id.toString() },
+                    { $set: { lastSignInAt: new Date() } },
+                    _callback);
+        },
+
         // generate session
         (objUser, _callback) => {
 
@@ -153,12 +161,13 @@ function signUp(objSignUp, callback) {
 
             // create a new authenticated user
             var objUser = new Auth({
-                username: objSignUp.username,
-                email   : objSignUp.email,
-                password: {
-                    hash: objPassword.hash,
-                    salt: objPassword.salt,
+                username     : objSignUp.username,
+                email        : objSignUp.email,
+                password     : {
+                    hash     : objPassword.hash,
+                    salt     : objPassword.salt,
                 },
+                firstSignUpAt: new Date(),
             });
 
             return objUser.save(objErr => {
@@ -634,9 +643,11 @@ function checkSignedIn(objSession, objInfo, callback) {
  * 
  * @public
  * @param {Object}   objSession  object of JWT session
- * @param {Function} callback    function for callback
+ * @param {Function} [callback]  (optional) function for callback
  */
 function touchSignedIn(objSession, callback) {
+    callback = 'function' === typeof callback && callback || function(){};
+
     if (!isSignedIn(objSession)) {
         return callback({ err: 'Error: user is not signed in!' });
     }
@@ -861,6 +872,7 @@ module.exports.verifyEmail           = verifyEmail;
 module.exports.setEmail              = setEmail;
 module.exports.checkSignedIn         = checkSignedIn;
 module.exports.touchSignedIn         = touchSignedIn;
+module.exports.updateSession         = touchSignedIn;
 module.exports.isSignedIn            = isSignedIn;
 module.exports.isUsernameAvailable   = isUsernameAvailable;
 module.exports.isEmailAvailable      = isEmailAvailable;
