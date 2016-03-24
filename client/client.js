@@ -41,7 +41,9 @@ angular.module('cio')
  */
 function _configRoutesProvider($urlRouterProvider, $stateProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise(function() {
+        window.location = '/404.html';
+    });
 }
 
 // injection

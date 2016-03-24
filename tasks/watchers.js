@@ -33,6 +33,14 @@ gulp.task('watch:dev', () => {
         './client/**/*.jade'
     ], ['layout:dev', 'templates']);
     
+    // watch static changes
+    gulp.watch([
+        './gulpfile.js',
+        './tasks/**/*.js',
+        './package.json',
+        './**/*.static.jade'
+    ], ['statics:dev', 'statics:prod']);
+    
     // watch language changes
     gulp.watch([
         './gulpfile.js',
