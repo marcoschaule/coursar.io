@@ -29,7 +29,7 @@ function Controller($timeout, $state, CioAuthService) {
     // Private variables
     // *****************************************************************************
 
-    var _strStateRedirect = 'accountProfile';
+    var _strStateRedirect = 'accountProfileSettings';
 
     // *****************************************************************************
     // Public variables

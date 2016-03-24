@@ -29,7 +29,7 @@ function Controller($state, CioAuthService) {
     // Private variables
     // *****************************************************************************
     
-    var _strStateRedirect  = 'accountProfile';
+    var _strStateRedirect  = 'accountProfileSettings';
     var _strUrlSignUp      = '/sign-up';
     var _strUrlIsAvailable = '/is-available';
 

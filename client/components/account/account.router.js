@@ -31,7 +31,7 @@ var stateAccountProfileSettings = {
     name  : 'accountProfileSettings',
     views : {
         commonMain: {
-            controller : 'CioSettingsProfileSettingsCtrl as vm',
+            controller : 'CioAccountProfileSettingsCtrl as vm',
             templateUrl: 'account-profile-settings.template.html',
         },
     },
@@ -49,7 +49,7 @@ var stateAccountPrivacySettings = {
     name  : 'accountPrivacySettings',
     views : {
         commonMain: {
-            controller : 'CioSettingsPrivacySettingsCtrl as vm',
+            controller : 'CioAccountPrivacySettingsCtrl as vm',
             templateUrl: 'account-privacy-settings.template.html',
         },
     },
@@ -67,7 +67,7 @@ var stateAccountNotificationSettings = {
     name  : 'accountNotificationSettings',
     views : {
         commonMain: {
-            controller : 'CioSettingsNotificationSettingsCtrl as vm',
+            controller : 'CioAccountNotificationSettingsCtrl as vm',
             templateUrl: 'account-notification-settings.template.html',
         },
     },

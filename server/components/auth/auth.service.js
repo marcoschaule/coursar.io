@@ -47,14 +47,14 @@ module.exports.isEmailAvailable      = isEmailAvailable;
  * Service function to sign user in.
  *
  * @public
- * @param  {Object}   objSignIn               object of sign in
- * @param  {String}   objSignIn.username      string of username
- * @param  {String}   objSignIn.password      string of password, still unencrypted
- * @param  {String}   objSignIn.isRemembered  string of password, still unencrypted
- * @param  {Object}   objInfo                 object for additional (user) information
- * @param  {Object}   objInfo.ip              string of the current user's IP address
- * @param  {Object}   objSession              object of request session object
- * @param  {Function} callback                function for callback
+ * @param {Object}   objSignIn               object of sign in
+ * @param {String}   objSignIn.username      string of username
+ * @param {String}   objSignIn.password      string of password, still unencrypted
+ * @param {String}   objSignIn.isRemembered  string of password, still unencrypted
+ * @param {Object}   objInfo                 object for additional (user) information
+ * @param {Object}   objInfo.ip              string of the current user's IP address
+ * @param {Object}   objSession              object of request session object
+ * @param {Function} callback                function for callback
  */
 function signIn(objSignIn, objInfo, objSession, callback) {
     var regexUsername = new RegExp('^' + objSignIn.username + '$', 'i');
@@ -72,12 +72,13 @@ function signIn(objSignIn, objInfo, objSession, callback) {
                 ] }, (objErr, objUser) => {
                 
                 if (objErr) {
+                    console.error(ERRORS.AUTH.SIGN_IN.GENERAL);
                     console.error(objErr);
-                    return _callback({ err: settings.errors.signIn.generalError });
+                    return _callback(ERRORS.AUTH.SIGN_IN.GENERAL);
                 }
                 else if (!objUser || !objUser.compare(objSignIn.password)) {
-                    console.error(settings.errors.signIn.usernameOrPasswordWrong);
-                    return _callback({ err: settings.errors.signIn.usernameOrPasswordWrong, redirect: true });
+                    console.error(ERRORS.AUTH.SIGN_IN.USERNAME_EMAIL_OR_PASSWORD_INCORRECT);
+                    return _callback(ERRORS.AUTH.SIGN_IN.USERNAME_EMAIL_OR_PASSWORD_INCORRECT);
                 }
                 return _callback(null, objUser);
             });
@@ -110,7 +111,15 @@ function signIn(objSignIn, objInfo, objSession, callback) {
             return Auth.update(
                     { _id: objUser._id.toString() },
                     { $set: { lastSignInAt: new Date() } },
-                    _callback);
+                    (objErr, objModified) => {
+    
+                if (objErr) {
+                    console.error(AUTH.SIGN_IN.UPDATE_FAILED);
+                    console.error(objErr);
+                    return _callback(AUTH.SIGN_IN.GENERAL);
+                }
+                return _callback(null);
+            });
         },
 
         // generate session
@@ -118,13 +127,14 @@ function signIn(objSignIn, objInfo, objSession, callback) {
 
             return _generateSession(objSession, (objErr, strToken) => {
                 if (objErr) {
+                    console.error(AUTH.SIGN_IN.SESSION_GENERATION);
                     console.error(objErr);
-                    return _callback(objErr);
+                    return _callback(AUTH.SIGN_IN.GENERAL);
                 }
 
                 // this will be send back to the user
-                objUserReturn._id       = strUserId;
-                objUserReturn.username  = objUser.username;
+                objUserReturn._id      = strUserId;
+                objUserReturn.username = objUser.username;
 
                 return _callback(null, objUserReturn, strToken);
             });
@@ -139,11 +149,11 @@ function signIn(objSignIn, objInfo, objSession, callback) {
  * Service function to sign user up.
  *
  * @public
- * @param  {Object}   objSignUp           object of sign up
- * @param  {String}   objSignUp.username  string of username
- * @param  {String}   objSignUp.password  string of password, still unencrypted
- * @param  {String}   objSignUp.email     string of email, still unvalidated
- * @param  {Function} callback            function for callback
+ * @param {Object}   objSignUp           object of sign up
+ * @param {String}   objSignUp.username  string of username
+ * @param {String}   objSignUp.password  string of password, still unencrypted
+ * @param {String}   objSignUp.email     string of email, still unvalidated
+ * @param {Function} callback            function for callback
  */
 function signUp(objSignUp, callback) {
     var objPassword, objUserReturn, docUser, objErrValidation;
@@ -159,16 +169,17 @@ function signUp(objSignUp, callback) {
                 { 'email'   : { $regex: objSignUp.email,    $options: 'i' } },
             ] }, (objErr, objUser) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.SIGN_UP.FIND_USER);
                     console.error(objErr);
-                    return _callback(settings.errors.signUp.generalError);
+                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
                 }
                 else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
-                    console.error(settings.errors.signUp.usernameNotAvailable);
-                    return _callback(settings.errors.signUp.generalError);
+                    console.error(ERRORS.AUTH.SIGN_UP.USERNAME_NOT_AVAILABLE);
+                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
                 }
                 else if (objUser && objUser.profile && objSignUp.email) {
-                    console.error(settings.errors.signUp.emailNotAvailable);
-                    return _callback(settings.errors.signUp.generalError);
+                    console.error(ERRORS.AUTH.SIGN_UP.EMAIL_NOT_AVAILABLE);
+                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
                 }
                 return _callback(null);
             });
@@ -193,8 +204,9 @@ function signUp(objSignUp, callback) {
 
             return objUser.save(objErr => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.SIGN_UP.CREATE_USER);
                     console.error(objErr);
-                    return _callback(settings.errors.signUp.generalError);
+                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
                 }
                 return _callback(null, objUser._id.toString());
             });
@@ -205,8 +217,9 @@ function signUp(objSignUp, callback) {
 
             return sendVerificationEmail(strUserId, objSignUp.email, objErr => {
                 if (objErr) {
+                    console.error(AUTH.SIGN_UP.SEND_VERIFICATION_EMAIL);
                     console.error(objErr);
-                    return _callback(objErr);
+                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
                 }
                 return _callback(null);
             });
@@ -693,7 +706,6 @@ function touchSignedIn(objSession, callback) {
  */
 function deleteSession(objSession, callback) {
     callback = 'function' === typeof callback && callback || function(){};
-    console.log(">>> Debug ====================; objSession:", objSession, '\n\n');
     return objSession.destroy(callback);
 }
 

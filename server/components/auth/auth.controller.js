@@ -23,7 +23,7 @@ var AuthService = require('./auth.service.js');
  * @param {Function} next                   function of callback for next middleware
  */
 function signIn(req, res, next) {
-    var objReturn, objUser, objInfo;
+    var objUser, objInfo;
 
     // create user object
     objUser = {
@@ -37,20 +37,14 @@ function signIn(req, res, next) {
 
     return AuthService.signIn(objUser, objInfo, req.session, (objErr, objProfile, strToken) => {
         if (objErr) {
-            return res.status(objErr.err.status || objErr.status || 500).json(objErr);
+            return next({ err: objErr });
         }
 
         // set token in header; from now on,
         // header needs to be set for every request
         res.set('X-Access-Token', strToken);
 
-        // this will go to the client
-        objReturn = {
-            err  : null,
-            user : objProfile,
-        };
-
-        return res.status(200).json(objReturn);
+        return res.status(200).json({ err: null, user: objProfile });
     });
 }
 
@@ -71,7 +65,7 @@ function signIn(req, res, next) {
 function signUp(req, res, next) {
     return AuthService.signUp(req.body, (objErr, objUserResult) => {
         if (objErr) {
-            return res.status(400).json({ err: settings.errors.signUp.generalError });
+            return next({ err: objErr });
         }
         return signIn(req, res, next);
     });

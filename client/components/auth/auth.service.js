@@ -29,7 +29,7 @@ function Service(CioComService) {
     // Private variables
     // *****************************************************************************
 
-    var _strStateRedirect     = 'home';
+    var _strStateRedirect     = 'signIn';
     var _strUrlSignIn         = '/sign-in';
     var _strUrlSignUp         = '/sign-up';
     var _strUrlSignOut        = '/sign-out';

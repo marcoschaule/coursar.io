@@ -19,6 +19,9 @@ require('./settings/errors.settings.js');
 require('./settings/paths.settings.js');
 require('./settings/captcha.settings.js');
 
+// setup errors by loading the library
+require('./libs/error.lib.js');
+
 // requires
 var express               = require('express');
 var redis                 = require('redis');
@@ -88,14 +91,23 @@ userRouter.private();
 // Error handling
 // *****************************************************************************
 
-app.use((objErr, req, res, next) => {
-    if (objErr && 'GET' === req.method) {
+// error handling
+app.use((err, req, res, next) => {
+    if (err && 'GET' === req.method) {
         return res.status(401).redirect('/');
     }
-    else if (objErr) {
-        return res.status(objErr.status || 500).json(objErr);
+    else if (err) {
+        return res.status(err.statusCode || 500).json(err);
+    }
+    else if (!err) {
+        next();
     }
     return res.status(500).json({});
+});
+
+// general 404 handling
+app.use((err, req, res, next) => {
+    res.status(404).sendFile('404.html');
 });
 
 // *****************************************************************************
