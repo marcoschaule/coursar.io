@@ -74,7 +74,7 @@ function signIn(objSignIn, objInfo, objSession, callback) {
                 if (objErr) {
                     console.error(ERRORS.AUTH.SIGN_IN.GENERAL);
                     console.error(objErr);
-                    return _callback(ERRORS.AUTH.SIGN_IN.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 else if (!objUser || !objUser.compare(objSignIn.password)) {
                     console.error(ERRORS.AUTH.SIGN_IN.USERNAME_EMAIL_OR_PASSWORD_INCORRECT);
@@ -116,9 +116,9 @@ function signIn(objSignIn, objInfo, objSession, callback) {
                 if (objErr) {
                     console.error(AUTH.SIGN_IN.UPDATE_FAILED);
                     console.error(objErr);
-                    return _callback(AUTH.SIGN_IN.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
-                return _callback(null);
+                return _callback(null, objUser);
             });
         },
 
@@ -129,7 +129,7 @@ function signIn(objSignIn, objInfo, objSession, callback) {
                 if (objErr) {
                     console.error(AUTH.SIGN_IN.SESSION_GENERATION);
                     console.error(objErr);
-                    return _callback(AUTH.SIGN_IN.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
 
                 // this will be send back to the user
@@ -171,15 +171,15 @@ function signUp(objSignUp, callback) {
                 if (objErr) {
                     console.error(ERRORS.AUTH.SIGN_UP.FIND_USER);
                     console.error(objErr);
-                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 else if (objUser && objUser.profile && objUser.profile.username === objSignUp.username) {
                     console.error(ERRORS.AUTH.SIGN_UP.USERNAME_NOT_AVAILABLE);
-                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 else if (objUser && objUser.profile && objSignUp.email) {
                     console.error(ERRORS.AUTH.SIGN_UP.EMAIL_NOT_AVAILABLE);
-                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });
@@ -206,7 +206,7 @@ function signUp(objSignUp, callback) {
                 if (objErr) {
                     console.error(ERRORS.AUTH.SIGN_UP.CREATE_USER);
                     console.error(objErr);
-                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null, objUser._id.toString());
             });
@@ -219,7 +219,7 @@ function signUp(objSignUp, callback) {
                 if (objErr) {
                     console.error(AUTH.SIGN_UP.SEND_VERIFICATION_EMAIL);
                     console.error(objErr);
-                    return _callback(ERRORS.AUTH.SIGN_UP.GENERAL);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });
@@ -239,7 +239,14 @@ function signUp(objSignUp, callback) {
  * @param {Function} callback    function for callback
  */
 function signOut(objSession, callback) {
-    return objSession.destroy(objErr => callback(null));
+    return objSession.destroy(objErr => {
+        if(objErr) {
+            console.error(ERRORS.AUTH.SIGN_OUT.GENERAL);
+            console.error(objErr);
+            return callback(ERRORS.AUTH.GENERAL);
+        }
+        return callback(null);
+    });
 }
 
 // *****************************************************************************
@@ -248,14 +255,12 @@ function signOut(objSession, callback) {
  * Service function to send the verification email.
  *
  * @public
- * @param {String}   strUserId  string of user's id
- * @param {String}   strEmail   string of user's email
- * @param {Function} callback   function for callback
+ * @param {String}   objSession  object of user's session
+ * @param {Function} callback    function for callback
  */
-function sendVerificationEmail(strUserId, strEmail, callback) {
-    if (!strUserId || !strEmail) {
-        return callback(objErrs.common.sessionMissing);
-    }
+function sendVerificationEmail(objSession, callback) {
+    var strUserId = objSession.userId;
+    var strEmail  = objSession.email;
 
     return async.waterfall([
 
@@ -264,8 +269,9 @@ function sendVerificationEmail(strUserId, strEmail, callback) {
 
             return libRedis.setRedisEntryForEmailVerification(strUserId, (objErr, strRId) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.SEND_VERIFICATION_EMAIL.SET_REDIS_ENTRY);
                     console.error(objErr);
-                    return _callback(settings.errors.sendVerificationEmail.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null, strRId);
             });
@@ -276,8 +282,9 @@ function sendVerificationEmail(strUserId, strEmail, callback) {
 
             return libEmail.sendEmailVerifyEmail(strEmail, strRId, (objErr, objResult) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.SEND_VERIFICATION_EMAIL.SEND_EMAIL);
                     console.error(objErr);
-                    return _callback(settings.errors.sendVerificationEmail.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });
@@ -305,12 +312,14 @@ function verifyEmail(strRId, callback) {
 
             return libRedis.getRedisEntry('ever:' + strRId, (objErr, objEntry) => {
                 if (objErr && objErr.disableRepeater) {
+                    console.error(ERRORS.AUTH.VERIFY_EMAIL.GET_REDIS_ENTRY);
                     console.error(objErr);
-                    return _callback(objErr);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 else if (objErr) {
+                    console.error(ERRORS.AUTH.VERIFY_EMAIL.GENERAL);
                     console.error(objErr);
-                    return _callback(settings.errors.verifyEmail.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null, objEntry.userId);
             });
@@ -324,8 +333,9 @@ function verifyEmail(strRId, callback) {
                     (objErr, objUser) => {
 
                 if (objErr) {
+                    console.error(ERRORS.AUTH.VERIFY_EMAIL.UPDATE_USER);
                     console.error(objErr);
-                    return _callback(settings.errors.verifyEmail.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });
@@ -333,8 +343,14 @@ function verifyEmail(strRId, callback) {
 
         // delete Redis entry by key
         (_callback) => {
-
-            return libRedis.deleteRedisEntry('ever:' + strRId, _callback);
+            return libRedis.deleteRedisEntry('ever:' + strRId, objErr => {
+                if (objErr) {
+                    console.error(ERRORS.AUTH.VERIFY_EMAIL.DELETE_REDIS_ENTRY);
+                    console.error(objErr);
+                    return _callback(ERRORS.AUTH.GENERAL);
+                }
+                return _callback(null);
+            });
         },
 
     ], callback);
@@ -353,11 +369,6 @@ function verifyEmail(strRId, callback) {
 function forgotUsername(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
 
-    if (!callback || 'function' !== typeof callback) {
-        console.error(settings.errors.common.callbackMissing);
-        callback = function() {};
-    }
-
     return async.waterfall([
         
         // get the user ID from the email
@@ -365,12 +376,13 @@ function forgotUsername(strEmail, callback) {
 
             return Auth.findOne({ 'email': regexEmail }, (objErr, objUser) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.FORGOT_USERNAME.FIND_USER);
                     console.error(objErr);
                     return _callback(objErr);
                 }
                 else if (!objUser || !objUser.username) {
-                    console.error('No such email found!');
-                    return _callback('No such email found!');
+                    console.error(ERRORS.AUTH.FORGOT_USERNAME.USER_NOT_FOUND);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null, objUser.username);
             });
@@ -381,8 +393,9 @@ function forgotUsername(strEmail, callback) {
 
             return libEmail.sendEmailForgotUsername(strEmail, strUsername, (objErr, objResult) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.FORGOT_USERNAME.SEND_EMAIL);
                     console.error(objErr);
-                    return _callback(settings.errors.resetPassword.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });
@@ -406,11 +419,6 @@ function forgotPassword(strEmail, callback) {
     var regexEmail = new RegExp('^' + strEmail + '$', 'i');
     var objMailOptions, strLink, regexLink;
 
-    if (!callback || 'function' !== typeof callback) {
-        console.error(settings.errors.common.callbackMissing);
-        callback = function() {};
-    }
-
     return async.waterfall([
         
         // get the user ID from the email
@@ -419,11 +427,11 @@ function forgotPassword(strEmail, callback) {
             return Auth.findOne({ 'email': regexEmail }, (objErr, objUser) => {
                 if (objErr) {
                     console.error(objErr);
-                    return _callback(objErr);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 else if (!objUser || !objUser._id) {
                     console.error('No such email found!');
-                    return _callback('No such email found!');
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null, objUser._id.toString());
             });
@@ -435,7 +443,7 @@ function forgotPassword(strEmail, callback) {
             return libRedis.setRedisEntryForPasswordReset(strUserId, (objErr, strRId) => {
                 if (objErr) {
                     console.error(objErr);
-                    return _callback(settings.errors.resetPassword.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null, strRId);
             });
@@ -447,7 +455,7 @@ function forgotPassword(strEmail, callback) {
             return libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objResult) => {
                 if (objErr) {
                     console.error(objErr);
-                    return _callback(settings.errors.resetPassword.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });

@@ -28,7 +28,7 @@ global.setError = setError;
 function setError(strInfo) {
     var arrInfo       = strInfo.split('|');
     var numStatusCode = arrInfo[0]|0;
-    var strId         = arrInfo[1].replace(/^(error|errors)\_?/i, '').toUpperCase();
+    var strId         = arrInfo[1].replace(/^(errors\.|error\.)\_?/i, '').toUpperCase();
     var strMessage    = arrInfo[2];
     var arrObjNames   = strId.split('.');
     var i, strKey, objErr;
@@ -41,7 +41,7 @@ function setError(strInfo) {
     objErr = {
         statusCode: numStatusCode,
         id        : strId,
-        message   : strMessage,
+        message   : strMessage.trim(),
     };
 
     function _setSubObject(objCurrent, arrKeys) {

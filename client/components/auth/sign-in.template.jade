@@ -13,13 +13,13 @@ include _mixins.include.jade
     form(name="vm.formSignIn", data-ng-submit="vm.signIn()")
 
         .alert.alert-danger(data-ng-if="'invalid' === vm.state.signIn")
-            |Username and/or password invalid.
+            |Username/email and/or password invalid.
         .alert.alert-danger(data-ng-if="'error' === vm.state.signIn")
             |An unexpected error occurred. Please try again.
 
         fieldset.form-group
             label(for="sign-in-username")
-                 |{{ 'auth.Username' | translate }}:
+                 |{{ 'auth.UsernameOrEmail' | translate }}:
             input#sign-in-username.form-control(
                     type="text",
                     name="signInUsername",

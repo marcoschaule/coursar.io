@@ -1,5 +1,6 @@
 {
     "auth.Username"                                                             : "Username",
+    "auth.UsernameOrEmail"                                                      : "Username or email",
     "auth.Password"                                                             : "Password",
     "auth.Email"                                                                : "Email",
     "auth.ShowPassword"                                                         : "Show password",

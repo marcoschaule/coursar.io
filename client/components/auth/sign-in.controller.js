@@ -66,7 +66,7 @@ function Controller($timeout, $state, CioAuthService) {
         };
 
         return CioAuthService.signIn(objData, function(objErr, objData) {
-            if (objErr && '2003' === objErr.code) {
+            if (objErr && objErr.id.indexOf('USERNAME_EMAIL_OR_PASSWORD_INCORRECT') >= 0) {
                 return (vm.state.signIn = 'invalid');
             }
             else if (objErr) {

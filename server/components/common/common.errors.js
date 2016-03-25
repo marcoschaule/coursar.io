@@ -5,10 +5,10 @@
 // *****************************************************************************
 
 setError(`500|ERRORS.COMMON.GENERAL|
-    Common error: an unexpected error occurred.`);
+    Common "general": an unexpected error occurred.`);
 
 setError(`500|ERRORS.COMMON.CALLBACK_MISSING|
-    Common error: callback is missing.`);
+    Common "callback missing": callback is missing.`);
 
 // *****************************************************************************
 

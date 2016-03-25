@@ -37,7 +37,7 @@ function signIn(req, res, next) {
 
     return AuthService.signIn(objUser, objInfo, req.session, (objErr, objProfile, strToken) => {
         if (objErr) {
-            return next({ err: objErr });
+            return next({ err: objErr, disableRepeater: true });
         }
 
         // set token in header; from now on,
@@ -106,11 +106,7 @@ function signOut(req, res, next) {
  * @param {Function} next                function for next middleware
  */
 function sendVerificationEmail(req, res, next) {
-    return AuthService.sendVerificationEmail(
-            req.session.userId,
-            req.session.email,
-            objErr => {
-        
+    return AuthService.sendVerificationEmail(req.session, objErr => {
         if (objErr) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
