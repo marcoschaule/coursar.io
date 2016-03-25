@@ -19,7 +19,7 @@ var serverMongoDB, serverRedis;
  * 
  * spawn version: "serverRedis = spawn('redis-server');"
  */
-gulp.task('server-redis', callback => {
+gulp.task('server-redis', _buildAndGetTestTasks('redis'), callback => {
     var numPortRedis = global.port+2;
     if (serverRedis && 'function' === typeof serverRedis.kill) {
         serverRedis.kill();
@@ -41,7 +41,7 @@ gulp.task('server-redis', callback => {
  * 
  * spawn version: "serverMongo = spawn('mongo-server');"
  */
-gulp.task('server-mongodb', callback => {
+gulp.task('server-mongodb', _buildAndGetTestTasks('mongodb'), callback => {
     var numPortMongoDB = global.port+1;
     if (serverMongoDB && 'function' === typeof serverMongoDB.kill) {
         serverMongoDB.kill();
@@ -62,15 +62,21 @@ gulp.task('server-mongodb', callback => {
 /**
  * Task to start the Express server
  */
-gulp.task('server-express', callback => nodemon({
+gulp.task('server-express', callback => {
+    var monitor = nodemon({
         script: 'server/server.js',
         ignore: ['nodemon.json', 'build/*', 'client/*'],
         env   : {
             'NODE_ENV': global.env,
             'PORT'    : global.port,
-        },
-    })
-);
+        }
+    });
+
+    monitor.once('exit', function () {
+        serverRedis.kill();
+        serverMongoDB.kill();
+    });
+});
 
 // *****************************************************************************
 
