@@ -63,6 +63,8 @@ gulp.task('server-mongodb', callback => {
  * Task to start the Express server
  */
 gulp.task('server-express', callback => {
+    var isNextExitMaybeCash = true;
+
     var monitor = nodemon({
         script: 'server/server.js',
         ignore: ['nodemon.json', 'build/*', 'client/*'],
@@ -72,9 +74,26 @@ gulp.task('server-express', callback => {
         }
     });
 
-    monitor.once('exit', function () {
-        serverRedis   && 'function' === typeof serverRedis.kill   && serverRedis.kill();
-        serverMongoDB && 'function' === typeof serverMongoDB.kill && serverMongoDB.kill();
+    monitor.on('start', function () {
+        console.log('nodemon: start.');
+        isNextExitMaybeCash = true;
+    });
+
+    monitor.on('restart', function () {
+        console.log('nodemon: restart.');
+        isNextExitMaybeCash = false;
+    });
+
+    monitor.on('exit', function () {
+        console.log('nodemon: exit.');
+        isNextExitMaybeCash && serverRedis   &&
+            'function' === typeof serverRedis.kill   && serverRedis.kill();
+        isNextExitMaybeCash && serverMongoDB &&
+            'function' === typeof serverMongoDB.kill && serverMongoDB.kill();
+    });
+
+    monitor.on('crash', function () {
+        console.log('nodemon: crash.');
     });
 });
 
