@@ -30,7 +30,6 @@ module.exports.forgotPassword        = forgotPassword;
 module.exports.resetPassword         = resetPassword;
 module.exports.sendVerificationEmail = sendVerificationEmail;
 module.exports.verifyEmail           = verifyEmail;
-module.exports.setEmail              = setEmail;
 module.exports.checkSignedIn         = checkSignedIn;
 module.exports.touchSignedIn         = touchSignedIn;
 module.exports.updateSession         = touchSignedIn;
@@ -240,12 +239,12 @@ function signUp(objSignUp, callback) {
  */
 function signOut(objSession, callback) {
     return objSession.destroy(objErr => {
-        if(objErr) {
+        if (objErr) {
             console.error(ERRORS.AUTH.SIGN_OUT.GENERAL);
             console.error(objErr);
             return callback(ERRORS.AUTH.GENERAL);
         }
-        return callback(null);
+        return callback(null, { disableRepeater: true });
     });
 }
 
@@ -426,11 +425,12 @@ function forgotPassword(strEmail, callback) {
 
             return Auth.findOne({ 'email': regexEmail }, (objErr, objUser) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.FORGOT_PASSWORD.FIND_USER);
                     console.error(objErr);
                     return _callback(ERRORS.AUTH.GENERAL);
                 }
                 else if (!objUser || !objUser._id) {
-                    console.error('No such email found!');
+                    console.error(ERRORS.AUTH.FORGOT_PASSWORD.USER_NOT_FOUND);
                     return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null, objUser._id.toString());
@@ -442,6 +442,7 @@ function forgotPassword(strEmail, callback) {
 
             return libRedis.setRedisEntryForPasswordReset(strUserId, (objErr, strRId) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.FORGOT_PASSWORD.SET_REDIS_ENTRY);
                     console.error(objErr);
                     return _callback(ERRORS.AUTH.GENERAL);
                 }
@@ -454,6 +455,7 @@ function forgotPassword(strEmail, callback) {
 
             return libEmail.sendEmailForgotPassword(strEmail, strRId, (objErr, objResult) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.FORGOT_PASSWORD.SEND_EMAIL);
                     console.error(objErr);
                     return _callback(ERRORS.AUTH.GENERAL);
                 }
@@ -480,11 +482,6 @@ function resetPassword(strRId, strPasswordNew, callback) {
     var strKey = 'resp:' + strRId;
     var objPassword;
 
-    if (!callback || 'function' !== typeof callback) {
-        console.error(settings.errors.common.callbackMissing);
-        callback = function() {};
-    }
-
     // generate hash and salt for the new password
     objPassword = Auth.encrypt(strPasswordNew);
 
@@ -495,8 +492,9 @@ function resetPassword(strRId, strPasswordNew, callback) {
 
             return libRedis.getRedisEntry(strKey, (objErr, objReply) => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.RESET_PASSWORD.GET_REDIS_ENTRY);
                     console.error(objErr);
-                    return _callback(settings.errors.resetPassword.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 if (!objReply || !objReply.userId) {
                     console.error('Redis entry does not exist anymore!');
@@ -515,8 +513,9 @@ function resetPassword(strRId, strPasswordNew, callback) {
                     (objErr, objModified) => {
                
                 if (objErr) {
+                   console.error(ERRORS.AUTH.RESET_PASSWORD.UPDATE_USER);
                    console.error(objErr);
-                   return _callback(settings.errors.resetPassword.generalError);
+                   return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });
@@ -527,8 +526,9 @@ function resetPassword(strRId, strPasswordNew, callback) {
 
             return libRedis.deleteRedisEntry(strKey, objErr => {
                 if (objErr) {
+                    console.error(ERRORS.AUTH.RESET_PASSWORD.DELETE_REDIS_ENTRY);
                     console.error(objErr);
-                    return _callback(settings.errors.resetPassword.generalError);
+                    return _callback(ERRORS.AUTH.GENERAL);
                 }
                 return _callback(null);
             });
@@ -536,61 +536,6 @@ function resetPassword(strRId, strPasswordNew, callback) {
 
     // async waterfall callback
     ], callback);
-}
-
-// *****************************************************************************
-
-/**
- * Service function to set a given email to be the main email.
- * Either the email already exists within the "emails" array,
- * then it is moved to position 0. Or it doesn't exist, then it is
- * just inserted at position 0.
- *
- * @public
- * @param {String}   strUserId    string of user id
- * @param {String}   strEmailNew  string of new or existing email address
- * @param {Function} callback     function for callback
- */
-function setEmail(strUserId, strEmailNew, callback) {
-    var objEmailNew = { address: strEmailNew, isValidated: false };
-    var isValidated = false;
-    var numPosition = -1;
-
-    return Auth.findOne({ _id: strUserId }, (objErr, objUser) => {
-        if (objErr || !objUser || !objUser.profile || !objUser.email) {
-            return callback(true);
-        }
-
-        // Check existing emails, if given email is already saved.
-        // If yes, use field "isValidated" for re-ordering the emails.
-        numPosition = _indexOfEmailInArray(objUser.emails, strEmailNew);
-        objEmailNew = objUser.emails[numPosition];
-
-        return async.series([
-
-            // remove email from array if available
-            (_callback) => {
-
-                if (numPosition < 0) {
-                    return _callback(null);
-                }
-
-                return Auth.update({ _id: strUserId }, { $pull: 
-                        { 'emails': { _id: objEmailNew._id } } },
-                        _callback);
-            },
-
-            // add email to position 0
-            (_callback) => {
-
-                return Auth.update({ _id: strUserId }, { $push:
-                        { 'emails': { $each: [objEmailNew], $position: 0 } } },
-                        _callback);
-            },
-
-        // async series callback
-        ], callback);
-    });
 }
 
 // *****************************************************************************
@@ -618,12 +563,12 @@ function setEmail(strUserId, strEmailNew, callback) {
  * @param {Function} callback    function for callback
  */
 function checkSignedIn(objSession, objInfo, callback) {
-    var _isSignedIn      = isSignedIn(objSession);
-    var objIsNotSignedIn = { isSignedIn: false };
+    var _isSignedIn = isSignedIn(objSession);
 
     // if user is not signed in (anymore), return that info
     if (!_isSignedIn) {
-        return callback(objIsNotSignedIn);
+        console.error(ERRORS.AUTH.CHECK_SIGNED_IN.NOT_SIGNED_IN);
+        return callback(ERRORS.AUTH.CHECK_SIGNED_IN.NOT_SIGNED_IN);
     }
     // test if session is older than "sessionAge" or "maxAge" plus "sessionAge"
     var isSessionOlderThanSessionAge = 
@@ -638,7 +583,7 @@ function checkSignedIn(objSession, objInfo, callback) {
         isSessionOlderThanMaxAge &&
         isSessionOlderThanSessionAge;
     var isUserAgentDifferent = objSession.ua !== objInfo.ua;
-    var isIpDifferent = false;
+    var isUserIpDifferent = false;
 
     // set a new "updatedAt" date
     objSession.updatedAt = Date.now();
@@ -654,12 +599,13 @@ function checkSignedIn(objSession, objInfo, callback) {
     // If current and last IP are not different and last IP is not null,
     // sign out to prevent from token hijacking.
     else if (null !== objSession.ipLast && objSession.ipCurrent !== objInfo.ip) {
-        isIpDifferent = true;
+        isUserIpDifferent = true;
     }
 
     // if user agent or IP is different, send an intervention email
-    if (isUserAgentDifferent || isIpDifferent) {
-        console.error('User agent or IP different. Sign out!');
+    if (isUserAgentDifferent || isUserIpDifferent) {
+        isUserAgentDifferent && console.error(ERRORS.AUTH.CHECK_SIGNED_IN.USER_AGENT_DIFFERENT);
+        isUserIpDifferent    && console.error(ERRORS.AUTH.CHECK_SIGNED_IN.USER_IP_DIFFERENT);
         libEmail.sendEmailIntervention(objSession.email);
     }
 
@@ -668,14 +614,23 @@ function checkSignedIn(objSession, objInfo, callback) {
     if (isSessionNotRememberedAndOlderThanSessionAge ||
             isSessionRememberedAndOlderThanMaxAge ||
             isUserAgentDifferent ||
-            isIpDifferent) {
+            isUserIpDifferent) {
         
         return objSession.destroy(objErr => {
-            return callback(objIsNotSignedIn);
+            console.error(ERRORS.AUTH.CHECK_SIGNED_IN.SESSION_NOT_VALID_ANYMORE);
+            console.error(objErr);
+            return callback(ERRORS.AUTH.CHECK_SIGNED_IN.NOT_SIGNED_IN);
         });
     }
 
-    return objSession.update(objErr => callback(objErr));
+    return objSession.update(objErr => {
+        if (objErr) {
+            console.error(ERRORS.AUTH.CHECK_SIGNED_IN.UPDATE_SESSION);
+            console.error(objErr);
+            return callback(ERRORS.AUTH.GENERAL);
+        }
+        return callback(null);
+    });
 }
 
 // *****************************************************************************
@@ -691,16 +646,25 @@ function touchSignedIn(objSession, callback) {
     callback = 'function' === typeof callback && callback || function(){};
 
     if (!isSignedIn(objSession)) {
-        return callback({ err: 'Error: user is not signed in!' });
+        console.error(ERRORS.AUTH.TOUCH_SIGNED_IN.NOT_SIGNED_IN);
+        return callback(ERRORS.AUTH.GENERAL);
     }
     if (!objSession.updatedAt || !objSession.update) {
-        return callback({ err: 'Error: Problem with JWT!' });
+        console.error(ERRORS.AUTH.TOUCH_SIGNED_IN.JWT_INVALID);
+        return callback(ERRORS.AUTH.GENERAL);
     }
 
     // set a new "updatedAt" date
     objSession.updatedAt = Date.now();
     
-    return objSession.update(objErr => callback(objErr));
+    return objSession.update(objErr => {
+        if (objErr) {
+            console.error(ERRORS.AUTH.TOUCH_SIGNED_IN.UPDATE_SESSION);
+            console.error(objErr);
+            return callback(ERRORS.AUTH.GENERAL);
+        }
+        return callback(null);
+    });
 }
 
 // *****************************************************************************
@@ -750,8 +714,9 @@ function isUsernameAvailable(strUsername, callback) {
             (objErr, arrUsers) => {
 
         if (objErr) {
+            console.error(ERRORS.AUTH.IS_USERNAME_AVAILABLE.FIND_USER);
             console.error(objErr);
-            return callback(settings.errors.signIn.generalError);
+            return callback(ERRORS.AUTH.GENERAL);
         }
         return callback(null, Object.keys(arrUsers).length <= 0);
     });
@@ -774,8 +739,9 @@ function isEmailAvailable(strEmail, callback) {
             (objErr, arrEmails) => {
 
         if (objErr) {
+            console.error(ERRORS.AUTH.IS_EMAIL_AVAILABLE.FIND_USER);
             console.error(objErr);
-            return callback(settings.errors.signIn.generalError);
+            return callback(ERRORS.AUTH.GENERAL);
         }
         return callback(null, Object.keys(arrEmails).length <= 0);
     });
@@ -871,45 +837,6 @@ function _generateResetPasswordRedisEntry(strEmail, callback) {
             }
             return callback(null, strRId);
         });
-    });
-}
-
-// *****************************************************************************
-
-// TODO: remove is not necessary any more
-/**
- * Helper function to get the user ID from the corresponding Redis entry
- * to reset proceed to resetting the user's password.
- * 
- * @private
- * @param {String}   strRId    string of Redis ID
- * @param {Function} callback  function for callback
- */
-function _getUserIdFromResetPasswordRedisEntry(strRId, callback) {
-    return clients.redis.get('resp:' + strRId, (objErr, objReply) => {
-        if (objErr) {
-            return callback(objErr);
-        }
-        return callback(null, JSON.parse(objReply));
-    });
-}
-
-// *****************************************************************************
-
-// TODO: remove is not necessary any more
-/**
- * Helper function to delete a Redis entry responsible for password reset.
- * 
- * @private
- * @param {String}   strRId    string of the Redis ID
- * @param {Function} callback  function for callback
- */
-function _deleteResetPasswordRedisEntry(strRId, callback) {
-    return clients.redis.del('resp:' + strRId, (objErr) => {
-        if (objErr) {
-            return callback(objErr);
-        }
-        return callback(null);
     });
 }
 

@@ -79,12 +79,13 @@ var commonRouter = require('./components/common/common.routes.js').init(app, env
 var authRouter   = require('./components/auth/auth.routes.js').init(app, env);
 var userRouter   = require('./components/user/user.routes.js').init(app, env);
 
-// public GET routes
+// public routes
 commonRouter.public();
 authRouter.public();
 
-// private non-GET routes
+// private routes
 authRouter.authorize();
+authRouter.private();
 userRouter.private();
 
 // *****************************************************************************

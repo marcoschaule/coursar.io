@@ -88,7 +88,7 @@ function signOut(req, res, next) {
             return res.status(objErr.status || 500).json({ err: objErr });
         }
         res.set('X-Access-Token', 'delete');
-        return res.status(200).json({ isRedirect: true });
+        return res.status(201).json({ isRedirect: true });
     });
 }
 
@@ -294,9 +294,8 @@ function authorize(req, res, next) {
 
     return AuthService.checkSignedIn(req.session, objInfo, objErr => {
         if (objErr) {
-            console.error(objErr);
             res.set('X-Access-Token', 'delete');
-            return next({ err: 'Error: user is not signed in!', redirect: true, status: 401 });
+            return next({ err: objErr, redirect: true });
         }
         
         // set access token and CSRF token in header

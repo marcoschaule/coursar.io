@@ -37,7 +37,7 @@ function Controller($rootScope, $state, CioAuthService) {
     // Controller function linking
     // *****************************************************************************
 
-    vm.signOut = signOut;
+    vm.signOut         = signOut;
     $rootScope.signOut = signOut;
 
     // *****************************************************************************

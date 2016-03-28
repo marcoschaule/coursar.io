@@ -150,8 +150,10 @@ function Service(CioComService) {
             url      : _strUrlSignOut,
         };
 
-        CioComService.deleteToken('accessToken');
-        return CioComService.put(objRequest, callback);
+        return CioComService.put(objRequest, function() {
+            CioComService.deleteToken('accessToken');
+            return callback();
+        });
     }
 
     // *****************************************************************************

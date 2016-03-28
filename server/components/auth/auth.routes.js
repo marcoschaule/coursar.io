@@ -16,6 +16,7 @@ var _app, _env;
 
 /**
  * Router function to init the router.
+ * 
  * @public
  * 
  * @param  {Object} app  object of express app
@@ -29,6 +30,7 @@ function init(app, env) {
 
     return {
         public   : setPublicRoutes,
+        private  : setPrivateRoutes,
         authorize: setAuthorization,
     };
 }
@@ -37,19 +39,16 @@ function init(app, env) {
 
 /**
  * Router function to set public routes.
+ * 
  * @public
  */
 function setPublicRoutes() {
-
-    // GET routes (static)
 
     // PUT routes
     _app.put('/sign-in',     
             AuthCtrl.signIn);
     _app.put('/sign-up',     
             AuthCtrl.signUp);
-    _app.put('/sign-out',    
-            AuthCtrl.signOut);
     _app.put('/send-verification-email',    
             AuthCtrl.sendVerificationEmail);
     _app.put('/verify-email',
@@ -62,6 +61,21 @@ function setPublicRoutes() {
             AuthCtrl.resetPassword);
     _app.put('/is-available',
             AuthCtrl.isAvailable);
+    
+}
+
+// *****************************************************************************
+
+/**
+ * Router function to set public routes.
+ * 
+ * @public
+ */
+function setPrivateRoutes() {
+
+    // PUT routes
+    _app.put('/sign-out',    
+            AuthCtrl.signOut);
     _app.put('/is-signed-in',
             AuthCtrl.isSignedIn);
 }
@@ -69,16 +83,8 @@ function setPublicRoutes() {
 // *****************************************************************************
 
 /**
- * Router function to set public routes.
- * @public
- */
-// function setPrivateRoutes() {
-// }
-
-// *****************************************************************************
-
-/**
  * Router function to set authorization for all following routes.
+ * 
  * @public
  */
 function setAuthorization() {
