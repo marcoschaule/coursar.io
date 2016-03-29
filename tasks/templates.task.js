@@ -20,29 +20,33 @@ var objTemplateCacheSettings = {
 // *****************************************************************************
 
 /**
- * Task to build the layout HTML file for development.
+ * Task to create the main layout file for client.
  */
-gulp.task('layout:dev', () => gulp
-    .src(['./client/components/layout/layout.jade'])
-    .pipe(jade())
-    .pipe(rename('layout.html'))
-    .pipe(prettify({ indent_size: 4 }))
-    .pipe(gulp.dest('./.build/dev/'))
-);
+_setupTaskForLayout('client');
 
 // *****************************************************************************
 
 /**
- * Task to build the templates for angular's template cache.
+ * Task to create the main layout file for admin.
  */
-gulp.task('templates', () => gulp
-    .src(['./client/components/**/*.template.jade'])
-    .pipe(jade())
-    .pipe(flatten())
-    .pipe(templateCache('templates.js', objTemplateCacheSettings))
-    .pipe(gulp.dest('./.build/dev/scripts/'))
-);
+_setupTaskForLayout('admin');
 
+// *****************************************************************************
+
+/**
+ * Task to build the templates for angular's template cache for client.
+ */
+_setupTaskForTemplates('client');
+
+// *****************************************************************************
+
+/**
+ * Task to build the templates for angular's template cache for admin.
+ */
+_setupTaskForTemplates('admin');
+
+// *****************************************************************************
+// Basic tasks - statics
 // *****************************************************************************
 
 /**
@@ -53,33 +57,88 @@ gulp.task('statics', ['statics:dev', 'statics:prod']);
 // *****************************************************************************
 
 /**
- * Task to parse the static files for development.
+ * Task to parse the static files for client.
  */
-gulp.task('statics:dev', () => gulp
-    .src(['./**/*.static.jade'])
-    .pipe(rename(_renameStaticFilesRename))
-    .pipe(jade())
-    .pipe(flatten())
-    .pipe(gulp.dest('./.build/dev/'))
-);
+_setupTaskForStatics('client');
 
 // *****************************************************************************
 
 /**
- * Task to parse the static files for production.
+ * Task to parse the static files for admin.
  */
-gulp.task('statics:prod', () => gulp
-    .src(['./**/*.static.jade'])
-    .pipe(rename(_renameStaticFilesRename))
-    .pipe(jade())
-    .pipe(flatten())
-    .pipe(gulp.dest('./.build/prod/statics/'))
-);
+_setupTaskForStatics('admin');
 
 // *****************************************************************************
 // Helper functions
 // *****************************************************************************
 
+/**
+ * Helper function to setup the task for the main layout file.
+ *
+ * @private
+ * @param {Array} strWhich  string of which target to create for
+ */
+function _setupTaskForLayout(strWhich) {
+    var strExt = 'admin' === strWhich ? '-admin' : '';
+
+    gulp.task(`layout:dev${strExt}`, () => gulp
+        .src([`./${strWhich}/components/layout/layout.jade`])
+        .pipe(jade())
+        .pipe(rename('layout.html'))
+        .pipe(prettify({ indent_size: 4 }))
+        .pipe(gulp.dest(`./.build/dev${strExt}/`))
+    );
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to setup the task for the templates.
+ *
+ * @private
+ * @param {String} strWhich  string of which target to create for
+ */
+function _setupTaskForTemplates(strWhich) {
+    var strExt = 'admin' === strWhich ? '-admin' : '';
+
+    gulp.task(`templates${strExt}`, () => gulp
+        .src([`./${strWhich}/components/**/*.template.jade`])
+        .pipe(jade())
+        .pipe(flatten())
+        .pipe(templateCache('templates.js', objTemplateCacheSettings))
+        .pipe(gulp.dest(`./.build/dev${strExt}/scripts/`))
+    );
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to setup the task for creating static files for 
+ * development and production environment.
+ *
+ * @private
+ * @param {String} strWhich  string of which target to create for
+ */
+function _setupTaskForStatics(strWhich) {
+    var strExt = 'admin' === strWhich ? '-admin' : '';
+    
+    gulp.task(`statics:dev${strExt}`, () => gulp
+        .src(['./**/*.static.jade'])
+        .pipe(rename(_renameStaticFilesRename))
+        .pipe(jade())
+        .pipe(flatten())
+        .pipe(gulp.dest(`./.build/dev${strExt}/`))
+    );
+    gulp.task(`statics:prod${strExt}`, () => gulp
+        .src(['./**/*.static.jade'])
+        .pipe(rename(_renameStaticFilesRename))
+        .pipe(jade())
+        .pipe(flatten())
+        .pipe(gulp.dest(`./.build/prod${strExt}/statics/`))
+    );
+}
+
+// *****************************************************************************
 
 /**
  * Helper function to remove the ".static" and if necessary the "error." part

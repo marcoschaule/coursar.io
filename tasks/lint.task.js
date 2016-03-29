@@ -19,31 +19,28 @@ var _jsHintReporter = 'jshint-stylish';
 /**
  * Task to lint all JavaScript files.
  */
-gulp.task('lint:js', ['lint:js:client', 'lint:js:server']);
+gulp.task('lint:js', ['lint:js:client', 'lint:js:admin', 'lint:js:server']);
 
 // *****************************************************************************
 
 /**
  * Task to lint all client side JavaScript files.
  */
-gulp.task('lint:js:client', () => gulp
-    .src('./client/**/*.js')
-    .pipe(jshint())
-    .pipe(jshint.reporter(_jsHintReporter))
-    .pipe(jshint.reporter('fail'))
-);
+_setupTaskLintJS('client');
+
+// *****************************************************************************
+
+/**
+ * Task to lint all admin side JavaScript files.
+ */
+_setupTaskLintJS('admin');
 
 // *****************************************************************************
 
 /**
  * Task to lint all server side JavaScript files.
  */
-gulp.task('lint:js:server', () => gulp
-    .src('./server/**/*.js')
-    .pipe(jshint())
-    .pipe(jshint.reporter(_jsHintReporter))
-    .pipe(jshint.reporter('fail'))
-);
+_setupTaskLintJS('server');
 
 // *****************************************************************************
 // Basic tasks - JSON linters
@@ -59,22 +56,21 @@ gulp.task('lint:json', ['lint:json:client', 'lint:json:server']);
 /**
  * Task to lint all client side JSON files.
  */
-gulp.task('lint:json:client', () => gulp
-    .src('./client/**/*.json')
-    .pipe(jsonlint())
-    .pipe(jsonlint.reporter())
-);
+_setupTaskLintJson('client');
+
+// *****************************************************************************
+
+/**
+ * Task to lint all admin side JSON files.
+ */
+_setupTaskLintJson('admin');
 
 // *****************************************************************************
 
 /**
  * Task to lint all server side JSON files.
  */
-gulp.task('lint:json:server', () => gulp
-    .src('./server/**/*.json')
-    .pipe(jsonlint())
-    .pipe(jsonlint.reporter())
-);
+_setupTaskLintJson('server');
 
 // *****************************************************************************
 // Basic tasks - HTML validators
@@ -96,6 +92,41 @@ gulp.task('validate:html', () => gulp
     }))
     // .pipe(validatorHTML.reporter())
 );
+
+// *****************************************************************************
+// Helper functions
+// *****************************************************************************
+
+/**
+ * Helper function to setup the task to lint all JS files in given folder.
+ *
+ * @private
+ * @param {String} strWhich  string of which folder to be used
+ */
+function _setupTaskLintJS(strWhich) {
+    gulp.task(`lint:js:${strWhich}`, () => gulp
+        .src(`./${strWhich}/**/*.js`)
+        .pipe(jshint())
+        .pipe(jshint.reporter(_jsHintReporter))
+        .pipe(jshint.reporter('fail'))
+    );
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to setup the task to lint all JSON files in given folder.
+ *
+ * @private
+ * @param {String} strWhich  string of which folder to be used
+ */
+function _setupTaskLintJson(strWhich) {
+    gulp.task(`lint:json:${strWhich}`, () => gulp
+        .src(`./${strWhich}/**/*.json`)
+        .pipe(jsonlint())
+        .pipe(jsonlint.reporter())
+    );
+}
 
 // *****************************************************************************
 

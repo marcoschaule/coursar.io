@@ -8,16 +8,23 @@ var wrap   = require('gulp-wrap');
 var extend = require('gulp-extend');
 
 var _arrLangKeys = ['en-US', 'de-DE'];
-var _arrEnvs     = ['dev']; //, 'prod'];
+var _arrEnvs     = ['dev', 'dev-admin']; //, 'prod', 'prod-admin'];
 
 // *****************************************************************************
 // Basic tasks - languages
 // *****************************************************************************
 
 /**
- * Task to concat the languages for development.
+ * Task to concat the languages for client development.
  */
 gulp.task('lang:dev', ['lang:dev:en-US', 'lang:dev:de-DE']);
+
+// *****************************************************************************
+
+/**
+ * Task to concat the languages for admin development.
+ */
+gulp.task('lang:dev-admin', ['lang:dev-admin:en-US', 'lang:dev-admin:de-DE']);
 
 // *****************************************************************************
 

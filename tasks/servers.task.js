@@ -67,7 +67,7 @@ gulp.task('server-express', callback => {
 
     var monitor = nodemon({
         script: 'server/server.js',
-        ignore: ['nodemon.json', 'build/*', 'client/*'],
+        ignore: ['nodemon.json', './.build/*'],
         env   : {
             'NODE_ENV': global.env,
             'PORT'    : global.port,

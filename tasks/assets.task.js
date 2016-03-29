@@ -11,22 +11,39 @@ var flatten = require('gulp-flatten');
 // *****************************************************************************
 
 /**
- * Task to copy the assets to the ".build" folder for development.
+ * Task to copy the assets to the ".build" folder for client development.
  */
-gulp.task('assets:dev', () => gulp
-    .src(['./assets/**/*'])
-    .pipe(flatten())
-    .pipe(gulp.dest('./.build/dev/assets/')));
+_setupTaskForAssets('client');
 
 // *****************************************************************************
 
 /**
- * Task to copy the assets to the ".build" folder for production.
+ * Task to copy the assets to the ".build" folder for admin development.
  */
-gulp.task('assets:prod', () => gulp
-    .src(['./assets/**/*'])
-    .pipe(flatten())
-    .pipe(gulp.dest('./.build/prod/assets/')));
+_setupTaskForAssets('admin');
+
+// *****************************************************************************
+// Helper functions
+// *****************************************************************************
+
+/**
+ * Helper function for setting up the tasks for assets.
+ *
+ * @private
+ * @param {String} strWhich  string of which target to build for
+ */
+function _setupTaskForAssets(strWhich) {
+    var strExt = 'admin' === strWhich ? '-admin' : '';
+    
+    gulp.task(`assets:dev${strExt}`, () => gulp
+        .src(['./assets/**/*'])
+        .pipe(flatten())
+        .pipe(gulp.dest(`./.build/dev${strExt}/assets/`)));
+    gulp.task(`assets:prod${strExt}`, () => gulp
+        .src(['./assets/**/*'])
+        .pipe(flatten())
+        .pipe(gulp.dest(`./.build/prod${strExt}/assets/`)));    
+}
 
 // *****************************************************************************
 
