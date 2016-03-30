@@ -4,5 +4,6 @@
         "nodemon.json",
         "build/*",
         "client/*"
+        "admin/*"
     ]
 }

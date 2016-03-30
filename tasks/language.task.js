@@ -57,9 +57,11 @@ function _gulpMakeAllLangTasks() {
  * @param {String} strLangKey  string of the language key like "en-US"
  */
 function _gulpTaskLang(strEnv, strLangKey) {
+    var strFolder = strEnv.indexOf('admin') >= 0 ? 'admin' : 'client';
+
     gulp.task(`lang:${strEnv}:${strLangKey}`,
         () => gulp
-            .src([`client/components/**/*.${strLangKey}.json`])
+            .src([`${strFolder}/components/**/*.${strLangKey}.json`])
             .pipe(extend(`translation.${strLangKey}.js`)) //use .js extension since we plan to wrap 
             .pipe(wrap(_wrapInTranslateProvider(strLangKey)))
             .pipe(gulp.dest(`./.build/${strEnv}/scripts/`))

@@ -1,0 +1,30 @@
+{
+    "dependencies": {
+        "angular": [
+            "https://code.angularjs.org/1.5.0-rc.0/angular.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular.min.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular.min.js.map"
+        ],
+        "angular-sanitize": [
+            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js",
+            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js.map"
+        ],
+        "angular-ui": [
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"
+        ],
+        "bootstrap": [
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css.map",
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css.map",
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"
+        ]
+    }
+}

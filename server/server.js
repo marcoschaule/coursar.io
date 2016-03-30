@@ -36,7 +36,8 @@ var JWTRedisSession       = require('jwt-redis-session');
 var env                   = (process.env.NODE_ENV || 'dev');
 var port                  = (process.env.PORT     || settings.general.system.port)*1;
 var app                   = express();
-var strStaticFolder       = path.join(__dirname, '../.build/', env);
+var strStaticFolderClient = path.join(__dirname, '../.build/', env);
+var strStaticFolderAdmin  = path.join(__dirname, '../.build/', env + '-admin');
 var objRedisClient, objRedisSettings;
 
 // *****************************************************************************
@@ -63,7 +64,8 @@ global.clients = { redis: objRedisClient };
 // *****************************************************************************
 
 // enabling
-app.use(express.static(strStaticFolder));
+app.use(express.static(strStaticFolderClient));
+app.use(express.static(strStaticFolderAdmin));
 app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
 

@@ -4,6 +4,10 @@ module.exports = function(gulp) { 'use strict';
 // Includes and definitions
 // *****************************************************************************
 
+var fs          = require('fs');
+var path        = require('path');
+var async       = require('async');
+var through     = require('through2');
 var runSequence = require('run-sequence');
 var flatten     = require('gulp-flatten');
 var gulpif      = require('gulp-if');
@@ -76,10 +80,12 @@ function _setupTaskScriptsUser(isAdmin) {
 
     gulp.task(`scripts-user:dev${strAdminExt}`, () => gulp
         .src([
-            `${strWhich}/libs/**/*.js`,
-            `${strWhich}/${strWhich}.js`,
-            `${strWhich}/components/**/*.js`,
+            `!${strWhich}/**/*.include.js`,
+             `${strWhich}/libs/**/*.js`,
+             `${strWhich}/${strWhich}.js`,
+             `${strWhich}/components/**/*.js`,
         ])
+        .pipe(through.obj(_renderRequireInFile))
         .pipe(flatten())
         .pipe(gulp.dest(`./.build/dev${strAdminExt}/scripts/`))
     );
@@ -102,6 +108,66 @@ function _setupTaskScriptsVendor(isAdmin) {
             `!./.build/vendor${strAdminExt}/**/*.min.js`])
         .pipe(flatten())
         .pipe(gulp.dest(`./.build/dev${strAdminExt}/scripts/vendor`))
+    );
+}
+
+// *****************************************************************************
+
+function _renderRequireInFile(objFile, strEncoding, callback) {
+    var regexRequire   = /require\([\'|\"](.*)[\'|\"]\);/gmi;
+    var regexIIFEBegin = /^\(function\(.*\)\s*\{\s*\'use strict\';(\s)*/gi;
+    var regexIIFEEnd   = /\}\)\(.*\);(\s)*$/gi;
+    var strContent     = String(objFile.contents)+'';
+    var arrMatches, strMatch, strPath;
+
+    return async.whilst(
+
+        // test
+        function() {
+            return (arrMatches = regexRequire.exec(strContent)) !== null;
+        },
+
+        // action
+        function(_callback) {
+            strMatch = arrMatches[0];
+            strPath  = path.join(path.dirname(objFile.path), arrMatches[1]);
+
+            try {
+
+                return fs.readFile(strPath, function(objErr, strContent2) {
+                    if (objErr) {
+                        throw new Error(objErr);
+                    }
+
+                    strContent2 = strContent2 && 
+                            String(strContent2);
+                    strContent2 = strContent2 &&
+                            'function' === typeof strContent2.replace &&
+                            strContent2.replace(regexIIFEBegin, '');
+                    strContent2 = strContent2 &&
+                            'function' === typeof strContent2.replace &&
+                            strContent2.replace(regexIIFEEnd, '');
+                    strContent = strContent.replace(strMatch, strContent2);
+
+                    return _callback(null);
+                });
+
+            } catch (objErr) {
+                console.error(objErr);
+                strContent = strContent.replace(strMatch, '');
+                return _callback(null);
+            }
+        },
+
+        // callback
+        function(objErr) {
+            if (objErr) {
+                console.error(objErr);
+                return callback(null, objFile);
+            }
+            objFile.contents = new Buffer(strContent);
+            return callback(null, objFile);
+        }
     );
 }
 

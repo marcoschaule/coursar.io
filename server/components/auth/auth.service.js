@@ -100,6 +100,7 @@ function signIn(objSignIn, objInfo, objSession, callback) {
             objSession.ua           = objInfo.ua;
             objSession.ipCurrent    = objInfo.ip;
             objSession.ipLast       = null;
+            objSession.isAdmin      = !!objUser.isAdmin;
             objSession.isSignedIn   = true;
 
             return _callback(null, objUser);

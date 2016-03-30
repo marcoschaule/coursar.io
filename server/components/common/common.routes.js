@@ -10,7 +10,7 @@ var AuthCtrl = require('../auth/auth.controller.js');
 
 // local variables
 var _isInit          = false;
-var _app, _env, _strStaticFolder;
+var _app, _env, _strFClient, _strFAdmin;
 
 // *****************************************************************************
 // Routes linking
@@ -27,7 +27,8 @@ var _app, _env, _strStaticFolder;
 function init(app, env) {
     _app             = app;
     _env             = env;
-    _strStaticFolder = _strStaticFolder = path.join(__dirname, '../../../.build/', env);
+    _strFClient      = path.join(__dirname, '../../../.build/', env);
+    _strFAdmin       = path.join(__dirname, '../../../.build/', env + '-admin');
     _isInit          = true;
 
     return {
@@ -47,9 +48,14 @@ function setPublicRoutes() {
         throw new Error('Router must be initialized first!');
     }
 
-    // route for all GET requests, that are public
+    // route for all admin GET requests, that are public
+    _app.get('/admin/?', (req, res, next) => {
+        res.sendFile(path.join(_strFAdmin, 'layout.html'));
+    });
+
+    // route for all client GET requests, that are public
     _app.get('/*', (req, res, next) => {
-        res.sendFile(path.join(_strStaticFolder, 'layout.html'));
+        res.sendFile(path.join(_strFClient, 'layout.html'));
     });
 }
 
