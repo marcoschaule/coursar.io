@@ -5,20 +5,8 @@ html(lang="en")
         meta(charset="utf-8")
         base(href="/")
 
-        // build:css(.build/dev/) styles/vendor.min.css 
         include _styles-vendor.include.jade
-        // endbuild
-
-        // build:css(.build/dev/) styles/styles.min.css 
         include _styles-user.include.jade
-        // endbuild
-
-        //- script(type="text/javascript").
-        //-     var onloadCallback = function() {
-        //-         grecaptcha.render('sign-up-captcha', {
-        //-             sitekey: '6LcXlhkTAAAAALxiFu69thW-i15n4b9S0iu8aUM8',
-        //-         });
-        //-     };
 
     body.relative(
             data-ng-app="cio-admin",
@@ -35,17 +23,9 @@ html(lang="en")
         #view-wide:   div(data-ui-view="wide")
         #view-simple: div(data-ui-view="simple")
 
-        //- .spinner(data-ng-if="flags.isProcessing")
-        //-     i.fa.fa-2x.fa-spinner.fa-spin
-        
-        // build:js(.build/dev/) scripts/vendor.min.js 
+        .spinner(data-ng-if="flags.isProcessing")
+            i.fa.fa-2x.fa-spinner.fa-spin
+
         include _scripts-vendor.include.jade
-        // endbuild
-            
-        // build:js(.build/dev/) scripts/scripts.min.js 
         include _scripts-user.include.jade
-        // endbuild
-
-        //- script(src="https://www.google.com/recaptcha/api.js?hl=en&onload=onloadCallback&render=explicit", async, defer)
-
     
