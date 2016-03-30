@@ -37,7 +37,7 @@ angular.module('cio-admin')
     .run(_runSpinner)
     .run(_runAuthentication);
 
-require('../client/helpers.include.js');
+require('../client/client.include.js');
 
 // *****************************************************************************
 
