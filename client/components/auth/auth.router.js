@@ -39,24 +39,6 @@ var stateAuthSignUp = {
 // *****************************************************************************
 
 /**
- * State of sign out view.
- * @type {Object}
- */
-var stateAuthSignOut = {
-    url   : '/sign-out',
-    name  : 'signOut',
-    views : {
-        simple: {
-            controller : 'CioSignOutCtrl as vm',
-            templateUrl: 'sign-out.template.html',
-        },
-    },
-};
-
-
-// *****************************************************************************
-
-/**
  * State of email verification view.
  * @type {Object}
  */
@@ -132,7 +114,6 @@ angular
         $stateProvider
             .state(stateAuthSignIn)
             .state(stateAuthSignUp)
-            .state(stateAuthSignOut)
             .state(stateAuthVerifyEmail)
             .state(stateAuthForgotUsername)
             .state(stateAuthForgotPassword)
