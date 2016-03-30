@@ -113,9 +113,18 @@ function _setupTaskScriptsVendor(isAdmin) {
 
 // *****************************************************************************
 
+/**
+ * Helper function to render a "require" term in script files and replace the
+ * match with the content of the file.
+ *
+ * @private
+ * @param {Object}   objFile      object of the current file
+ * @param {string}   strEncoding  string of the current file's encoding
+ * @param {Function} callback     function for callback
+ */
 function _renderRequireInFile(objFile, strEncoding, callback) {
     var regexRequire   = /require\([\'|\"](.*)[\'|\"]\);/gmi;
-    var regexIIFEBegin = /^\(function\(.*\)\s*\{\s*\'use strict\';(\s)*/gi;
+    var regexIIFEBegin = /^(\/\*\*([^*]|(\*+[^*/]))*\*+\/)?\s*\(function\(.*\)\s*\{\s*[\'|\"]use strict[\'|\"]\s*;/gi;
     var regexIIFEEnd   = /\}\)\(.*\);(\s)*$/gi;
     var strContent     = String(objFile.contents)+'';
     var arrMatches, strMatch, strPath;
@@ -147,7 +156,7 @@ function _renderRequireInFile(objFile, strEncoding, callback) {
                     strContent2 = strContent2 &&
                             'function' === typeof strContent2.replace &&
                             strContent2.replace(regexIIFEEnd, '');
-                    strContent = strContent.replace(strMatch, strContent2);
+                    strContent = strContent.replace(strMatch, strContent2.trim());
 
                     return _callback(null);
                 });

@@ -105,7 +105,7 @@ gulp.task('run:dev', callback => {
     global.port = 3000;
 
     return runSequence(
-        ['build:dev'],
+        ['build:dev', 'build:dev-admin'],
         ['watch:dev'],
         ['server-redis', 'server-mongodb', 'server-express'],
         callback);

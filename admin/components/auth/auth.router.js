@@ -24,7 +24,7 @@ var stateAuthSignIn = {
 // *****************************************************************************
 
 angular
-    .module('cio-admin-routes')
+    .module('cio-routes')
     .config(function($stateProvider) {
         $stateProvider
             .state(stateAuthSignIn)

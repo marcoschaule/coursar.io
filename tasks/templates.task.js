@@ -4,15 +4,14 @@ module.exports = function(gulp) { 'use strict';
 // Includes and definitions
 // *****************************************************************************
 
-var through                = require('through2');
-var jade                   = require('gulp-jade');
-var flatten                = require('gulp-flatten');
-var replace                = require('gulp-replace');
-var rename                 = require('gulp-rename');
-var prettify               = require('gulp-prettify');
-var templateCache          = require('gulp-angular-templatecache');
-var objTemplateCacheClient = { module: 'cio-templates' };
-var objTemplateCacheAdmin  = { module: 'cio-admin-templates' };
+var through                  = require('through2');
+var jade                     = require('gulp-jade');
+var flatten                  = require('gulp-flatten');
+var replace                  = require('gulp-replace');
+var rename                   = require('gulp-rename');
+var prettify                 = require('gulp-prettify');
+var templateCache            = require('gulp-angular-templatecache');
+var objTemplateCacheSettings = { module: 'cio-templates' };
 
 // *****************************************************************************
 // Basic tasks - layout and templates
@@ -99,15 +98,11 @@ function _setupTaskForLayout(strWhich) {
  */
 function _setupTaskForTemplates(strWhich) {
     var strExt = 'admin' === strWhich ? '-admin' : '';
-    var objTempl = 'admin' === strWhich ?
-        objTemplateCacheAdmin :
-        objTemplateCacheClient;
-
     gulp.task(`templates${strExt}`, () => gulp
         .src([`./${strWhich}/components/**/*.template.jade`])
         .pipe(jade())
         .pipe(flatten())
-        .pipe(templateCache('templates.js', objTempl))
+        .pipe(templateCache('templates.js', objTemplateCacheSettings))
         .pipe(gulp.dest(`./.build/dev${strExt}/scripts/`))
     );
 }

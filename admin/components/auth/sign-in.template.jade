@@ -1,0 +1,35 @@
+.wrapper
+    form(name="vm.formSignIn", data-ng-submit="vm.signIn()")
+
+        fieldset.form-group
+            input.form-control(
+                    type="password",
+                    name="signIn1",
+                    alt="No description available",
+                    data-ng-required="true",
+                    data-ng-minlength="3",
+                    data-ng-model="vm.modelSignIn.field1")
+
+        fieldset.form-group
+            input.form-control(
+                    type="password",
+                    name="signIn2",
+                    alt="No description available",
+                    data-ng-required="true",
+                    data-ng-minlength="3",
+                    data-ng-model="vm.modelSignIn.field2")
+
+        fieldset.form-group
+            input.form-control(
+                    type="password",
+                    name="signIn3",
+                    alt="No description available",
+                    data-ng-required="true",
+                    data-ng-minlength="3",
+                    data-ng-model="vm.modelSignIn.field3")
+
+        fieldset.right
+            button.btn.btn-primary(
+                    alt="No description available",
+                    data-ng-disabled="vm.formSignIn.$invalid")
+                i.fa.fa-sign-in

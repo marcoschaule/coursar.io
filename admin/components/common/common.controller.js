@@ -1,7 +1,7 @@
 /**
- * @name        CioAuthService
+ * @name        CioCommonCtrl
  * @author      Marc Stark <self@marcstark.com>
- * @file        This file is an AngularJS service.
+ * @file        This file is an AngularJS controller.
  * 
  * @copyright   (c) 2015 marcstark.com, Marc Stark <self@marcstark.com>
  * @license     https://github.com/marcstark/coursar.io/blob/master/LICENSE
@@ -14,16 +14,16 @@
 // *****************************************************************************
 
 angular
-    .module('cio-services')
-    .factory('CioAuthService', Service);
+    .module('cio-controllers')
+    .controller('CioCommonCtrl', Controller);
 
 // *****************************************************************************
-// Service definition function
+// Controller definition function
 // *****************************************************************************
 
 /* @ngInject */
-function Service() {
-    var service = {};
+function Controller() {
+    var vm = this;
 
     // *****************************************************************************
     // Private variables
@@ -34,20 +34,16 @@ function Service() {
     // *****************************************************************************
 
     // *****************************************************************************
-    // Service function linking
+    // Controller function linking
     // *****************************************************************************
 
     // *****************************************************************************
-    // Service function definitions
+    // Controller function definitions
     // *****************************************************************************
 
     // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
-
-    // *****************************************************************************
-
-    return service;
 
     // *****************************************************************************
 }
