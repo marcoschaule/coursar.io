@@ -64,8 +64,8 @@ global.clients = { redis: objRedisClient };
 // *****************************************************************************
 
 // enabling
-app.use(express.static(strStaticFolderClient));
-app.use(express.static(strStaticFolderAdmin));
+app.use('/',      express.static(strStaticFolderClient));
+app.use('/admin', express.static(strStaticFolderAdmin));
 app.use(bodyParser.json());
 app.use(JWTRedisSession(objRedisSettings));
 

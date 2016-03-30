@@ -49,7 +49,7 @@ function setPublicRoutes() {
     }
 
     // route for all admin GET requests, that are public
-    _app.get('/admin/?', (req, res, next) => {
+    _app.get('/admin/*', (req, res, next) => {
         res.sendFile(path.join(_strFAdmin, 'layout.html'));
     });
 

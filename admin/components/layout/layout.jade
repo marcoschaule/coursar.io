@@ -3,7 +3,7 @@ html(lang="en")
     head
         title Title
         meta(charset="utf-8")
-        base(href="/")
+        base(href="/admin/")
 
         include _styles-vendor.include.jade
         include _styles-user.include.jade
@@ -12,6 +12,7 @@ html(lang="en")
             data-ng-app="cio-admin",
             data-ng-controller="CioCommonCtrl")
 
+        h1 Admin
         #view-common.container-fluid
             .row
                 .col-xs-12(data-ui-view="commonHead")

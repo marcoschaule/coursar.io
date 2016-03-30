@@ -9,7 +9,7 @@
  * @type {Object}
  */
 var stateAuthSignIn = {
-    url   : '/admin/sign-in',
+    url   : '/sign-in',
     name  : 'signIn',
     views : {
         simple: {
@@ -20,32 +20,14 @@ var stateAuthSignIn = {
 };
 
 // *****************************************************************************
-
-/**
- * State of sign out view.
- * @type {Object}
- */
-var stateAuthSignOut = {
-    url   : '/sign-out',
-    name  : 'signOut',
-    views : {
-        simple: {
-            controller : 'CioSignOutCtrl as vm',
-            templateUrl: 'sign-out.template.html',
-        },
-    },
-};
-
-// *****************************************************************************
 // Router
 // *****************************************************************************
 
 angular
-    .module('cio-routes')
+    .module('cio-admin-routes')
     .config(function($stateProvider) {
         $stateProvider
             .state(stateAuthSignIn)
-            // .state(stateAuthSignOut)
             ;
     });
 
