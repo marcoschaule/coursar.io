@@ -5,6 +5,25 @@
 // *****************************************************************************
 
 var AuthService = require('./auth.service.js');
+var libRequest  = require('../../libs/request.lib.js');
+
+// *****************************************************************************
+// Exports
+// *****************************************************************************
+
+module.exports.signIn                = signIn;
+module.exports.signUp                = signUp;
+module.exports.signOut               = signOut;
+module.exports.forgotUsername        = forgotUsername;
+module.exports.forgotPassword        = forgotPassword;
+module.exports.resetPassword         = resetPassword;
+module.exports.sendVerificationEmail = sendVerificationEmail;
+module.exports.verifyEmail           = verifyEmail;
+module.exports.checkSignedIn         = checkSignedIn;
+module.exports.touchSignedIn         = touchSignedIn;
+module.exports.isSignedIn            = isSignedIn;
+module.exports.isAvailable           = isAvailable;
+module.exports.authorize             = authorize;
 
 // *****************************************************************************
 // Controller functions
@@ -33,7 +52,7 @@ function signIn(req, res, next) {
     };
 
     // create object for additional (user) information
-    objInfo = _getRequestInfo(req);
+    objInfo = libRequest.getRequestInfo(req);
 
     return AuthService.signIn(objUser, objInfo, req.session, (objErr, objProfile, strToken) => {
         if (objErr) {
@@ -211,7 +230,7 @@ function resetPassword(req, res, next) {
  * @param {Function} next         function for next middleware
  */
 function checkSignedIn(req, res, next) {
-    var objInfo = _getRequestInfo(req);
+    var objInfo = libRequest.getRequestInfo(req);
     return AuthService.checkSignedIn(req.session, objInfo, next);
 }
 
@@ -290,7 +309,7 @@ function isAvailable(req, res, next) {
  * @param {Function} next  function for next middleware
  */
 function authorize(req, res, next) {
-    var objInfo = _getRequestInfo(req);
+    var objInfo = libRequest.getRequestInfo(req);
 
     return AuthService.checkSignedIn(req.session, objInfo, objErr => {
         if (objErr) {
@@ -304,46 +323,6 @@ function authorize(req, res, next) {
         return next(null);
     });
 }
-
-// *****************************************************************************
-// Helper functions
-// *****************************************************************************
-
-/**
- * Helper function to gather the request information like IP and user agent.
- *
- * @private
- * @param  {Object} req          object of express default request
- * @param  {Object} req.headers  object of the user request header
- * @return {Object}              object of the request info
- */
-function _getRequestInfo(req) {
-    var objInfo = {
-        ua: req.headers['user-agent'],
-        ip: req.headers['x-forwarded-for'] ||
-            req.connection.remoteAddress,
-    };
-
-    return objInfo;
-}
-
-// *****************************************************************************
-// Exports
-// *****************************************************************************
-
-module.exports.signIn                = signIn;
-module.exports.signUp                = signUp;
-module.exports.signOut               = signOut;
-module.exports.forgotUsername        = forgotUsername;
-module.exports.forgotPassword        = forgotPassword;
-module.exports.resetPassword         = resetPassword;
-module.exports.sendVerificationEmail = sendVerificationEmail;
-module.exports.verifyEmail           = verifyEmail;
-module.exports.checkSignedIn         = checkSignedIn;
-module.exports.touchSignedIn         = touchSignedIn;
-module.exports.isSignedIn            = isSignedIn;
-module.exports.isAvailable           = isAvailable;
-module.exports.authorize             = authorize;
 
 // *****************************************************************************
 // Helpers
