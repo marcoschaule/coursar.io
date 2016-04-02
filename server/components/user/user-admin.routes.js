@@ -4,7 +4,7 @@
 // Includes and definitions
 // *****************************************************************************
 
-var AuthAdminCtrl = require('./auth-admin.controller.js');
+var UserAdminCtrl = require('./user-admin.controller.js');
 
 // local variables
 var _isInit = false;
@@ -16,7 +16,6 @@ var _app, _env;
 
 /**
  * Router function to init the router.
- * 
  * @public
  * 
  * @param  {Object} app  object of express app
@@ -29,9 +28,8 @@ function init(app, env) {
     _isInit = true;
 
     return {
-        public   : setPublicRoutes,
-        private  : function(){},
-        authorize: setAuthorization,
+        public : setPublicRoutes,
+        private: setPrivateRoutes,
     };
 }
 
@@ -39,27 +37,21 @@ function init(app, env) {
 
 /**
  * Router function to set public routes.
- * 
  * @public
  */
 function setPublicRoutes() {
-
-    // PUT routes
-    _app.put('/admin/sign-in',     
-            AuthAdminCtrl.signIn);
 }
 
 // *****************************************************************************
 
 /**
- * Router function to set authorization for all following routes.
- * 
+ * Router function to set public routes.
  * @public
  */
-function setAuthorization() {
+function setPrivateRoutes() {
 
-    // authorization middleware to authorize all following routes
-    _app.use(AuthAdminCtrl.authorize);
+    // PUT routes
+    _app.put('/user-admin', UserAdminCtrl.handleRequest);
 }
 
 // *****************************************************************************

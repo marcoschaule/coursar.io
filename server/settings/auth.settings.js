@@ -7,7 +7,8 @@
 if (!global.settings) {
     global.settings = {};
 }
-settings.auth = { session: {}, resetPassword: {} };
+settings.auth      = { session: {}, resetPassword: {} };
+settings.authAdmin = { otp: {} };
 
 // *****************************************************************************
 // Session settings
@@ -66,8 +67,20 @@ settings.auth.session.secret = 'too5tup!tToF!ndMy0wn5ecret';
 settings.auth.resetPassword.maxAge = 5*60; // five minutes in seconds
 
 // *****************************************************************************
-// Exports
+// Admin auth settings
 // *****************************************************************************
+
+/**
+ * One time permission name.
+ * @type {String}
+ */
+settings.authAdmin.otp.name = 'Marc Stark';
+
+/**
+ * One time permission secret
+ * @type {String}
+ */
+settings.authAdmin.otp.secret = 'aN@ther5ecret!need2No';
 
 // *****************************************************************************
 

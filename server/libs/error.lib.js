@@ -62,6 +62,9 @@ function setError(strInfo) {
 
 require('../components/common/common.errors.js');
 require('../components/auth/auth.errors.js');
+require('../components/auth/auth-admin.errors.js');
+require('../components/user/user.errors.js');
+require('../components/user/user-admin.errors.js');
 
 // console.log("ERRORS:", JSON.stringify(global.ERRORS, null, 2), '\n\n');
 

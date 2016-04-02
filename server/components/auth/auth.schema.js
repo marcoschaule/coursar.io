@@ -93,6 +93,12 @@ var objAuth = {
         default: null,
     },
 
+    // states
+    state: {
+        type: String,
+        validate: /active|passive|banned/,
+    },
+
     // flags
     isVerified: {
         type: Boolean,

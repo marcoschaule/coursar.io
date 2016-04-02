@@ -77,18 +77,25 @@ app.disable('x-powered-by');
 // *****************************************************************************
 
 // Routers
-var commonRouter = require('./components/common/common.routes.js').init(app, env);
-var authRouter   = require('./components/auth/auth.routes.js').init(app, env);
-var userRouter   = require('./components/user/user.routes.js').init(app, env);
+var commonRouter    = require('./components/common/common.routes.js').init(app, env);
+var authRouter      = require('./components/auth/auth.routes.js').init(app, env);
+var authAdminRouter = require('./components/auth/auth-admin.routes.js').init(app, env);
+var userRouter      = require('./components/user/user.routes.js').init(app, env);
+var userAdminRouter = require('./components/user/user-admin.routes.js').init(app, env);
 
 // public routes
 commonRouter.public();
 authRouter.public();
+authAdminRouter.public();
 
 // private routes
 authRouter.authorize();
 authRouter.private();
 userRouter.private();
+
+// admin routes
+authAdminRouter.authorize();
+userAdminRouter.private();
 
 // *****************************************************************************
 // Error handling

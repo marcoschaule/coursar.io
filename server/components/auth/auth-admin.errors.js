@@ -28,5 +28,15 @@ setError(`401|ERRORS.AUTH_ADMIN.CHECK_ADMIN.IS_NO_ADMIN|
     Authentication admin "check admin": the user is no admin.`);
 
 // *****************************************************************************
+// Authentication "check signed in" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.AUTH_ADMIN.CHECK_SIGNED_IN.GENERAL|
+    Authentication admin "check signed in": an unexpected error occured.`);
+
+setError(`401|ERRORS.AUTH_ADMIN.CHECK_SIGNED_IN.IS_NO_ADMIN|
+    Authentication admin "check signed in": the user is no admin.`);
+
+// *****************************************************************************
 
 })();

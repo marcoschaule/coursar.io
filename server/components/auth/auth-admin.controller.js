@@ -13,7 +13,8 @@ var libRequest       = require('../../libs/request.lib.js');
 // Exports
 // *****************************************************************************
 
-module.exports.signIn = signIn;
+module.exports.signIn    = signIn;
+module.exports.authorize = authorize;
 
 // *****************************************************************************
 // Controller functions
@@ -87,6 +88,35 @@ function signIn(req, res, next) {
             return next(objErr);
         }
         return res.status(200).json({ err: null, user: objProfileReturn });
+    });
+}
+
+// *****************************************************************************
+// Middleware functions
+// *****************************************************************************
+
+/**
+ * Middleware function to authorize requests, add headers, check if they are
+ * signed in and if not, inform client to redirect.
+ * 
+ * @public
+ * @param {Object}   req   object of express default request
+ * @param {Object}   res   object of express default response
+ * @param {Function} next  function for next middleware
+ */
+function authorize(req, res, next) {
+    var objInfo = libRequest.getRequestInfo(req);
+
+    return AuthAdminService.checkSignedIn(req.session, objInfo, objErr => {
+        if (objErr) {
+            res.set('X-Access-Token', 'delete');
+            return next({ err: objErr, redirect: true });
+        }
+        
+        // set access token and CSRF token in header
+        res.set('X-Access-Token', req.session.jwt);
+
+        return next(null);
     });
 }
 
