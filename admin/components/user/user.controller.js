@@ -1,7 +1,7 @@
 /**
- * @name        CioAuthService
+ * @name        CioUserCtrl
  * @author      Marc Stark <self@marcstark.com>
- * @file        This file is an AngularJS service.
+ * @file        This file is an AngularJS controller.
  * 
  * @copyright   (c) 2015 marcstark.com, Marc Stark <self@marcstark.com>
  * @license     https://github.com/marcstark/coursar.io/blob/master/LICENSE
@@ -14,62 +14,42 @@
 // *****************************************************************************
 
 angular
-    .module('cio-services')
-    .factory('CioAuthService', Service);
+    .module('cio-controllers')
+    .controller('CioUserCtrl', Controller);
 
 // *****************************************************************************
-// Service definition function
+// Controller definition function
 // *****************************************************************************
 
 /* @ngInject */
-function Service(CioComService) {
-    var service = {};
+function Controller(CioUserService) {
+    var vm = this;
 
     // *****************************************************************************
     // Private variables
     // *****************************************************************************
 
-    var _strUrlSignIn = '/admin/sign-in';
-
     // *****************************************************************************
     // Public variables
     // *****************************************************************************
 
-    service.isSignedIn = false;
+    vm.arrUsers = null;
 
     // *****************************************************************************
-    // Service function linking
+    // Controller function linking
     // *****************************************************************************
 
-    service.signIn = signIn;
-
     // *****************************************************************************
-    // Service function definitions
+    // Controller function definitions
     // *****************************************************************************
 
-    /**
-     * Service function to sign in the admin.
-     *
-     * @public
-     * @param {Object}   objData   object of the data to sign in
-     * @param {Function} callback  function for callback
-     */
-    function signIn(objData, callback) {
-        callback = 'function' === typeof callback && callback || function(){};
-
-        var objRequest = {
-            id   : 'sign-in',
-            url  : _strUrlSignIn,
-            data : objData,
-        };
-
-        CioComService.deleteToken('accessToken');
-        return CioComService.put(objRequest, function(objErr, objData) {
+    function readUsers() {
+        return CioUserService.readUsers(function(objErr, objResult) {
             if (objErr) {
-                return callback(objErr);
+                // do something
+                return;
             }
-            service.isSignedIn = true;
-            return ('function' === typeof callback && callback(null, objData));
+            vm.arrUsers = objResult.arrUsers;
         });
     }
 
@@ -77,9 +57,9 @@ function Service(CioComService) {
     // Helper function definitions
     // *****************************************************************************
 
-    // *****************************************************************************
-
-    return service;
+    function _init() {
+        readUsers();
+    } _init();
 
     // *****************************************************************************
 }

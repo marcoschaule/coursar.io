@@ -5,27 +5,29 @@ html(lang="en")
         meta(charset="utf-8")
         base(href="/admin/")
 
-        include _styles-vendor.include.jade
-        include _styles-user.include.jade
+        include layout-styles-vendor.include.jade
+        include layout-styles-user.include.jade
 
     body.relative(
             data-ng-app="cio",
             data-ng-controller="CioCommonCtrl")
 
+        //- common view for default page
         #view-common.container-fluid
             .row
-                .col-xs-12(data-ui-view="commonHead")
+                .col-xs-12.header(data-ui-view="header")
             .row
-                .col-xs-9(data-ui-view="commonLeft")
-                .col-xs-9(data-ui-view="commonMain")
+                .col-xs-3.navigation(data-ui-view="navigation")
+                .col-xs-9.main(data-ui-view="main")
             .row
-                .col-xs-12(data-ui-view="commonFoot")
-        #view-wide:   div(data-ui-view="wide")
+                .col-xs-12.footer(data-ui-view="footer")
+
+        //- simple view for sign in
         #view-simple: div(data-ui-view="simple")
 
         .spinner(data-ng-if="flags.isProcessing")
             i.fa.fa-2x.fa-spinner.fa-spin
 
-        include _scripts-vendor.include.jade
-        include _scripts-user.include.jade
+        include layout-scripts-vendor.include.jade
+        include layout-scripts-user.include.jade
     

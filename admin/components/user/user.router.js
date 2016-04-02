@@ -5,16 +5,19 @@
 // *****************************************************************************
 
 /**
- * State of the admin sign in view.
+ * State of the admin user management view.
  * @type {Object}
  */
-var stateAuthSignIn = {
-    url   : '/sign-in',
-    name  : 'signIn',
+var stateAdminUsers = {
+    url   : '/users',
+    name  : 'users',
     views : {
-        simple: {
-            controller : 'CioSignInCtrl as vm',
-            templateUrl: 'sign-in.template.html',
+        navigation: {
+            templateUrl: 'layout-navigation.template.html',
+        },
+        main: {
+            controller : 'CioUserCtrl as vm',
+            templateUrl: 'user.template.html',
         },
     },
 };
@@ -27,7 +30,7 @@ angular
     .module('cio-routes')
     .config(function($stateProvider) {
         $stateProvider
-            .state(stateAuthSignIn)
+            .state(stateAdminUsers)
             ;
     });
 

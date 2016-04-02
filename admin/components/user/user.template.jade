@@ -1,0 +1,15 @@
+.wrapper
+    h4 User management
+
+    table.table.table-striped
+        thead
+            tr
+                th.left Username
+                th.left email
+                th.right &nbsp;
+        tbody
+            tr(data-ng-repeat="objUser in vm.arrUsers")
+                td.left {{:: objUser.username }}
+                td.left {{:: objUser.email }}
+                td.right some actions
+        tfoot

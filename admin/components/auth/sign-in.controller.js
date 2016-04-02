@@ -22,7 +22,7 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller() {
+function Controller($state, CioAuthService) {
     var vm = this;
 
     // *****************************************************************************
@@ -33,13 +33,31 @@ function Controller() {
     // Public variables
     // *****************************************************************************
 
+    vm.modelSignIn = {};
+
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
 
+    vm.signIn = signIn;
+
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
+
+    /**
+     * Controller function to sign in an administrator.
+     *
+     * @public
+     */
+    function signIn() {
+        return CioAuthService.signIn(vm.modelSignIn, function(objErr) {
+            if (objErr) {
+                return;
+            }
+            return $state.go('users');
+        });
+    }
 
     // *****************************************************************************
     // Helper function definitions
