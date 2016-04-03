@@ -126,7 +126,7 @@ _runSpinner.$inject = ['$rootScope'];
  */
 function _runAuthentication($rootScope, $state, CioAuthService) {
     return $rootScope.$on('$stateChangeStart', function(objEvent, objToState) { //, objToParams, objFromState, objFromParams) {
-        if (!objToState.private || CioAuthService.isSignedIn) {
+        if (objToState.public || CioAuthService.isSignedIn) {
             return;
         }
         return CioAuthService.testSignedIn(function(objErr, isSignedIn) {

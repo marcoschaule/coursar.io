@@ -17,6 +17,7 @@ var stateAuthSignIn = {
             templateUrl: 'sign-in.template.html',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************
@@ -34,6 +35,7 @@ var stateAuthSignUp = {
             templateUrl: 'sign-up.template.html',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************
@@ -51,6 +53,7 @@ var stateAuthVerifyEmail = {
             templateUrl: 'verify-email.template.html',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************
@@ -68,6 +71,7 @@ var stateAuthForgotUsername = {
             templateUrl: 'forgot-username.template.html',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************
@@ -85,6 +89,7 @@ var stateAuthForgotPassword = {
             templateUrl: 'forgot-password.template.html',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************
@@ -102,6 +107,7 @@ var stateAuthResetPassword = {
             templateUrl: 'reset-password.template.html',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************

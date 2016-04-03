@@ -17,6 +17,7 @@ var stateHome = {
             controller : 'CioLandingCtrl as vm',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************

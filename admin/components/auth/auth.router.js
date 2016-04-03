@@ -17,6 +17,7 @@ var stateAuthSignIn = {
             templateUrl: 'sign-in.template.html',
         },
     },
+    public: true,
 };
 
 // *****************************************************************************

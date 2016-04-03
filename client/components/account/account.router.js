@@ -17,7 +17,6 @@ var stateAccountProfile = {
             templateUrl: 'account-profile.template.html',
         },
     },
-    private: true,
 };
 
 // *****************************************************************************
@@ -35,7 +34,6 @@ var stateAccountProfileSettings = {
             templateUrl: 'account-profile-settings.template.html',
         },
     },
-    private: true,
 };
 
 // *****************************************************************************
@@ -53,7 +51,6 @@ var stateAccountPrivacySettings = {
             templateUrl: 'account-privacy-settings.template.html',
         },
     },
-    private: true,
 };
 
 // *****************************************************************************
@@ -71,7 +68,6 @@ var stateAccountNotificationSettings = {
             templateUrl: 'account-notification-settings.template.html',
         },
     },
-    private: true,
 };
 
 // *****************************************************************************
