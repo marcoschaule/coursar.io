@@ -1,0 +1,188 @@
+include form.mixin.include.jade
+
+//- ****************************************************************************
+
+mixin accountProfileButtonsCancelAndSave(strDisabledCondition)
+    a.btn.btn-link(data-ng-click="vm.states.activeField = null; \
+            vm.formAccountProfile.$setPristine()") Cancel
+    span &nbsp;
+    button.btn.btn-primary(data-ng-disabled="#{strDisabledCondition}") Save
+
+//- ****************************************************************************
+
+mixin accountProfileButtonsCancelAndSaveDelete(strDisabledCondition)
+    a.btn.btn-link(data-ng-click="vm.states.activeField = null; \
+            vm.formAccountProfile.$setPristine()") No
+    span &nbsp;
+    a.btn.btn-primary(
+            data-ng-click="vm.deleteUser()",
+            data-ng-disabled="#{strDisabledCondition}") Yes
+
+//- ****************************************************************************
+
+mixin accountProfileButtonsCancelAndSavePasswords(strDisabledCondition)
+    a.btn.btn-link(data-ng-click="vm.states.activeField = null; \
+            vm.formAccountProfile.$setPristine()") Cancel
+    span &nbsp;
+    a.btn.btn-primary(
+            data-ng-click="vm.updatePassword()",
+            data-ng-disabled="#{strDisabledCondition}") Save
+
+//- ****************************************************************************
+
+mixin inputUserName
+    .hrow
+        +inputText({
+            "id"           : "account-name-title",
+            "label"        : "Title",
+            "name"         : "nameTitle",
+            "data-ng-model": "vm.modelUser.profile.name.title",
+        })
+    .hrow
+        +inputText({
+            "id"           : "account-name-first",
+            "label"        : "First name",
+            "name"         : "nameFirst",
+            "data-ng-model": "vm.modelUser.profile.name.first",
+        })
+    .hrow
+        +inputText({
+            "id"           : "account-middle-first",
+            "label"        : "Middle name",
+            "name"         : "nameMiddle",
+            "data-ng-model": "vm.modelUser.profile.name.middle",
+        })
+    .hrow
+        +inputText({
+            "id"           : "account-name-last",
+            "label"        : "Last name",
+            "name"         : "nameLast",
+            "data-ng-model": "vm.modelUser.profile.name.last",
+        })
+    
+
+//- ****************************************************************************
+
+mixin inputUserGender
+    +inputRadio({
+        "id   "        : "account-gender-female",
+        "label"        : "Female",
+        "name "        : "genderFemale",
+        "value"        : "female",
+        "data-ng-model": "vm.modelUser.profile.gender"
+    })
+    +inputRadio({
+        "id   "        : "account-gender-male",
+        "label"        : "Male",
+        "name "        : "genderMale",
+        "value"        : "male",
+        "data-ng-model": "vm.modelUser.profile.gender"
+    })
+    +inputRadio({
+        "id   "        : "account-gender-other",
+        "label"        : "Other",
+        "name "        : "genderOther",
+        "value"        : "other",
+        "data-ng-model": "vm.modelUser.profile.gender"
+    })
+
+//- ****************************************************************************
+
+mixin inputUserDateOfBirth
+    +inputText({
+        "id"                         : "account-date-of-birth",
+        "label"                      : "Date of birth",
+        "name"                       : "dateOfBirth",
+        "data-ng-model"              : "vm.modelUser.profile.dateOfBirth",
+        "data-cio-input-change-event": "vm.testDateOfBirth()",
+        "isLabelHidden"              : true
+    })
+
+//- ****************************************************************************
+
+mixin inputUserAddress
+    .hrow
+        +inputText({
+            "id"           : "account-address-street",
+            "label"        : "Street",
+            "name"         : "addressStreet",
+            "data-ng-model": "vm.modelUser.profile.address.street",
+        })
+    .hrow
+        +inputText({
+            "id"           : "account-address-zipcode",
+            "label"        : "Zip code",
+            "name"         : "addressZipcode",
+            "data-ng-model": "vm.modelUser.profile.address.zipcode",
+        })
+    .hrow
+        +inputText({
+            "id"           : "account-address-city",
+            "label"        : "City",
+            "name"         : "addressCity",
+            "data-ng-model": "vm.modelUser.profile.address.city",
+        })
+    .hrow
+        +inputText({
+            "id"           : "account-address-additional",
+            "label"        : "Additional",
+            "name"         : "addressAdditional",
+            "data-ng-model": "vm.modelUser.profile.address.additional",
+        })
+
+//- ****************************************************************************
+
+mixin inputUserUsername
+    +inputText({
+        "id"                         : "account-username",
+        "label"                      : "Username",
+        "name"                       : "username",
+        "data-ng-model"              : "vm.modelUser.username",
+        "data-cio-input-change-event": "vm.isAvailable('username')",
+        "data-ng-required"           : "true",
+        "isLabelHidden"              : true
+    })
+
+//- ****************************************************************************
+
+mixin inputUserEmail
+    +inputText({
+        "id"                         : "account-email",
+        "label"                      : "Email",
+        "name"                       : "email",
+        "data-ng-model"              : "vm.modelUser.email",
+        "data-cio-input-change-event": "vm.isAvailable('email')",
+        "data-ng-required"           : "true",
+        "isLabelHidden"              : true
+    })
+
+//- ****************************************************************************
+
+mixin inputUserPassword
+    .hrow
+        +inputPasswordSwitcher({
+            "id"           : "account-password-new",
+            "label"        : "New password",
+            "name"         : "passwordNew",
+            "data-ng-model": "vm.modelPasswords.passwordNew",
+        }, 'vm.isPasswordNewVisible')
+    .hrow
+        +inputPasswordSwitcher({
+            "id"           : "account-password-current",
+            "label"        : "Current password",
+            "name"         : "passwordCurrent",
+            "data-ng-model": "vm.modelPasswords.passwordCurrent",
+        }, 'vm.isPasswordCurrentVisible')
+
+//- ****************************************************************************
+
+mixin inputUserPasswordAdmin
+    .hrow
+        +inputText({
+            "id"                         : "account-password",
+            "label"                      : "Password New",
+            "name"                       : "passwordNew",
+            "data-ng-model"              : "vm.strPasswordNew",
+        })
+
+//- ****************************************************************************

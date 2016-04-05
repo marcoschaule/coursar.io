@@ -20,7 +20,6 @@ var stateAdminUsers = {
             templateUrl: 'user.template.html',
         },
     },
-    public: true,
 };
 
 // *****************************************************************************

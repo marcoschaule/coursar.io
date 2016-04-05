@@ -1,4 +1,4 @@
-include _mixins.include.jade
+include ../mixins/user.mixin.include.jade
 
 //- sign in and sign up buttons
 #sign: a.btn.btn-link(data-ng-click="signOut()") Sign Out
@@ -54,35 +54,9 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
                     vm.formAccountProfile.nameFirst.$invalid &&\
                     vm.formAccountProfile.nameFirst.$dirty }")
                 fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-name-title",
-                        "label"        : "Title",
-                        "name"         : "nameTitle",
-                        "data-ng-model": "vm.modelUser.profile.name.title",
-                    })
-                fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-name-first",
-                        "label"        : "First name",
-                        "name"         : "nameFirst",
-                        "data-ng-model": "vm.modelUser.profile.name.first",
-                    })
-                fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-middle-first",
-                        "label"        : "Middle name",
-                        "name"         : "nameMiddle",
-                        "data-ng-model": "vm.modelUser.profile.name.middle",
-                    })
-                fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-name-last",
-                        "label"        : "Last name",
-                        "name"         : "nameLast",
-                        "data-ng-model": "vm.modelUser.profile.name.last",
-                    })
+                    +inputUserName
                 fieldset.right
-                    +accountProfileButtonsCancelAndSave()
+                    +accountProfileButtonsCancelAndSave
 
         //- ********************************************************************
         
@@ -105,29 +79,9 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
             .col-xs-2.left: strong Gender:
             .col-xs-10.left
                 fieldset
-                    +inputRadio({
-                        "id   "        : "account-gender-female",
-                        "label"        : "Female",
-                        "name "        : "genderFemale",
-                        "value"        : "female",
-                        "data-ng-model": "vm.modelUser.profile.gender"
-                    })
-                    +inputRadio({
-                        "id   "        : "account-gender-male",
-                        "label"        : "Male",
-                        "name "        : "genderMale",
-                        "value"        : "male",
-                        "data-ng-model": "vm.modelUser.profile.gender"
-                    })
-                    +inputRadio({
-                        "id   "        : "account-gender-other",
-                        "label"        : "Other",
-                        "name "        : "genderOther",
-                        "value"        : "other",
-                        "data-ng-model": "vm.modelUser.profile.gender"
-                    })
+                    +inputUserGender
                 fieldset.right
-                    +accountProfileButtonsCancelAndSave()
+                    +accountProfileButtonsCancelAndSave
 
         //- ********************************************************************
         
@@ -150,14 +104,7 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
             .col-xs-10.left(data-ng-class="{ 'has-error': \
                     vm.formAccountProfile.dateOfBirth.$invalid }")
                 fieldset
-                    +inputText({
-                        "id"                         : "account-date-of-birth",
-                        "label"                      : "Date of birth",
-                        "name"                       : "dateOfBirth",
-                        "data-ng-model"              : "vm.modelUser.profile.dateOfBirth",
-                        "data-cio-input-change-event": "vm.testDateOfBirth()",
-                        "isLabelHidden"              : true
-                    })
+                    +inputUserDateOfBirth
                 fieldset
                     .alert.alert-sm.alert-info(
                             data-ng-if="vm.formAccountProfile.dateOfBirth.$valid")
@@ -197,35 +144,9 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
             .col-xs-2.left: strong Address:
             .col-xs-10.left
                 fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-address-street",
-                        "label"        : "Street",
-                        "name"         : "addressStreet",
-                        "data-ng-model": "vm.modelUser.profile.address.street",
-                    })
-                fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-address-zipcode",
-                        "label"        : "Zip code",
-                        "name"         : "addressZipcode",
-                        "data-ng-model": "vm.modelUser.profile.address.zipcode",
-                    })
-                fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-address-city",
-                        "label"        : "City",
-                        "name"         : "addressCity",
-                        "data-ng-model": "vm.modelUser.profile.address.city",
-                    })
-                fieldset.horizontal
-                    +inputText({
-                        "id"           : "account-address-additional",
-                        "label"        : "Additional",
-                        "name"         : "addressAdditional",
-                        "data-ng-model": "vm.modelUser.profile.address.additional",
-                    })
+                    +inputUserAddress
                 fieldset.right
-                    +accountProfileButtonsCancelAndSave()
+                    +accountProfileButtonsCancelAndSave
 
         //- ********************************************************************
 
@@ -251,15 +172,7 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
                     vm.formAccountProfile.username.$invalid &&\
                     vm.formAccountProfile.username.$dirty }")
                 fieldset
-                    +inputText({
-                        "id"                         : "account-username",
-                        "label"                      : "Username",
-                        "name"                       : "username",
-                        "data-ng-model"              : "vm.modelUser.username",
-                        "data-cio-input-change-event": "vm.isAvailable('username')",
-                        "data-ng-required"           : "true",
-                        "isLabelHidden"              : true
-                    })
+                    +inputUserUsername
                 fieldset
                     +statusFields({
                         "name" : "username",
@@ -296,15 +209,7 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
                     vm.formAccountProfile.email.$invalid &&\
                     vm.formAccountProfile.email.$dirty }")
                 fieldset
-                    +inputText({
-                        "id"                         : "account-email",
-                        "label"                      : "Email",
-                        "name"                       : "email",
-                        "data-ng-model"              : "vm.modelUser.email",
-                        "data-cio-input-change-event": "vm.isAvailable('email')",
-                        "data-ng-required"           : "true",
-                        "isLabelHidden"              : true
-                    })
+                    +inputUserEmail
                 fieldset
                     +statusFields({
                         "name" : "email",
@@ -340,19 +245,7 @@ form(name="vm.formAccountProfile", data-ng-submit="vm.updateUser()")
                     vm.formAccountProfile.passwordCurrent.$invalid &&\
                     vm.formAccountProfile.passwordCurrent.$dirty }")
                 fieldset.horizontal
-                    +inputPasswordSwitcher({
-                        "id"           : "account-password-new",
-                        "label"        : "New password",
-                        "name"         : "passwordNew",
-                        "data-ng-model": "vm.modelPasswords.passwordNew",
-                    }, 'vm.isPasswordNewVisible')
-                fieldset.horizontal
-                    +inputPasswordSwitcher({
-                        "id"           : "account-password-current",
-                        "label"        : "Current password",
-                        "name"         : "passwordCurrent",
-                        "data-ng-model": "vm.modelPasswords.passwordCurrent",
-                    }, 'vm.isPasswordCurrentVisible')
+                    +inputUserPassword
                 fieldset(data-ng-if="'incorrect' === vm.states.password")
                     .alert.alert-danger
                         i.fa.fa-ban

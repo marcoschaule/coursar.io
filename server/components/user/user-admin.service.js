@@ -126,7 +126,7 @@ function readUsers(arrUserIds, objModifiers, callback) {
     objModifiers        = objModifiers        || {};
     objModifiers.select = objModifiers.select || {};
     objModifiers.limit  = objModifiers.limit  || 0;
-    objModifiers.sort   = objModifiers.sort   || { username: 1 };
+    objModifiers.sort   = objModifiers.sort   || 'username';
 
     // remove certain fields from query
     objModifiers.select.__v      = 0;

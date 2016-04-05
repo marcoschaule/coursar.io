@@ -9,6 +9,7 @@ var clone          = require('clone');
 var moment         = require('moment');
 var UserRessources = require('../auth/auth.schema.js');
 var AuthService    = require('../auth/auth.service.js');
+var libDate        = require('../../libs/date.lib.js');
 var User           = UserRessources.User;
 var UserDeleted    = UserRessources.UserDeleted;
 
@@ -79,7 +80,7 @@ function updateUser(objSession, objUserUpdate, callback) {
 
     // if date of birth is given, try to convert it to a valid date
     if (objUserUpdate.profile && objUserUpdate.profile.dateOfBirth) {
-        if (!_testDate(objUserUpdate.profile.dateOfBirth)) {
+        if (!libDate.testDateOfBirth(objUserUpdate.profile.dateOfBirth)) {
             return callback('Invalid date!');
         }
         objUserUpdate.profile.dateOfBirth = Date.parse(objUserUpdate.profile.dateOfBirth);
@@ -263,32 +264,6 @@ function updatePassword(strUserId, objPassword, callback) {
             });
         },
     ], callback);
-}
-
-// *****************************************************************************
-// Helper functions
-// *****************************************************************************
-
-/**
- * Helper function to test the date for valid format and limits.
- *
- * @private
- * @param  {String}  strDate  string of the date to be tested
- * @return {Boolean}          true if date is valid
- */
-function _testDate(strDate) {
-    var _oneTwoYear       = 365*24*60*60*1000;
-    var _numTwoYears      =   2 * _oneTwoYear;
-    var _numHunYears      = 100 * _oneTwoYear;
-    var _regexDateOfBirth = /^((\d{4})-(\d{2})-(\d{2})|(\d{2})\/(\d{2})\/(\d{4}))$/;
-    var isValid           = true;
-
-    isValid = isValid && _regexDateOfBirth.test(strDate);
-    isValid = isValid && !!(new Date(strDate)).getDate();
-    isValid = isValid && Date.now() - _numTwoYears > Date.parse(strDate);
-    isValid = isValid && Date.now() - _numHunYears < Date.parse(strDate);
-
-    return isValid;
 }
 
 // *****************************************************************************

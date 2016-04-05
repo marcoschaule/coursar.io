@@ -39,16 +39,44 @@ function Service(CioComService) {
     // Service function linking
     // *************************************************************************
 
-    service.createUser  = createUser;
-    service.readUser    = readUser;
-    service.updateUser  = updateUser;
-    service.deleteUser  = deleteUser;
-    service.readUsers   = readUsers;
-    service.updateUsers = updateUsers;
-    service.deleteUsers = deleteUsers;
+    service.handleUserAction = handleUserAction;
+    service.createUser       = createUser;
+    service.readUser         = readUser;
+    service.deleteUser       = deleteUser;
+    service.updateUsers      = updateUsers;
+    service.deleteUsers      = deleteUsers;
 
     // *************************************************************************
     // Service function definitions
+    // *************************************************************************
+
+    /**
+     * Service function to handle all default (CRUD) user actions.
+     *
+     * @public
+     * @param {Object}   objData         object of the data to be send to the server
+     * @param {String}   strTarget       string of the request strTarget, which is also used for the request id
+     * @param {Object}   [objModifiers]  (optional) object of the modifications for reading the users
+     * @param {Function} callback        function for callback
+     */
+    function handleUserAction(objData, strTarget, objModifiers, callback) {
+        if (!callback && 'function' === typeof objModifiers) {
+            callback = objModifiers;
+        }
+
+        var strId = strTarget.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        var objRequest = {
+            id    : strId,
+            url   : _urlHandleRequest,
+            data  : {
+                target   : strTarget,
+                data     : objData,
+                modifiers: objModifiers || {},
+            },
+        };
+        return CioComService.put(objRequest, callback);
+    }
+
     // *************************************************************************
 
     /**
@@ -63,7 +91,7 @@ function Service(CioComService) {
             id    : 'create-user',
             url   : _urlHandleRequest,
             data  : {
-                target   : 'readUsers',
+                target   : 'createUser',
                 data     : objUser,
                 modifiers: {},
             },
@@ -85,30 +113,8 @@ function Service(CioComService) {
             id    : 'read-user',
             url   : _urlHandleRequest,
             data  : {
-                target   : 'readUsers',
+                target   : 'readUser',
                 data     : { _id: strUserId },
-                modifiers: {},
-            },
-        };
-        return CioComService.put(objRequest, callback);
-    }
-
-    // *************************************************************************
-
-    /**
-     * Service function to read all users.
-     *
-     * @public
-     * @param {Object} objUser     object of the user to be updated
-     * @param {Function} callback  function for callback
-     */
-    function updateUser(objUser, callback) {
-        var objRequest = {
-            id    : 'update-user',
-            url   : _urlHandleRequest,
-            data  : {
-                target   : 'readUsers',
-                data     : objUser,
                 modifiers: {},
             },
         };
@@ -129,29 +135,8 @@ function Service(CioComService) {
             id    : 'delete-user',
             url   : _urlHandleRequest,
             data  : {
-                target   : 'readUsers',
+                target   : 'deleteUser',
                 data     : { _id: strUserId },
-                modifiers: {},
-            },
-        };
-        return CioComService.put(objRequest, callback);
-    }
-    
-    // *************************************************************************
-
-    /**
-     * Service function to read all users.
-     *
-     * @public
-     * @param {Function} callback  function for callback
-     */
-    function readUsers(callback) {
-        var objRequest = {
-            id    : 'read-users',
-            url   : _urlHandleRequest,
-            data  : {
-                target   : 'readUsers',
-                data     : null,
                 modifiers: {},
             },
         };
@@ -172,7 +157,7 @@ function Service(CioComService) {
             id    : 'update-users',
             url   : _urlHandleRequest,
             data  : {
-                target   : 'readUsers',
+                target   : 'updateUsers',
                 data     : arrUsers,
                 modifiers: {},
             },
@@ -194,7 +179,7 @@ function Service(CioComService) {
             id    : 'delete-users',
             url   : _urlHandleRequest,
             data  : {
-                target   : 'readUsers',
+                target   : 'deleteUsers',
                 data     : arrUserIds,
                 modifiers: {},
             },

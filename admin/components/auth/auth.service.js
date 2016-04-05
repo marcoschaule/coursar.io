@@ -29,7 +29,8 @@ function Service(CioComService) {
     // Private variables
     // *****************************************************************************
 
-    var _strUrlSignIn = '/admin/sign-in';
+    var _strUrlSignIn       = '/admin/sign-in';
+    var _strUrlTestSignedIn = '/admin/is-signed-in';
 
     // *****************************************************************************
     // Public variables
@@ -41,7 +42,8 @@ function Service(CioComService) {
     // Service function linking
     // *****************************************************************************
 
-    service.signIn = signIn;
+    service.signIn       = signIn;
+    service.testSignedIn = testSignedIn;
 
     // *****************************************************************************
     // Service function definitions
@@ -64,12 +66,38 @@ function Service(CioComService) {
         };
 
         CioComService.deleteToken('accessToken');
-        return CioComService.put(objRequest, function(objErr, objData) {
+        return CioComService.put(objRequest, function(objErr, objResult) {
             if (objErr) {
                 return callback(objErr);
             }
             service.isSignedIn = true;
-            return ('function' === typeof callback && callback(null, objData));
+            return callback(null, objResult);
+        });
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to test if user is signed in. If not, try to sign in
+     * user by requesting server.
+     * @public
+     * 
+     * @param {Function} callback  function for callback
+     */
+    function testSignedIn(callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        var objRequest = {
+            id   : 'test-signed-in',
+            url  : _strUrlTestSignedIn,
+        };
+
+        return CioComService.put(objRequest, function(objErr, objResult) {
+            if (objErr) {
+                return callback(null, false);
+            }
+            service.isSignedIn = true;
+            return callback(null, true);
         });
     }
 

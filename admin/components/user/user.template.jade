@@ -1,15 +1,130 @@
-.wrapper
+include ../../../client/components/mixins/user.mixin.include.jade
+
+.wrapper(data-ng-if="!vm.flags.isEditMode")
     h4 User management
 
     table.table.table-striped
         thead
             tr
-                th.left Username
-                th.left email
+                th.middle &nbsp;
+                th.left(data-ng-click="vm.setModifier('sort', 'username')")
+                    span(data-ng-show="vm.objModifiers.sort ===  'username'")
+                        i.gray.fa.fa-sort-amount-asc
+                    span(data-ng-show="vm.objModifiers.sort === '-username'")
+                        i.gray.fa.fa-sort-amount-desc
+                    span &nbsp;Username
+                th.left(data-ng-click="vm.setModifier('sort', 'profile.gender')")
+                    span(data-ng-show="vm.objModifiers.sort ===  'profile.gender'")
+                        i.gray.fa.fa-sort-amount-asc
+                    span(data-ng-show="vm.objModifiers.sort === '-profile.gender'")
+                        i.gray.fa.fa-sort-amount-desc
+                    span &nbsp;Sex
+                th.left(data-ng-click="vm.setModifier('sort', 'profile.name.first')")
+                    span(data-ng-show="vm.objModifiers.sort ===  'profile.name.first'")
+                        i.gray.fa.fa-sort-amount-asc
+                    span(data-ng-show="vm.objModifiers.sort === '-profile.name.first'")
+                        i.gray.fa.fa-sort-amount-desc
+                    span &nbsp;Full name
+                th.left(data-ng-click="vm.setModifier('sort', 'email')") 
+                    span(data-ng-show="vm.objModifiers.sort ===  'email'")
+                        i.gray.fa.fa-sort-amount-asc
+                    span(data-ng-show="vm.objModifiers.sort === '-email'")
+                        i.gray.fa.fa-sort-amount-desc
+                    span &nbsp;Email
+                th.left(data-ng-click="vm.setModifier('sort', 'profile.address.street')") 
+                    span(data-ng-show="vm.objModifiers.sort ===  'profile.address.street'")
+                        i.gray.fa.fa-sort-amount-asc
+                    span(data-ng-show="vm.objModifiers.sort === '-profile.address.street'")
+                        i.gray.fa.fa-sort-amount-desc
+                    span &nbsp;Address full
                 th.right &nbsp;
         tbody
-            tr(data-ng-repeat="objUser in vm.arrUsers")
-                td.left {{:: objUser.username }}
-                td.left {{:: objUser.email }}
-                td.right some actions
-        tfoot
+            tr(data-ng-repeat="objUser in vm.arrUsers").no-break
+                th.middle
+                    i(data-ng-if=" objUser.isAdmin").red.fa.fa-user-secret
+                    i(data-ng-if="!objUser.isAdmin").gray.fa.fa-user
+                td.left {{:: objUser.username || '-' }}
+                td.left {{:: objUser.profile.gender || '-' }}
+                td.left {{:: objUser.profile.name.full || '-' }}
+                td.left {{:: objUser.email || '-' }}
+                td.left {{:: objUser.profile.address.full || '-' }}
+                td.right
+                    a.btn.btn-sm.btn-primary(
+                            data-ng-click="vm.openEditUser(objUser)")
+                        i.fa.fa-pencil
+                    |&nbsp;
+                    a.btn.btn-sm.btn-danger(
+                            data-ng-click="")
+                        i.fa.fa-trash
+                    |&nbsp;
+                    a.btn.btn-sm.btn-danger(
+                            data-ng-show="objUser.isAdmin",
+                            data-ng-click="vm.setAdmin(objUser, false)")
+                        i.fa.fa-user-times
+                    a.btn.btn-sm.btn-danger(
+                            data-ng-show="!objUser.isAdmin",
+                            data-ng-click="vm.setAdmin(objUser, true)")
+                        i.fa.fa-user-plus
+
+//- ****************************************************************************
+
+.wrapper(data-ng-if="vm.flags.isEditMode")
+    h4 User edit
+    form(name="vm.formEditUser")
+
+        fieldset.right
+            button.btn.btn-default(
+                    data-ng-click="vm.closeEditUser()") Cancel
+            |&nbsp;
+            button.btn.btn-primary(
+                    data-ng-disabled="vm.formEditUser.$invalid") Save
+        
+        hr
+
+        h5 Name
+        fieldset.horizontal
+            +inputUserName()
+
+        .vmargin-1rem
+        h5 Gender
+        fieldset
+            +inputUserGender()
+
+        .vmargin-1rem
+        h5 Date of birth
+        fieldset(data-ng-class="{ 'has-error': \
+                vm.formEditUser.dateOfBirth.$invalid }")
+            +inputUserDateOfBirth
+        fieldset
+            .alert.alert-sm.alert-info Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
+
+        .vmargin-1rem
+        h5 Address
+        fieldset.horizontal
+            +inputUserAddress
+        
+        .vmargin-1rem
+        h5 Username
+        fieldset
+            +inputUserUsername
+        
+        .vmargin-1rem
+        h5 Email
+        fieldset
+            +inputUserEmail
+
+        .vmargin-1rem
+        h5 Password
+        fieldset.horizontal
+            +inputUserPasswordAdmin
+        fieldset.right
+            button.btn.btn-default(data-ng-click="vm.generatePassword()")
+                |Generate random password
+        hr
+        
+        fieldset.right
+            button.btn.btn-default(
+                    data-ng-click="vm.closeEditUser()") Cancel
+            |&nbsp;
+            button.btn.btn-primary(
+                    data-ng-disabled="vm.formEditUser.$invalid") Save

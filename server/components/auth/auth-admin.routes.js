@@ -30,7 +30,7 @@ function init(app, env) {
 
     return {
         public   : setPublicRoutes,
-        private  : function(){},
+        private  : setPrivateRoutes,
         authorize: setAuthorization,
     };
 }
@@ -47,6 +47,20 @@ function setPublicRoutes() {
     // PUT routes
     _app.put('/admin/sign-in',     
             AuthAdminCtrl.signIn);
+}
+
+// *****************************************************************************
+
+/**
+ * Router function to set public routes.
+ * 
+ * @public
+ */
+function setPrivateRoutes() {
+
+    // PUT routes
+    _app.put('/admin/is-signed-in',
+            AuthAdminCtrl.isSignedIn);
 }
 
 // *****************************************************************************

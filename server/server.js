@@ -95,6 +95,7 @@ userRouter.private();
 
 // admin routes
 authAdminRouter.authorize();
+authAdminRouter.private();
 userAdminRouter.private();
 
 // *****************************************************************************

@@ -38,6 +38,7 @@ var objAuth = {
             street: String,
             zipcode: String,
             city: String,
+            country: String,
             additional: String,
         },
     },
@@ -116,6 +117,48 @@ var schemaAuth        = new Schema(objAuth,        { collection: 'users' });
 var schemaUserDeleted = new Schema(objAuthDeleted, { collection: 'usersDeleted' });
 
 // *****************************************************************************
+// Virtuals
+// *****************************************************************************
+
+/**
+ * Virtual getter function to get the user's full name.
+ *
+ * @private
+ */
+schemaAuth.virtual('profile.name.full').get(function() {
+    var strFull = '';
+    strFull += this.profile.name.title  &&
+        (this.profile.name.title.trim()  + ' ') || '';
+    strFull += this.profile.name.first  &&
+        (this.profile.name.first.trim()  + ' ') || '';
+    strFull += this.profile.name.middle &&
+        (this.profile.name.middle.trim() + ' ') || '';
+    strFull += this.profile.name.last   &&
+        (this.profile.name.last.trim()   + ' ') || '';
+    return strFull.trim();
+});
+
+// *****************************************************************************
+
+/**
+ * Virtual getter function to get the user's full address.
+ *
+ * @private
+ */
+schemaAuth.virtual('profile.address.full').get(function() {
+    var strFull = '';
+    strFull += this.profile.address.street  &&
+        (this.profile.address.street.trim()    + ', ') || '';
+    strFull += this.profile.address.zipcode &&
+        (this.profile.address.zipcode.trim()   + ' ')  || '';
+    strFull += this.profile.address.city    &&
+        (this.profile.address.city.trim()      + ' ')  || '';
+    strFull += this.profile.address.country &&
+        (this.profile.address.country.trim()   + ' ')  || '';
+    return strFull.trim();
+});
+
+// *****************************************************************************
 // Schema methods and statics
 // *****************************************************************************
 
@@ -124,28 +167,16 @@ schemaAuth.methods.encrypt = _encrypt;
 schemaAuth.methods.compare = _compare;
 
 // *****************************************************************************
-// Model definitions
+// Options and model definitions
 // *****************************************************************************
 
-var User        = mongoose.model('User',         schemaAuth, 'users');
+schemaAuth.set       ('toObject', { getters: true });
+schemaAuth.set       ('toJSON',   { getters: true });
+schemaUserDeleted.set('toObject', { getters: true });
+schemaUserDeleted.set('toJSON',   { getters: true });
+
+var User        = mongoose.model('User',        schemaAuth, 'users');
 var UserDeleted = mongoose.model('UserDeleted', schemaAuth, 'usersDeleted');
-
-// *****************************************************************************
-// Custom validators
-// *****************************************************************************
-
-// *****************************************************************************
-// Virtuals
-// *****************************************************************************
-
-/**
- * Virtual getter function to get the primary email.
- *
- * @private
- */
-schemaAuth.virtual('profile.email').get(() => {
-    return this.profile && this.profile.emails && this.profile.emails[0];
-});
 
 // *****************************************************************************
 // Helper functions

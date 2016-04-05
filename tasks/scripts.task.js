@@ -85,7 +85,8 @@ function _setupTaskScriptsUser(isAdmin) {
              `${strWhich}/${strWhich}.js`,
              `${strWhich}/components/**/*.js`,
         ])
-        .pipe(through.obj(_renderRequireInFile))
+        .pipe(through.obj(_renderRequiredFileFromServer))
+        .pipe(through.obj(_renderRequiredFileRaw))
         .pipe(flatten())
         .pipe(gulp.dest(`./.build/dev${strAdminExt}/scripts/`))
     );
@@ -122,7 +123,64 @@ function _setupTaskScriptsVendor(isAdmin) {
  * @param {string}   strEncoding  string of the current file's encoding
  * @param {Function} callback     function for callback
  */
-function _renderRequireInFile(objFile, strEncoding, callback) {
+function _renderRequiredFileFromServer(objFile, strEncoding, callback) {
+    var regexRequire     = /=?[\s*]?requireFromServer\([\'|\"](.*)[\'|\"]\);/gmi;
+    var strContent       = String(objFile.contents)+'';
+    var isReadIntoObject = false;
+    var arrMatches, strMatch, strPath, objFileContent, strFileContent;
+
+    return async.whilst(
+
+        // test
+        () => (arrMatches = regexRequire.exec(strContent)) !== null,
+
+        // action
+        (_callback) => {
+            isReadIntoObject = arrMatches[0].indexOf('=') === 0;
+
+            // require content of file
+            objFileContent = !!arrMatches[1].match(/^(server\/|admin\/|client\/)/) ?
+                require(path.join(__dirname, '../', arrMatches[1])) :
+                require(path.join(__dirname, path.dirname(objFile.path), arrMatches[1]));
+
+            // if required file is read into object
+            if (isReadIntoObject) {
+                strFileContent  = '= {\n\n';
+                Object.keys(objFileContent).map(func => {
+                    strFileContent += func + ': ' + objFileContent[func].toString() + '\n';
+                });
+                strFileContent += '\n};';
+
+            // if required file is read into file
+            } else {
+                strFileContent = Object.keys(objFileContent).map(func =>
+                    objFileContent[func].toString()).join('\n\n');
+            }
+
+            strContent = strContent.replace(arrMatches[0], strFileContent.trim());
+            return _callback(null);
+        },
+
+        // callback
+        (objErr) => {
+            objFile.contents = new Buffer(strContent);
+            return callback(null, objFile);
+        }
+    );
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to render a "require" term in script files and replace the
+ * match with the content of the file.
+ *
+ * @private
+ * @param {Object}   objFile      object of the current file
+ * @param {string}   strEncoding  string of the current file's encoding
+ * @param {Function} callback     function for callback
+ */
+function _renderRequiredFileRaw(objFile, strEncoding, callback) {
     var regexRequire   = /require\([\'|\"](.*)[\'|\"]\);/gmi;
     var regexIIFEBegin = /^(\/\*\*([^*]|(\*+[^*/]))*\*+\/)?\s*\(function\(.*\)\s*\{\s*[\'|\"]use strict[\'|\"]\s*;/gi;
     var regexIIFEEnd   = /\}\)\(.*\);(\s)*$/gi;
