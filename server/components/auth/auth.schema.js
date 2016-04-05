@@ -170,10 +170,10 @@ schemaAuth.methods.compare = _compare;
 // Options and model definitions
 // *****************************************************************************
 
-schemaAuth.set       ('toObject', { getters: true });
-schemaAuth.set       ('toJSON',   { getters: true });
-schemaUserDeleted.set('toObject', { getters: true });
-schemaUserDeleted.set('toJSON',   { getters: true });
+schemaAuth.set       ('toObject', { getters: true, virtuals: true });
+schemaAuth.set       ('toJSON',   { getters: true, virtuals: true });
+schemaUserDeleted.set('toObject', { getters: true, virtuals: true });
+schemaUserDeleted.set('toJSON',   { getters: true, virtuals: true });
 
 var User        = mongoose.model('User',        schemaAuth, 'users');
 var UserDeleted = mongoose.model('UserDeleted', schemaAuth, 'usersDeleted');

@@ -39,20 +39,18 @@ function Controller($filter, CioUserService) {
     // Public variables
     // *************************************************************************
 
+    vm.formEditUser = {};
     vm.arrUsers     = null;
     vm.modelUser    = {};
-    vm.objModifiers = {
-        sort: 'username'
-    };
-    vm.flags        = {
-        isEditMode: false,
-    };
+    vm.objModifiers = { sort: 'username' };
+    vm.flags        = { isEditMode: false };
 
     // *************************************************************************
     // Controller function linking
     // *************************************************************************
 
     vm.readUsers        = readUsers;
+    vm.updateUsers      = updateUsers;
     vm.openEditUser     = openEditUser;
     vm.closeEditUser    = closeEditUser;
     vm.setModifier      = setModifier;
@@ -88,7 +86,7 @@ function Controller($filter, CioUserService) {
      *
      * @public
      */
-    function updateUsers() {
+    function updateUsers(isReturn) {
         var objUser = angular.copy(vm.modelUser);
         
         if (!vm.modelUser) {
@@ -105,7 +103,9 @@ function Controller($filter, CioUserService) {
                 // do something
                 return;
             }
-            vm.arrUsers = objResult.arrUsers;
+
+            _updateUser(objResult.objUser);
+            return isReturn && closeEditUser();
         });
     }
 
@@ -140,6 +140,7 @@ function Controller($filter, CioUserService) {
      * @param {Object} objUser  object of the user
      */
     function openEditUser(objUser) {
+        vm.strPasswordNew   = '';
         vm.flags.isEditMode = true;
         vm.modelUser        = angular.copy(objUser);
         
@@ -155,14 +156,11 @@ function Controller($filter, CioUserService) {
      * Controller function to close the user edit mode - with or without saving.
      *
      * @public
-     * @param {Boolean} isSaved  true if user needs to be saved
      */
-    function closeEditUser(isSaved) {
+    function closeEditUser() {
+        vm.strPasswordNew   = '';
         vm.flags.isEditMode = false;
         vm.modelUser        = null;
-
-        if (isSaved) {
-        }
     }
 
     // *************************************************************************
@@ -227,6 +225,23 @@ function Controller($filter, CioUserService) {
     function _init() {
         readUsers();
     } _init();
+
+    // *************************************************************************
+
+    /**
+     * Helper function to update the user array.
+     *
+     * @public
+     * @param {Object} objUser  object of user that is used to update the user array
+     */
+    function _updateUser(objUser) {
+        objUser = objUser || vm.modelUser;
+        for (var i = 0; i < vm.arrUsers.length; i += 1) {
+            if (vm.arrUsers[i]._id === objUser._id) {
+                vm.arrUsers[i] = angular.copy(objUser);
+            }
+        }
+    }
 
     // *************************************************************************
 }

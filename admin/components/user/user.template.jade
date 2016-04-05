@@ -1,5 +1,21 @@
 include ../../../client/components/mixins/user.mixin.include.jade
 
+//- ****************************************************************************
+
+mixin formButtons
+    a.btn.btn-default(
+            data-ng-click="vm.closeEditUser()") Cancel
+    |&nbsp;
+    a.btn.btn-primary(
+            data-ng-click="vm.updateUsers()",
+            data-ng-disabled="vm.formEditUser.$invalid") Save
+    |&nbsp;
+    a.btn.btn-primary(
+            data-ng-click="vm.updateUsers(true)",
+            data-ng-disabled="vm.formEditUser.$invalid") Return
+
+//- ****************************************************************************
+
 .wrapper(data-ng-if="!vm.flags.isEditMode")
     h4 User management
 
@@ -70,25 +86,21 @@ include ../../../client/components/mixins/user.mixin.include.jade
 
 .wrapper(data-ng-if="vm.flags.isEditMode")
     h4 User edit
-    form(name="vm.formEditUser")
+    form(name="vm.formEditUser", data-ng-submit="vm.updateUsers()")
 
         fieldset.right
-            button.btn.btn-default(
-                    data-ng-click="vm.closeEditUser()") Cancel
-            |&nbsp;
-            button.btn.btn-primary(
-                    data-ng-disabled="vm.formEditUser.$invalid") Save
+            +formButtons
         
         hr
 
         h5 Name
         fieldset.horizontal
-            +inputUserName()
+            +inputUserName
 
         .vmargin-1rem
         h5 Gender
         fieldset
-            +inputUserGender()
+            +inputUserGender
 
         .vmargin-1rem
         h5 Date of birth
@@ -118,13 +130,9 @@ include ../../../client/components/mixins/user.mixin.include.jade
         fieldset.horizontal
             +inputUserPasswordAdmin
         fieldset.right
-            button.btn.btn-default(data-ng-click="vm.generatePassword()")
+            a.btn.btn-default(data-ng-click="vm.generatePassword()")
                 |Generate random password
         hr
         
         fieldset.right
-            button.btn.btn-default(
-                    data-ng-click="vm.closeEditUser()") Cancel
-            |&nbsp;
-            button.btn.btn-primary(
-                    data-ng-disabled="vm.formEditUser.$invalid") Save
+            +formButtons

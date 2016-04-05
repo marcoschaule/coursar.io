@@ -33,7 +33,8 @@ module.exports.deleteUsers = deleteUsers;
  * @param {Function} callback  function for callback
  */
 function createUser(objUser, callback) {
-    return createUsers([objUser], (objErr, arrUsers) => callback(objErr, arrUsers[0]));
+    return createUsers([objUser], (objErr, arrUsers) =>
+        callback(objErr, arrUsers[0]));
 }
 
 // *****************************************************************************
@@ -46,7 +47,8 @@ function createUser(objUser, callback) {
  * @param {Function} callback   function for callback
  */
 function readUser(strUserId, callback) {
-    return readUsers([strUserId], {}, (objErr, arrUsers) => callback(objErr, arrUsers[0]));
+    return readUsers([strUserId], {}, (objErr, arrUsers) =>
+        callback(objErr, arrUsers[0]));
 }
 
 // *****************************************************************************
@@ -59,7 +61,8 @@ function readUser(strUserId, callback) {
  * @param {Function} callback  function for callback
  */
 function updateUser(objUser, callback) {
-    return updateUsers([objUser], (objErr, arrUsers) => callback(objErr, arrUsers[0]));
+    return updateUsers([objUser], (objErr, arrUsers) =>
+        callback(objErr, arrUsers[0]));
 }
 
 // *****************************************************************************
@@ -72,7 +75,8 @@ function updateUser(objUser, callback) {
  * @param {Function} callback   function for callback
  */
 function deleteUser(strUserId, callback) {
-    return deleteUsers([strUserId], (objErr, arrUsers) => callback(objErr, arrUsers[0]));
+    return deleteUsers([strUserId], (objErr, arrUsers) =>
+        callback(objErr, arrUsers[0]));
 }
 
 // *****************************************************************************
@@ -161,7 +165,8 @@ function readUsers(arrUserIds, objModifiers, callback) {
  * @param {Function} callback  function for callback
  */
 function updateUsers(arrUsers, callback) {
-    var strUserId;
+    var arrUserIds = [];
+    var strUserId, objPassword;
 
     if (!arrUsers || arrUsers.length <= 0) {
         console.error(ERRORS.USERS_ADMIN.UPDATE_USERS.ARRAY_OF_USERS_EMPTY);
@@ -170,7 +175,14 @@ function updateUsers(arrUsers, callback) {
 
     return async.eachSeries(arrUsers, (objUser, _callback) => {
         strUserId = objUser._id+'';
+        arrUserIds.push(strUserId);
         delete objUser._id;
+
+        // set the password if the admin changed it
+        if (objUser.passwordNew) {
+            objPassword      = Auth.encrypt(objUser.passwordNew);
+            objUser.password = objPassword;
+        }
 
         return Auth.update({ _id: strUserId }, { $set: objUser }, (objErr, objModified) => {
             if (objErr) {
@@ -186,8 +198,6 @@ function updateUsers(arrUsers, callback) {
         if (objErr) {
             return callback(objErr);
         }
-
-        var arrUserIds = arrUsers.map(objUser => objUser._id.toString());
         return Auth
             .find({ _id: { $in: arrUserIds }})
             .select({ password: 0, __v: 0 })
@@ -197,6 +207,7 @@ function updateUsers(arrUsers, callback) {
                     console.error(objErr);
                     return callback(ERRORS.USERS_ADMIN.UPDATE_USERS.READ_USERS);
                 }
+                return callback(null, arrUsers);
             });
     });
 }
