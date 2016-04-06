@@ -40,11 +40,11 @@ function Service(CioComService) {
     // *************************************************************************
 
     service.handleUserAction = handleUserAction;
-    service.createUser       = createUser;
-    service.readUser         = readUser;
-    service.deleteUser       = deleteUser;
-    service.updateUsers      = updateUsers;
-    service.deleteUsers      = deleteUsers;
+    // service.createUser       = createUser;
+    // service.readUser         = readUser;
+    // service.deleteUser       = deleteUser;
+    // service.updateUsers      = updateUsers;
+    // service.deleteUsers      = deleteUsers;
 
     // *************************************************************************
     // Service function definitions
@@ -77,115 +77,137 @@ function Service(CioComService) {
         return CioComService.put(objRequest, callback);
     }
 
-    // *************************************************************************
+    // // *************************************************************************
 
-    /**
-     * Service function to read all users.
-     *
-     * @public
-     * @param {String} strUserId   string of the user id of the user to be read
-     * @param {Function} callback  function for callback
-     */
-    function createUser(objUser, callback) {
-        var objRequest = {
-            id    : 'create-user',
-            url   : _urlHandleRequest,
-            data  : {
-                target   : 'createUser',
-                data     : objUser,
-                modifiers: {},
-            },
-        };
-        return CioComService.put(objRequest, callback);
-    }
+    // /**
+    //  * Service function to create one user.
+    //  *
+    //  * @public
+    //  * @param {Object}   objUser   object of the user to be saved in database
+    //  * @param {Function} callback  function for callback
+    //  */
+    // function createUser(objUser, callback) {
+    //     var objRequest = {
+    //         id    : 'create-user',
+    //         url   : _urlHandleRequest,
+    //         data  : {
+    //             target   : 'createUser',
+    //             data     : objUser,
+    //             modifiers: {},
+    //         },
+    //     };
+    //     return CioComService.put(objRequest, callback);
+    // }
 
-    // *************************************************************************
+    // // *************************************************************************
     
-    /**
-     * Service function to read all users.
-     *
-     * @public
-     * @param {String} strUserId   string of the user id of the user to be read
-     * @param {Function} callback  function for callback
-     */
-    function readUser(strUserId, callback) {
-        var objRequest = {
-            id    : 'read-user',
-            url   : _urlHandleRequest,
-            data  : {
-                target   : 'readUser',
-                data     : { _id: strUserId },
-                modifiers: {},
-            },
-        };
-        return CioComService.put(objRequest, callback);
-    }
+    // /**
+    //  * Service function to read one users.
+    //  *
+    //  * @public
+    //  * @param {String} strUserId   string of the user id of the user to be read
+    //  * @param {Function} callback  function for callback
+    //  */
+    // function readUser(strUserId, callback) {
+    //     var objRequest = {
+    //         id    : 'read-user',
+    //         url   : _urlHandleRequest,
+    //         data  : {
+    //             target   : 'readUser',
+    //             data     : { _id: strUserId },
+    //             modifiers: {},
+    //         },
+    //     };
+    //     return CioComService.put(objRequest, callback);
+    // }
 
-    // *************************************************************************
+    // // *************************************************************************
 
-    /**
-     * Service function to read all users.
-     *
-     * @public
-     * @param {String} strUserId   string of the user id of the user to be deleted
-     * @param {Function} callback  function for callback
-     */
-    function deleteUser(strUserId, callback) {
-        var objRequest = {
-            id    : 'delete-user',
-            url   : _urlHandleRequest,
-            data  : {
-                target   : 'deleteUser',
-                data     : { _id: strUserId },
-                modifiers: {},
-            },
-        };
-        return CioComService.put(objRequest, callback);
-    }
+    // /**
+    //  * Service function to read all users.
+    //  *
+    //  * @public
+    //  * @param {String} strUserId   string of the user id of the user to be deleted
+    //  * @param {Function} callback  function for callback
+    //  */
+    // function deleteUser(strUserId, callback) {
+    //     var objRequest = {
+    //         id    : 'delete-user',
+    //         url   : _urlHandleRequest,
+    //         data  : {
+    //             target   : 'deleteUser',
+    //             data     : { _id: strUserId },
+    //             modifiers: {},
+    //         },
+    //     };
+    //     return CioComService.put(objRequest, callback);
+    // }
+
+    // // *************************************************************************
+
+    // /**
+    //  * Service function to create multiple users for population.
+    //  *
+    //  * @public
+    //  * @param {Array}    arrUsers  array of the users to be saven in the database
+    //  * @param {Function} callback  function for callback
+    //  */
+    // function createUsers(arrUsers, callback) {
+    //     var objRequest = {
+    //         id    : 'create-user',
+    //         url   : _urlHandleRequest,
+    //         data  : {
+    //             target   : 'createUser',
+    //             data     : objUser,
+    //             modifiers: {},
+    //         },
+    //     };
+    //     return CioComService.put(objRequest, callback);
+    // }
     
-    // *************************************************************************
+    // // *************************************************************************
 
-    /**
-     * Service function to update multiple users.
-     *
-     * @public
-     * @param {Array} arrUsers     array of the users to be updated
-     * @param {Function} callback  function for callback
-     */
-    function updateUsers(arrUsers, callback) {
-        var objRequest = {
-            id    : 'update-users',
-            url   : _urlHandleRequest,
-            data  : {
-                target   : 'updateUsers',
-                data     : arrUsers,
-                modifiers: {},
-            },
-        };
-        return CioComService.put(objRequest, callback);
-    }
+    // /**
+    //  * Service function to update multiple users.
+    //  *
+    //  * @public
+    //  * @param {Array} arrUsers     array of the users to be updated
+    //  * @param {Function} callback  function for callback
+    //  */
+    // function updateUsers(arrUsers, callback) {
+    //     var objRequest = {
+    //         id    : 'update-users',
+    //         url   : _urlHandleRequest,
+    //         data  : {
+    //             target   : 'updateUsers',
+    //             data     : arrUsers,
+    //             modifiers: {},
+    //         },
+    //     };
+    //     return CioComService.put(objRequest, callback);
+    // }
 
-    // *************************************************************************
+    // // *************************************************************************
 
-    /**
-     * Service function to delete multiple users.
-     *
-     * @public
-     * @param {Array} arrUserIds   array of the user ids of the users to be deleted
-     * @param {Function} callback  function for callback
-     */
-    function deleteUsers(arrUserIds, callback) {
-        var objRequest = {
-            id    : 'delete-users',
-            url   : _urlHandleRequest,
-            data  : {
-                target   : 'deleteUsers',
-                data     : arrUserIds,
-                modifiers: {},
-            },
-        };
-        return CioComService.put(objRequest, callback);
-    }
+    // /**
+    //  * Service function to delete multiple users.
+    //  *
+    //  * @public
+    //  * @param {Array} arrUserIds   array of the user ids of the users to be deleted
+    //  * @param {Function} callback  function for callback
+    //  */
+    // function deleteUsers(arrUserIds, callback) {
+    //     var objRequest = {
+    //         id    : 'delete-users',
+    //         url   : _urlHandleRequest,
+    //         data  : {
+    //             target   : 'deleteUsers',
+    //             data     : arrUserIds,
+    //             modifiers: {},
+    //         },
+    //     };
+    //     return CioComService.put(objRequest, callback);
+    // }
 
     // *************************************************************************
     // Helper function definitions

@@ -62,7 +62,7 @@ function getRedisEntry(strKey, callback) {
  * @param {Function} callback  function for callback
  */
 function deleteRedisEntry(strKey, callback) {
-    return _performDefaultQuery('del', strKey, callback);
+    return redis.del(strKey, objErr => callback(objErr));
 }
 
 // *****************************************************************************
@@ -108,7 +108,7 @@ function _setRedisEntryForEmailVerificationOrPasswordReset(
 
     numMaxAge = settings.auth.resetPassword.maxAge;
     strRId    = uuid.v4();
-    strKey    = strKeyPrefix+ strRId;
+    strKey    = strKeyPrefix + strRId;
     strHash   = JSON.stringify({
         userId   : strUserId.toString(),
         createdAt: Date.now(),

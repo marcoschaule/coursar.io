@@ -50,6 +50,18 @@ setError(`500|ERRORS.USERS_ADMIN.DELETE_USERS.GENERAL|
 setError(`400|ERRORS.USERS_ADMIN.DELETE_USERS.ARRAY_OF_USER_IDS_EMPTY|
     Users admin "create users": array of user ids is empty.`);
 
+setError(`500|ERRORS.USERS_ADMIN.DELETE_USERS.FIND_USER_TO_DELETE|
+    Users admin "create users": error with finding user to delete.`);
+
+setError(`500|ERRORS.USERS_ADMIN.DELETE_USERS.COPY_USER_TO_DELETE|
+    Users admin "create users": error with copying user to delete.`);
+
+setError(`500|ERRORS.USERS_ADMIN.DELETE_USERS.DELETE_USER_FROM_DATABASE|
+    Users admin "create users": error with deleting user from databse.`);
+
+setError(`500|ERRORS.USERS_ADMIN.DELETE_USERS.DELETE_USER_SESSIONS|
+    Users admin "create users": error with deleting user sessions.`);
+
 // *****************************************************************************
 
 })();

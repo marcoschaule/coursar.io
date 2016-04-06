@@ -110,11 +110,9 @@ var objAuth = {
         default: false
     },
 };
-var objAuthDeleted     = clone(objAuth);
-objAuthDeleted._idOld  = ObjectId;
 
-var schemaAuth        = new Schema(objAuth,        { collection: 'users' });
-var schemaUserDeleted = new Schema(objAuthDeleted, { collection: 'usersDeleted' });
+var schemaAuth        = new Schema(objAuth, { collection: 'users' });
+var schemaUserDeleted = new Schema(objAuth, { collection: 'usersDeleted' });
 
 // *****************************************************************************
 // Virtuals
@@ -175,8 +173,8 @@ schemaAuth.set       ('toJSON',   { getters: true, virtuals: true });
 schemaUserDeleted.set('toObject', { getters: true, virtuals: true });
 schemaUserDeleted.set('toJSON',   { getters: true, virtuals: true });
 
-var User        = mongoose.model('User',        schemaAuth, 'users');
-var UserDeleted = mongoose.model('UserDeleted', schemaAuth, 'usersDeleted');
+var User        = mongoose.model('User',        schemaAuth,        'users');
+var UserDeleted = mongoose.model('UserDeleted', schemaUserDeleted, 'usersDeleted');
 
 // *****************************************************************************
 // Helper functions

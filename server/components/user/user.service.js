@@ -14,6 +14,15 @@ var User           = UserRessources.User;
 var UserDeleted    = UserRessources.UserDeleted;
 
 // *****************************************************************************
+// Exports
+// *****************************************************************************
+
+module.exports.readUser       = readUser;
+module.exports.updateUser     = updateUser;
+module.exports.updatePassword = updatePassword;
+module.exports.deleteUser     = deleteUser;
+
+// *****************************************************************************
 // Service functions
 // *****************************************************************************
 
@@ -144,7 +153,7 @@ function updateUser(objSession, objUserUpdate, callback) {
 function deleteUser(objSession, strPassword, callback) {
     var strUserId   = objSession.userId;
     var objPassword = User.encrypt(strPassword);
-    var objUserCopy;
+    var userDeleted;
 
     return async.waterfall([
 
@@ -168,8 +177,7 @@ function deleteUser(objSession, strPassword, callback) {
         (objUser, _callback) => {
 
             // create new user object
-            var userDeleted    = new UserDeleted(objUser);
-            userDeleted._idOld = objUser._id;
+            userDeleted = new UserDeleted(objUser);
 
             // save the new copy into deleted database
             return userDeleted.save(objErr => {
@@ -194,7 +202,7 @@ function deleteUser(objSession, strPassword, callback) {
 
         // delete session
         (_callback) => {
-            return AuthService.deleteSession(objSession, objErr => {
+            return AuthService.deleteAllSessions(strUserId, objErr => {
                 if (objErr) {
                     console.error(objErr);
                     return _callback(objErr);
@@ -265,15 +273,6 @@ function updatePassword(strUserId, objPassword, callback) {
         },
     ], callback);
 }
-
-// *****************************************************************************
-// Exports
-// *****************************************************************************
-
-module.exports.readUser       = readUser;
-module.exports.updateUser     = updateUser;
-module.exports.updatePassword = updatePassword;
-module.exports.deleteUser     = deleteUser;
 
 // *****************************************************************************
 

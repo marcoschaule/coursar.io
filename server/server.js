@@ -30,7 +30,7 @@ var morgan                = require('morgan');
 var path                  = require('path');
 var childProcess          = require('child_process');
 var bodyParser            = require('body-parser');
-var JWTRedisSession       = require('jwt-redis-session');
+var JWTRedisSession       = require('stark-jwt-redis-session');
 
 // setup
 var env                   = (process.env.NODE_ENV || 'dev');

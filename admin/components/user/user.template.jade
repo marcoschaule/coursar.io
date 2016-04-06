@@ -56,7 +56,8 @@ include user.mixins.include.jade
                         i.fa.fa-pencil
                     |&nbsp;
                     a.btn.btn-sm.btn-danger(
-                            data-ng-click="")
+                            data-ng-disabled="objUser.isAdmin",
+                            data-ng-click="vm.deleteUser(objUser)")
                         i.fa.fa-trash
                     |&nbsp;
                     a.btn.btn-sm.btn-danger(
@@ -67,6 +68,18 @@ include user.mixins.include.jade
                             data-ng-show="!objUser.isAdmin",
                             data-ng-click="vm.setAdmin(objUser, true)")
                         i.fa.fa-user-plus
+
+    hr
+
+    .right
+        form(name="formPopulateUsers",
+                data-ng-submit="vm.generatePopulation()")
+            fieldset.form-inline
+                input.right.form-control(type="text",
+                        name="numberUsers",
+                        data-ng-model="vm.numUsersForPopulation")
+                |&nbsp;
+                button.btn.btn-default Populate
 
 //- ****************************************************************************
 

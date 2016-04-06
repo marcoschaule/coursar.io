@@ -45,11 +45,22 @@ function Service() {
     // Service function linking
     // *****************************************************************************
 
+    service.generatePopulation = generatePopulation;
     service.generateRandomUser = generateRandomUser;
     service.generatePassword   = generatePassword;
 
     // *****************************************************************************
     // Service function definitions
+    // *****************************************************************************
+
+    function generatePopulation(numUsers) {
+        var arrUsers = [], i;
+        for (i = 0; i < numUsers; i += 1) {
+            arrUsers.push(generateRandomUser());
+        }
+        return arrUsers;
+    }
+
     // *****************************************************************************
 
     function generateRandomUser() {
@@ -80,7 +91,7 @@ function Service() {
     // *************************************************************************
 
     /**
-     * Controller function to generate a random password.
+     * Service function to generate a random password.
      *
      * @public
      * @return {String}  string of randomly generated password

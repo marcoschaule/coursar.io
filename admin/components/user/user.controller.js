@@ -60,12 +60,14 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
     vm.createUser         = createUser;
     vm.readUsers          = readUsers;
     vm.updateUser         = updateUser;
+    vm.deleteUser         = deleteUser;
+    vm.setAdmin           = setAdmin;
+    vm.setModifier        = setModifier;
     vm.openEditUser       = openEditUser;
     vm.closeEditUser      = closeEditUser;
-    vm.setModifier        = setModifier;
-    vm.setAdmin           = setAdmin;
     vm.generatePassword   = generatePassword;
     vm.generateRandomUser = generateRandomUser;
+    vm.generatePopulation = generatePopulation;
     vm.testDateOfBirth    = testDateOfBirth;
     vm.testAvailability   = testAvailability;
 
@@ -146,6 +148,27 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
     // *************************************************************************
 
     /**
+     * Controller function to delete a user and remove it from users array.
+     *
+     * @public
+     * @param {Object} objUser  object of the user to be removed
+     */
+    function deleteUser(objUser) {
+        return CioUserService.handleUserAction(objUser._id.toString(),
+                'deleteUser', function(objErr) {
+            
+            if (objErr) {
+                // do something
+                return;
+            }
+            // return _rematchUser(objUser, true);
+            return readUsers();
+        });
+    }
+
+    // *************************************************************************
+
+    /**
      * Controller function to set or unset the user to admin.
      *
      * @public
@@ -163,6 +186,28 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
             }
             vm.arrUsers = objResult.arrUsers;
         });
+    }
+
+    // *************************************************************************
+
+    /**
+     * Controller function to set the modifier for the template.
+     *
+     * @public
+     * @param {Strign} strField  string of the field to be set
+     * @param {Strign} strValue  string of the value to be set
+     */
+    function setModifier(strField, strValue) {
+        if ('sort' === strField && !vm.objModifiers.sort) {
+            vm.objModifiers = { sort: strValue };
+        }
+        else if ('sort' === strField && vm.objModifiers.sort.indexOf(strValue) >= 0) {
+            vm.objModifiers.sort = (vm.objModifiers.sort.charAt(0) === '-' ? '' : '-') + strValue;
+        } else if ('sort' === strField) {
+            vm.objModifiers.sort = strValue;
+        }
+
+        return vm.readUsers();
     }
 
     // *************************************************************************
@@ -201,23 +246,13 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
     // *************************************************************************
 
     /**
-     * Controller function to set the modifier for the template.
+     * Controller function to generate a random password.
      *
      * @public
-     * @param {Strign} strField  string of the field to be set
-     * @param {Strign} strValue  string of the value to be set
+     * @return {String}  string of randomly generated password
      */
-    function setModifier(strField, strValue) {
-        if ('sort' === strField && !vm.objModifiers.sort) {
-            vm.objModifiers = { sort: strValue };
-        }
-        else if ('sort' === strField && vm.objModifiers.sort.indexOf(strValue) >= 0) {
-            vm.objModifiers.sort = (vm.objModifiers.sort.charAt(0) === '-' ? '' : '-') + strValue;
-        } else if ('sort' === strField) {
-            vm.objModifiers.sort = strValue;
-        }
-
-        return vm.readUsers();
+    function generatePassword() {
+        return (vm.strPasswordNew = Math.random().toString(36).slice(-8));
     }
 
     // *************************************************************************
@@ -235,13 +270,24 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
     // *************************************************************************
 
     /**
-     * Controller function to generate a random password.
+     * Controller function to generate multiple random users for population.
      *
      * @public
-     * @return {String}  string of randomly generated password
      */
-    function generatePassword() {
-        return (vm.strPasswordNew = Math.random().toString(36).slice(-8));
+    function generatePopulation() {
+        var arrUsers = CioUserPopulationService.
+            generatePopulation(vm.numUsersForPopulation);
+
+        return CioUserService.handleUserAction(
+                arrUsers, 'createUsers',
+                function(objErr, objResult) {
+            
+            if (objErr) {
+                // do something
+                return;
+            }
+            return vm.arrUsers.push.apply(vm.arrUsers, objResult.arrUsers);
+        });
     }
 
     // *************************************************************************
@@ -338,13 +384,17 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
      * Helper function to update the user array.
      *
      * @public
-     * @param {Object} objUser  object of user that is used to update the user array
+     * @param {Object}  objUser    object of user that is used to update the user array
+     * @param {Boolean} isRemoved  true if the user is to be removed
      */
-    function _rematchUser(objUser) {
+    function _rematchUser(objUser, isRemoved) {
         objUser = objUser || vm.modelUser;
         for (var i = 0; i < vm.arrUsers.length; i += 1) {
-            if (vm.arrUsers[i]._id === objUser._id) {
-                vm.arrUsers[i] = angular.copy(objUser);
+            if (vm.arrUsers[i]._id === objUser._id && !isRemoved) {
+                return (vm.arrUsers[i] = angular.copy(objUser));
+            }
+            else if (vm.arrUsers[i]._id === objUser._id && isRemoved) {
+                return (delete vm.arrUsers[i]);
             }
         }
     }

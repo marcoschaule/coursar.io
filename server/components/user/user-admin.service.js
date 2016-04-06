@@ -4,9 +4,13 @@
 // Includes and definitions
 // *****************************************************************************
 
-var clone = require('clone');
-var async = require('async');
-var Auth  = require('../auth/auth.schema.js').Auth;
+var clone          = require('clone');
+var async          = require('async');
+var AuthService    = require('../auth/auth.service.js');
+var UserRessources = require('../auth/auth.schema.js');
+var Auth           = UserRessources.User;
+var User           = UserRessources.User;
+var UserDeleted    = UserRessources.UserDeleted;
 
 // *****************************************************************************
 // Exports
@@ -76,7 +80,7 @@ function updateUser(objUser, callback) {
  */
 function deleteUser(strUserId, callback) {
     return deleteUsers([strUserId], (objErr, arrUsers) =>
-        callback(objErr, arrUsers[0]));
+        callback(objErr));
 }
 
 // *****************************************************************************
@@ -223,19 +227,77 @@ function updateUsers(arrUsers, callback) {
  * @param {Function} callback    function for callback
  */
 function deleteUsers(arrUserIds, callback) {
+    var userDeleted;
+
     if (!arrUserIds || arrUserIds.length <= 0) {
         console.error(ERRORS.USERS_ADMIN.DELETE_USERS.ARRAY_OF_USER_IDS_EMPTY);
         return callback(ERRORS.USERS_ADMIN.DELETE_USERS.ARRAY_OF_USER_IDS_EMPTY);
     }
 
-    return Auth.remove({ _id: { $in: arrUserIds } }, objErr => {
-        if (objErr) {
-            console.error(ERRORS.USERS_ADMIN.DELETE_USERS.GENERAL);
-            console.error(objErr);
-            return _callback(ERRORS.USERS_ADMIN.DELETE_USERS.GENERAL);
-        }
-        return _callback(null);
-    });
+    return async.eachSeries(arrUserIds, (strUserId, _callback) => {
+        strUserId = strUserId.toString(); // just in case
+
+        return async.waterfall([
+
+            // test password
+            (__callback) => {
+
+                return User.findOne({ _id: strUserId }, (objErr, objUser) => {
+                    if (objErr) {
+                        console.error(ERRORS.USERS_ADMIN.DELETE_USERS.FIND_USER_TO_DELETE);
+                        console.error(objErr);
+                        return __callback(ERRORS.USERS_ADMIN.DELETE_USERS.FIND_USER_TO_DELETE);
+                    }
+                    return __callback(null, objUser);
+                });
+            },
+
+            // copy user into "usersDeleted" database
+            (objUser, __callback) => {
+
+                // create new user object
+                userDeleted = new UserDeleted(objUser);
+
+                // save the new copy into deleted database
+                return userDeleted.save(objErr => {
+                    if (objErr) {
+                        console.error(ERRORS.USERS_ADMIN.DELETE_USERS.COPY_USER_TO_DELETE);
+                        console.error(objErr);
+                        return __callback(ERRORS.USERS_ADMIN.DELETE_USERS.COPY_USER_TO_DELETE);
+                    }
+                    return __callback(null);
+                });
+            },
+
+            // delete user in "users" database
+            (__callback) => {
+                return User.remove({ _id: strUserId }, objErr => {
+                    if (objErr) {
+                        console.error(ERRORS.USERS_ADMIN.DELETE_USERS.DELETE_USER_FROM_DATABASE);
+                        console.error(objErr);
+                        return __callback(ERRORS.USERS_ADMIN.DELETE_USERS.DELETE_USER_FROM_DATABASE);
+                    }
+                    return __callback(null);
+                });
+            },
+
+            // delete session
+            (__callback) => {
+                return AuthService.deleteAllSessions(strUserId, objErr => {
+                    if (objErr) {
+                        console.error(ERRORS.USERS_ADMIN.DELETE_USERS.DELETE_USER_SESSIONS);
+                        console.error(objErr);
+                        return __callback(ERRORS.USERS_ADMIN.DELETE_USERS.DELETE_USER_SESSIONS);
+                    }
+                    return __callback(null);
+                });
+            },
+
+        // waterfall callback
+        ], _callback);
+
+    // eachSeries callback
+    }, objErr => callback(objErr, { redirect: true }));
 }
 
 // *****************************************************************************

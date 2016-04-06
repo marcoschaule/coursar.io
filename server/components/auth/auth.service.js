@@ -34,6 +34,7 @@ module.exports.checkSignedIn         = checkSignedIn;
 module.exports.touchSignedIn         = touchSignedIn;
 module.exports.updateSession         = touchSignedIn;
 module.exports.deleteSession         = deleteSession;
+module.exports.deleteAllSessions     = deleteAllSessions;
 module.exports.isSignedIn            = isSignedIn;
 module.exports.isUsernameAvailable   = isUsernameAvailable;
 module.exports.isEmailAvailable      = isEmailAvailable;
@@ -125,7 +126,9 @@ function signIn(objSignIn, objInfo, objSession, callback) {
         // generate session
         (objUser, _callback) => {
 
-            return _generateSession(objSession, (objErr, strToken) => {
+            return _generateSession(objUser._id.toString(),
+                    objSession, (objErr, strToken) => {
+                
                 if (objErr) {
                     console.error(AUTH.SIGN_IN.SESSION_GENERATION);
                     console.error(objErr);
@@ -208,14 +211,18 @@ function signUp(objSignUp, callback) {
                     console.error(objErr);
                     return _callback(ERRORS.AUTH.GENERAL);
                 }
-                return _callback(null, objUser._id.toString());
+                return _callback(null, objUser);
             });
         },
 
         // send verification email to the user
-        (strUserId, _callback) => {
+        (objUser, _callback) => {
+            var objSessionTmp = {
+                userId: objUser._id.toString(),
+                email : objUser.email,
+            };
 
-            return sendVerificationEmail(strUserId, objSignUp.email, objErr => {
+            return sendVerificationEmail(objSessionTmp, objErr => {
                 if (objErr) {
                     console.error(AUTH.SIGN_UP.SEND_VERIFICATION_EMAIL);
                     console.error(objErr);
@@ -670,6 +677,14 @@ function touchSignedIn(objSession, callback) {
 
 // *****************************************************************************
 
+function getSessionsByUserId(callback) {
+    return clients.redis('sess:*', (objErr, arrKeys) => {
+
+    });
+}
+
+// *****************************************************************************
+
 /**
  * Service function to delete the user's session.
  *
@@ -680,6 +695,20 @@ function touchSignedIn(objSession, callback) {
 function deleteSession(objSession, callback) {
     callback = 'function' === typeof callback && callback || function(){};
     return objSession.destroy(callback);
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to delete all the user's session.
+ *
+ * @public
+ * @param {String}   strUserId   string of the user's id
+ * @param {Function} [callback]  (optional) function for callback
+ */
+function deleteAllSessions(strUserId, callback) {
+    callback = 'function' === typeof callback && callback || function(){};
+    return libRedis.deleteRedisEntry('sess:' + strUserId + '-*', callback);
 }
 
 // *****************************************************************************
@@ -756,10 +785,11 @@ function isEmailAvailable(strEmail, callback) {
  * Helper function to generate the Redis session if it doesn't exist, yet.
  * 
  * @private
+ * @param  {String}   strUserId   string of the user id that is used as a prefix
  * @param  {Object}   objSession  object of JWT session
  * @param  {Function} callback    function for callback
  */
-function _generateSession(objSession, callback) {
+function _generateSession(strUserId, objSession, callback) {
     if (objSession && objSession.id && objSession.jwt) {
         return callback(null, objSession.jwt);
     }
@@ -768,6 +798,7 @@ function _generateSession(objSession, callback) {
     var objClaims = {
         appName     : APPNAME,
         appUrl      : APPURL,
+        prefix      : strUserId,
     };
 
     // generate the session
