@@ -28,7 +28,7 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller($filter, CioUserService) {
+function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopulationService) {
     var vm = this;
 
     // *************************************************************************
@@ -39,27 +39,61 @@ function Controller($filter, CioUserService) {
     // Public variables
     // *************************************************************************
 
-    vm.formEditUser = {};
-    vm.arrUsers     = null;
-    vm.modelUser    = {};
-    vm.objModifiers = { sort: 'username' };
-    vm.flags        = { isEditMode: false };
+    vm.formEditUser      = {};
+    vm.arrUsers          = null;
+    vm.modelUser         = null;
+    vm.modelUserPristine = null;
+    vm.objModifiers      = { sort      : 'username' };
+    vm.flags             = { isEditMode: false };
+    vm.states            = {
+        username             : 'pristine',
+        email                : 'pristine',
+        password             : null,
+        activeField          : null,
+        verificationEmailSend: false,
+    };
 
     // *************************************************************************
     // Controller function linking
     // *************************************************************************
 
-    vm.readUsers        = readUsers;
-    vm.updateUsers      = updateUsers;
-    vm.openEditUser     = openEditUser;
-    vm.closeEditUser    = closeEditUser;
-    vm.setModifier      = setModifier;
-    vm.setAdmin         = setAdmin;
-    vm.generatePassword = generatePassword;
-    vm.testDateOfBirth  = testDateOfBirth;
+    vm.createUser         = createUser;
+    vm.readUsers          = readUsers;
+    vm.updateUser         = updateUser;
+    vm.openEditUser       = openEditUser;
+    vm.closeEditUser      = closeEditUser;
+    vm.setModifier        = setModifier;
+    vm.setAdmin           = setAdmin;
+    vm.generatePassword   = generatePassword;
+    vm.generateRandomUser = generateRandomUser;
+    vm.testDateOfBirth    = testDateOfBirth;
+    vm.testAvailability   = testAvailability;
 
     // *************************************************************************
     // Controller function definitions
+    // *************************************************************************
+
+    /**
+     * Controller function to create a new user.
+     *
+     * @public
+     * @param {Boolean} isReturn  true if the to return to users list after saving
+     */
+    function createUser(isReturn) {
+        if (!vm.modelUser) {
+            return;
+        }
+        return CioUserService.handleUserAction(vm.modelUser, 'createUser',
+                function(objErr, objResult) {
+            
+            if (objErr) {
+                // do something
+                return;
+            }
+            return isReturn && $state.go('users');
+        });
+    }
+
     // *************************************************************************
 
     /**
@@ -86,7 +120,7 @@ function Controller($filter, CioUserService) {
      *
      * @public
      */
-    function updateUsers(isReturn) {
+    function updateUser(isReturn) {
         var objUser = angular.copy(vm.modelUser);
         
         if (!vm.modelUser) {
@@ -104,7 +138,7 @@ function Controller($filter, CioUserService) {
                 return;
             }
 
-            _updateUser(objResult.objUser);
+            _rematchUser(objResult.objUser);
             return isReturn && closeEditUser();
         });
     }
@@ -140,9 +174,10 @@ function Controller($filter, CioUserService) {
      * @param {Object} objUser  object of the user
      */
     function openEditUser(objUser) {
-        vm.strPasswordNew   = '';
-        vm.flags.isEditMode = true;
-        vm.modelUser        = angular.copy(objUser);
+        vm.strPasswordNew    = '';
+        vm.flags.isEditMode  = true;
+        vm.modelUser         = angular.copy(objUser);
+        vm.modelUserPristine = angular.copy(objUser);
         
         if (vm.modelUser.profile && vm.modelUser.profile.dateOfBirth) {
             vm.modelUser.profile.dateOfBirth = $filter('date')
@@ -188,6 +223,18 @@ function Controller($filter, CioUserService) {
     // *************************************************************************
 
     /**
+     * Controller function to generate a random user to populate the Database.
+     *
+     * @public
+     */
+    function generateRandomUser() {
+        vm.modelUser      = CioUserPopulationService.generateRandomUser();
+        vm.strPasswordNew = vm.modelUser.passwordNew;
+    }
+
+    // *************************************************************************
+
+    /**
      * Controller function to generate a random password.
      *
      * @public
@@ -213,6 +260,65 @@ function Controller($filter, CioUserService) {
         vm.formEditUser.dateOfBirth.$setValidity('invalid', isValid);
     }
 
+    // *****************************************************************************
+
+    /**
+     * Controller function to test if "username" or "email" is available.
+     * 
+     * @param {String} strWhich  string of which to test
+     */
+    function testAvailability(strWhich) {
+        var objFormField = vm.formEditUser[strWhich];
+        var objData, objRequest;
+
+        if (!vm.modelUserPristine) {
+            vm.modelUserPristine = angular.copy(vm.modelUser);
+        }
+
+        // set manually the validity if each field to "true"
+        objFormField.$setValidity('isAvailable', true);
+
+        // test if there are any errors in the form
+        if (vm.modelUserPristine[strWhich] === vm.modelUser[strWhich]) {
+            vm.formEditUser[strWhich].$setPristine();
+            return (vm.states[strWhich] = 'pristine');
+        }
+        if (objFormField.$error.required) {
+            return (vm.states[strWhich] = 'required');
+        }
+        if (objFormField.$error.minlength) {
+            return (vm.states[strWhich] = 'tooShort');
+        }
+        if (objFormField.$error.maxlength) {
+            return (vm.states[strWhich] = 'tooLong');
+        }
+        if (objFormField.$error.email) {
+            return (vm.states[strWhich] = 'invalid');
+        }
+
+        // set the state of the field to "pending" since the request
+        // is about to get fired
+        vm.states[strWhich] = 'pending';
+
+        objData           = {};
+        objData[strWhich] = objFormField.$viewValue;
+
+        return CioAuthService.testAvailability(strWhich, objData, function(objErr, objData) {
+            if (objErr || !objData) {
+                return (vm.states[strWhich] = 'error');
+            }
+            if (objFormField.$invalid) {
+                return;
+            }
+
+            // set manually the validity if each field depending on result
+            objFormField.$setValidity('isAvailable', !!objData.isAvailable);
+
+            // set the state of the field depending on result
+            vm.states[strWhich] = !!objData.isAvailable && 'available' || 'notAvailable';
+        });
+    }
+
     // *************************************************************************
     // Helper function definitions
     // *************************************************************************
@@ -234,7 +340,7 @@ function Controller($filter, CioUserService) {
      * @public
      * @param {Object} objUser  object of user that is used to update the user array
      */
-    function _updateUser(objUser) {
+    function _rematchUser(objUser) {
         objUser = objUser || vm.modelUser;
         for (var i = 0; i < vm.arrUsers.length; i += 1) {
             if (vm.arrUsers[i]._id === objUser._id) {

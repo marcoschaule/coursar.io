@@ -89,7 +89,7 @@ function deleteUser(strUserId, callback) {
  * @param {Function} callback  function for callback
  */
 function createUsers(arrUsers, callback) {
-    var objAuth, arrUsersResult;
+    var objAuth, arrUsersResult = [];
 
     if (!arrUsers || arrUsers.length <= 0) {
         console.error(ERRORS.USERS_ADMIN.CREATE_USERS.ARRAY_OF_USERS_EMPTY);
@@ -97,7 +97,8 @@ function createUsers(arrUsers, callback) {
     }
 
     return async.eachSeries(arrUsers, (objUser, _callback) => {
-        objAuth = new Auth(objUser);
+        objUser.password = Auth.encrypt(objUser.passwordNew);
+        objAuth          = new Auth(objUser);
 
         objAuth.save(objErr => {
             if (objErr) {

@@ -23,6 +23,26 @@ var stateAdminUsers = {
 };
 
 // *****************************************************************************
+
+/**
+ * State of the admin user management view.
+ * @type {Object}
+ */
+var stateAdminUserNew = {
+    url   : '/user-new',
+    name  : 'userNew',
+    views : {
+        navigation: {
+            templateUrl: 'layout-navigation.template.html',
+        },
+        main: {
+            controller : 'CioUserCtrl as vm',
+            templateUrl: 'user-new.template.html',
+        },
+    },
+};
+
+// *****************************************************************************
 // Router
 // *****************************************************************************
 
@@ -31,6 +51,7 @@ angular
     .config(function($stateProvider) {
         $stateProvider
             .state(stateAdminUsers)
+            .state(stateAdminUserNew)
             ;
     });
 

@@ -1,0 +1,106 @@
+include ../../../client/components/mixins/user.mixin.include.jade
+
+//- ****************************************************************************
+
+mixin formButtons(isUserNew)
+    if (isUserNew)
+        a.btn.btn-default(
+                data-ng-click="vm.generateRandomUser()") Generate random user
+        |&nbsp;&nbsp;&nbsp;
+        a.btn.btn-default(
+                data-ng-click="vm.closeEditUser()") Cancel
+        |&nbsp;
+        a.btn.btn-primary(
+                data-ng-click="vm.createUser()",
+                data-ng-disabled="vm.formEditUser.$invalid") Save
+        |&nbsp;
+        a.btn.btn-primary(
+                data-ng-click="vm.createUser(true)",
+                data-ng-disabled="vm.formEditUser.$invalid") Return
+    if (!isUserNew)
+        a.btn.btn-default(
+                data-ng-click="vm.closeEditUser()") Cancel
+        |&nbsp;
+        a.btn.btn-primary(
+                data-ng-click="vm.updateUser()",
+                data-ng-disabled="vm.formEditUser.$invalid") Save
+        |&nbsp;
+        a.btn.btn-primary(
+                data-ng-click="vm.updateUser(true)",
+                data-ng-disabled="vm.formEditUser.$invalid") Return
+
+//- ****************************************************************************
+
+mixin formEditUser(isUserNew)
+    form(name="vm.formEditUser", data-ng-submit="vm.updateUser()")
+
+        fieldset.right
+            +formButtons(isUserNew)
+        hr
+
+        h5 Name
+        fieldset.horizontal
+            +inputUserName
+
+        .vmargin-1rem
+        h5 Gender
+        fieldset
+            +inputUserGender
+
+        .vmargin-1rem
+        h5 Date of birth
+        fieldset(data-ng-class="{ 'has-error': \
+                vm.formEditUser.dateOfBirth.$invalid }")
+            +inputUserDateOfBirth
+        fieldset
+            .alert.alert-info(data-ng-show="!vm.formEditUser.dateOfBirth.$invalid")
+                |Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
+            .alert.alert-danger(data-ng-show="vm.formEditUser.dateOfBirth.$invalid")
+                |Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
+
+        .vmargin-1rem
+        h5 Address
+        fieldset.horizontal
+            +inputUserAddress
+        
+        .vmargin-1rem
+        h5 Username
+        fieldset(data-ng-class="{ 'has-error': \
+                    vm.formEditUser.username.$invalid &&\
+                    vm.formEditUser.username.$dirty }")
+            +inputUserUsername({
+                strChangeEvent: 'vm.testAvailability(\'username\')',
+            })
+        fieldset
+            +statusFields({
+                "name" : "username",
+                "class": "alert alert",
+            })
+        
+        .vmargin-1rem
+        h5 Email
+        fieldset(data-ng-class="{ 'has-error': \
+                    vm.formEditUser.email.$invalid &&\
+                    vm.formEditUser.email.$dirty }")
+            +inputUserEmail({
+                strChangeEvent: 'vm.testAvailability(\'email\')',
+            })
+        fieldset
+            +statusFields({
+                "name" : "email",
+                "class": "alert alert",
+            })
+
+        .vmargin-1rem
+        h5 Password
+        fieldset.horizontal(data-ng-class="{ 'has-error': \
+                    vm.formEditUser.passwordNew.$invalid &&\
+                    vm.formEditUser.passwordNew.$dirty }")
+            +inputUserPasswordAdmin
+        fieldset.right
+            a.btn.btn-default(data-ng-click="vm.generatePassword()")
+                |Generate random password
+        hr
+        
+        fieldset.right
+            +formButtons(isUserNew)

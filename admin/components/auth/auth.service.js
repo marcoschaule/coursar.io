@@ -31,6 +31,7 @@ function Service(CioComService) {
 
     var _strUrlSignIn       = '/admin/sign-in';
     var _strUrlTestSignedIn = '/admin/is-signed-in';
+    var _strUrlIsAvailable  = '/is-available';
 
     // *****************************************************************************
     // Public variables
@@ -42,8 +43,9 @@ function Service(CioComService) {
     // Service function linking
     // *****************************************************************************
 
-    service.signIn       = signIn;
-    service.testSignedIn = testSignedIn;
+    service.signIn           = signIn;
+    service.testSignedIn     = testSignedIn;
+    service.testAvailability = testAvailability;
 
     // *****************************************************************************
     // Service function definitions
@@ -99,6 +101,28 @@ function Service(CioComService) {
             service.isSignedIn = true;
             return callback(null, true);
         });
+    }
+
+    // *****************************************************************************
+
+    /**
+     * Service function to test if username or email is available.
+     * @public
+     * 
+     * @param {String}   strWhich  string of either "username" or "email"
+     * @param {Object}   objData   object of user data
+     * @param {Function} callback  function for callback
+     */
+    function testAvailability(strWhich, objData, callback) {
+        callback = 'function' === typeof callback && callback || function(){};
+
+        var objRequest = {
+            id       : 'is-available-' + strWhich,
+            url      : _strUrlIsAvailable,
+            data     : objData,
+            isTimeout: true,
+        };
+        return CioComService.put(objRequest, callback);
     }
 
     // *****************************************************************************

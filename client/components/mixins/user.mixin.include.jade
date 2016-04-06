@@ -1,4 +1,86 @@
+//- ****************************************************************************
+//- Includes and definitions
+//- ****************************************************************************
+
 include form.mixin.include.jade
+
+//- ****************************************************************************
+//- Mixins
+//- ****************************************************************************
+
+mixin statusFields(objOptions)
+    
+    //- if username or email has not been changed, yet
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-info",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'pristine'",
+    })
+        i.fa.fa-times
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.PleaseEnter' | translate }}
+    
+    //- if username or email request is pending
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-info",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'pending'",
+    })
+        i.fa.fa-spinner.fa-spin
+        |&nbsp;{{ 'auth.CheckingAvailability' | translate }}...
+    
+    //- if username or email is available
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-success",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'available'",
+    })
+        i.fa.fa-check
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsAvailable' | translate }}
+    
+    //- if username or email is not available
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'notAvailable'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsNotAvailable' | translate }}
+
+    //- if username or email are too short
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'tooShort'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsTooShort' | translate }}
+    
+    //- if username or email are too long
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'tooLong'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsTooLong' | translate }}
+    
+    //- if username or email are required
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'required'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.ThisFieldIsRequired' | translate }}
+    
+    //- if username or email are invalid
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'invalid'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsNotValid' | translate }}
+    
+    //- if username or email are invalid
+    div&attributes({
+        "class"     : (objOptions.class || "text") + "-danger",
+        "data-ng-if": "vm.states." + objOptions.name + " === 'error'",
+    })
+        i.fa.fa-ban
+        |&nbsp;{{ 'auth.message.ErrorGeneral' | translate }}
 
 //- ****************************************************************************
 
@@ -132,27 +214,33 @@ mixin inputUserAddress
 
 //- ****************************************************************************
 
-mixin inputUserUsername
+mixin inputUserUsername(objOptions)
+    - objOptions                = objOptions                || {};
+    - objOptions.strModel       = objOptions.strModel       || "vm.modelUser.username";
+    - objOptions.strChangeEvent = objOptions.strChangeEvent || "vm.isAvailable('username')";
     +inputText({
         "id"                         : "account-username",
         "label"                      : "Username",
         "name"                       : "username",
-        "data-ng-model"              : "vm.modelUser.username",
-        "data-cio-input-change-event": "vm.isAvailable('username')",
         "data-ng-required"           : "true",
+        "data-ng-model"              : objOptions.strModel,
+        "data-cio-input-change-event": objOptions.strChangeEvent,
         "isLabelHidden"              : true
     })
 
 //- ****************************************************************************
 
-mixin inputUserEmail
-    +inputText({
+mixin inputUserEmail(objOptions)
+    - objOptions                = objOptions                || {};
+    - objOptions.strModel       = objOptions.strModel       || "vm.modelUser.email";
+    - objOptions.strChangeEvent = objOptions.strChangeEvent || "vm.isAvailable('email')"
+    +inputEmail({
         "id"                         : "account-email",
         "label"                      : "Email",
         "name"                       : "email",
-        "data-ng-model"              : "vm.modelUser.email",
-        "data-cio-input-change-event": "vm.isAvailable('email')",
         "data-ng-required"           : "true",
+        "data-ng-model"              : objOptions.strModel,
+        "data-cio-input-change-event": objOptions.strChangeEvent,
         "isLabelHidden"              : true
     })
 

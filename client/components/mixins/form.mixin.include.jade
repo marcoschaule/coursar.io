@@ -1,79 +1,3 @@
-mixin statusFields(objOptions)
-    
-    //- if username or email has not been changed, yet
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-muted",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'pristine'",
-    })
-        i.fa.fa-times
-        |&nbsp;{{ 'auth.message.#{objOptions.name}.PleaseEnter' | translate }}
-    
-    //- if username or email request is pending
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-muted",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'pending'",
-    })
-        i.fa.fa-spinner.fa-spin
-        |&nbsp;{{ 'auth.CheckingAvailability' | translate }}...
-    
-    //- if username or email is available
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-success",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'available'",
-    })
-        i.fa.fa-check
-        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsAvailable' | translate }}
-    
-    //- if username or email is not available
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-danger",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'notAvailable'",
-    })
-        i.fa.fa-ban
-        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsNotAvailable' | translate }}
-
-    //- if username or email are too short
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-danger",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'tooShort'",
-    })
-        i.fa.fa-ban
-        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsTooShort' | translate }}
-    
-    //- if username or email are too long
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-danger",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'tooLong'",
-    })
-        i.fa.fa-ban
-        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsTooLong' | translate }}
-    
-    //- if username or email are required
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-danger",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'required'",
-    })
-        i.fa.fa-ban
-        |&nbsp;{{ 'auth.message.ThisFieldIsRequired' | translate }}
-    
-    //- if username or email are invalid
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-danger",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'invalid'",
-    })
-        i.fa.fa-ban
-        |&nbsp;{{ 'auth.message.#{objOptions.name}.IsNotValid' | translate }}
-    
-    //- if username or email are invalid
-    div&attributes({
-        "class"     : (objOptions.class || "text") + "-danger",
-        "data-ng-if": "vm.states." + objOptions.name + " === 'error'",
-    })
-        i.fa.fa-ban
-        |&nbsp;{{ 'auth.message.ErrorGeneral' | translate }}
-
-//- ****************************************************************************
-
 mixin input(objOptions)
     - objOptions.placeholder = objOptions.label;
     - objOptions.alt         = objOptions.label;
@@ -88,6 +12,12 @@ mixin input(objOptions)
 
 mixin inputText(objOptions)
     - objOptions.type = 'text';
+    +input(objOptions)
+
+//- ****************************************************************************
+
+mixin inputEmail(objOptions)
+    - objOptions.type = 'email';
     +input(objOptions)
 
 //- ****************************************************************************

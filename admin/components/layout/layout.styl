@@ -1,8 +1,13 @@
 #view-common .header
     min-height 100px
 
-nav > a
-    display block
-nav > a.active
+nav li > a.active
     display block
     color red
+    text-decoration underline
+nav li
+    list-style-type none
+nav > ul
+    padding 0
+nav > ul > li > ul
+    padding-left 2rem

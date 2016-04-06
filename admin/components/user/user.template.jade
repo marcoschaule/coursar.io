@@ -1,18 +1,4 @@
-include ../../../client/components/mixins/user.mixin.include.jade
-
-//- ****************************************************************************
-
-mixin formButtons
-    a.btn.btn-default(
-            data-ng-click="vm.closeEditUser()") Cancel
-    |&nbsp;
-    a.btn.btn-primary(
-            data-ng-click="vm.updateUsers()",
-            data-ng-disabled="vm.formEditUser.$invalid") Save
-    |&nbsp;
-    a.btn.btn-primary(
-            data-ng-click="vm.updateUsers(true)",
-            data-ng-disabled="vm.formEditUser.$invalid") Return
+include user.mixins.include.jade
 
 //- ****************************************************************************
 
@@ -85,54 +71,5 @@ mixin formButtons
 //- ****************************************************************************
 
 .wrapper(data-ng-if="vm.flags.isEditMode")
-    h4 User edit
-    form(name="vm.formEditUser", data-ng-submit="vm.updateUsers()")
-
-        fieldset.right
-            +formButtons
-        
-        hr
-
-        h5 Name
-        fieldset.horizontal
-            +inputUserName
-
-        .vmargin-1rem
-        h5 Gender
-        fieldset
-            +inputUserGender
-
-        .vmargin-1rem
-        h5 Date of birth
-        fieldset(data-ng-class="{ 'has-error': \
-                vm.formEditUser.dateOfBirth.$invalid }")
-            +inputUserDateOfBirth
-        fieldset
-            .alert.alert-sm.alert-info Accepted formats: «MM/DD/YYYY» and «YYYY-MM-DD».
-
-        .vmargin-1rem
-        h5 Address
-        fieldset.horizontal
-            +inputUserAddress
-        
-        .vmargin-1rem
-        h5 Username
-        fieldset
-            +inputUserUsername
-        
-        .vmargin-1rem
-        h5 Email
-        fieldset
-            +inputUserEmail
-
-        .vmargin-1rem
-        h5 Password
-        fieldset.horizontal
-            +inputUserPasswordAdmin
-        fieldset.right
-            a.btn.btn-default(data-ng-click="vm.generatePassword()")
-                |Generate random password
-        hr
-        
-        fieldset.right
-            +formButtons
+    h4 Edit user
+    +formEditUser

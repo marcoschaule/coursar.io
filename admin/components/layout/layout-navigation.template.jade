@@ -1,12 +1,34 @@
 h4 Navigation
 nav
-    a(data-ui-sref="dashboard", data-ui-sref-active="active") Dashboard
-    a(data-ui-sref="structure", data-ui-sref-active="active") Structure
-    a(data-ui-sref="courses", data-ui-sref-active="active") Courses
-    a(data-ui-sref="lessons", data-ui-sref-active="active") Lessons
-    a(data-ui-sref="contents", data-ui-sref-active="active") Contents
-    a(data-ui-sref="achievements", data-ui-sref-active="active") Achievements
-    a(data-ui-sref="comments", data-ui-sref-active="active") Comments
-    a(data-ui-sref="users", data-ui-sref-active="active") Users
-    a(data-ui-sref="userNew", data-ui-sref-active="visible") &nbsp;&nbsp;&nbsp;New user
-    a(data-ui-sref="settings", data-ui-sref-active="active") Settings
+    ul
+        li
+            a(data-ui-sref="dashboard", data-ui-sref-active="active")
+                |Dashboard
+        li
+            a(data-ui-sref="structure", data-ui-sref-active="active")
+                |Structure
+        li
+            a(data-ui-sref="courses", data-ui-sref-active="active")
+                |Courses
+        li
+            a(data-ui-sref="lessons", data-ui-sref-active="active")
+                |Lessons
+        li
+            a(data-ui-sref="contents", data-ui-sref-active="active")
+                |Contents
+        li
+            a(data-ui-sref="achievements", data-ui-sref-active="active")
+                |Achievements
+        li
+            a(data-ui-sref="comments", data-ui-sref-active="active")
+                |Comments
+        li
+            a(data-ui-sref="users", data-ui-sref-active="active")
+                |Users
+            ul(data-ui-sref-active="visible")
+                li
+                    a(data-ui-sref="userNew", data-ui-sref-active="active")
+                        |New user
+        li
+            a(data-ui-sref="settings", data-ui-sref-active="active")
+                |Settings
