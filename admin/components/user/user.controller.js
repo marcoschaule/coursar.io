@@ -176,15 +176,15 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
      * @param {Boolean} isToBeAdmin  true if user is set to admin
      */
     function setAdmin(objUser, isToBeAdmin) {
-        return CioUserService.handleUserAction(
-                { _id: objUser._id, isToBeAdmin: isToBeAdmin },
-                'setAdmin', function(objErr, objResult) {
+        objUser.isAdmin = !objUser.isAdmin;
+        return CioUserService.handleUserAction(objUser,
+                'updateUser', function(objErr) {
             
             if (objErr) {
                 // do something
                 return;
             }
-            vm.arrUsers = objResult.arrUsers;
+            return;
         });
     }
 
@@ -286,7 +286,8 @@ function Controller($filter, $state, CioAuthService, CioUserService, CioUserPopu
                 // do something
                 return;
             }
-            return vm.arrUsers.push.apply(vm.arrUsers, objResult.arrUsers);
+            return readUsers();
+            // return vm.arrUsers.push.apply(vm.arrUsers, objResult.arrUsers);
         });
     }
 
