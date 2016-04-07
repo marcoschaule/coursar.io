@@ -1,47 +1,47 @@
 {
     "dependencies": {
         "angular": [
-            "https://code.angularjs.org/1.5.0-rc.0/angular.js",
-            "https://code.angularjs.org/1.5.0-rc.0/angular.min.js",
-            "https://code.angularjs.org/1.5.0-rc.0/angular.min.js.map"
+            { "file": "https://code.angularjs.org/1.5.0-rc.0/angular.js" },
+            { "file": "https://code.angularjs.org/1.5.0-rc.0/angular.min.js" },
+            { "file": "https://code.angularjs.org/1.5.0-rc.0/angular.min.js.map" }
         ],
         "angular-sanitize": [
-            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.js",
-            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js",
-            "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js.map"
+            { "file": "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.js" },
+            { "file": "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js" },
+            { "file": "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js.map" }
         ],
         "angular-ui": [
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.min.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.min.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.js",     "rename": "angular-ui-bootstrap-tpls.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.min.js", "rename": "angular-ui-bootstrap-tpls.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.js",          "rename": "angular-ui-bootstrap.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.min.js",      "rename": "angular-ui-bootstrap.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js" }
         ],
         "bootstrap": [
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css",
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css.map",
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css",
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css.map",
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js" }
         ],
         "angular-translate": [
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate.min.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js" }
         ],
         "font-awesome": [
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css.map",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/FontAwesome.otf",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.eot",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.svg",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.ttf",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.woff",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.woff2"
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/FontAwesome.otf" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.eot" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.svg" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.ttf" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.woff" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.woff2" }
         ]
     }
 }

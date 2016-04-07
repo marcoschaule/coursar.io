@@ -9,6 +9,7 @@ var flatten        = require('gulp-flatten');
 var runSequence    = require('run-sequence');
 var async          = require('async');
 var download       = require('gulp-download');
+var rename         = require('gulp-rename');
 
 var objVendor      = require('../client/vendor.json');
 var objVendorAdmin = require('../admin/vendor.json');
@@ -22,6 +23,18 @@ var objVendorAdmin = require('../admin/vendor.json');
  * user vendor build folder.
  */
 gulp.task('vendor', callback => runSequence(
+        'vendor-client',
+        'vendor-admin',
+        callback)
+);
+
+// *****************************************************************************
+
+/**
+ * Task to delete all client vendor files and then rebuild them in the
+ * user vendor build folder.
+ */
+gulp.task('vendor-client', callback => runSequence(
         'vendor:clean',
         'vendor:download',
         callback)
@@ -30,7 +43,7 @@ gulp.task('vendor', callback => runSequence(
 // *****************************************************************************
 
 /**
- * Task to delete all vendor files and then rebuild them in the
+ * Task to delete all admin vendor files and then rebuild them in the
  * user vendor build folder.
  */
 gulp.task('vendor-admin', callback => runSequence(
@@ -92,11 +105,18 @@ function _setupTaskVendorDownload(isAdmin) {
             if (!arrVendor || arrVendor.length <= 0 || !strFolder) {
                 return _callbackOuter();
             }
-            return async.each(arrVendor, function(strVendorUrl, _callbackInner) {
-                if (!strVendorUrl) {
+            return async.each(arrVendor, function(objVendor, _callbackInner) {
+                if (!objVendor || !objVendor.file) {
                     return _callbackInner();
                 }
-                return download(strVendorUrl)
+                var objStream = download(objVendor.file);
+
+                // rename if necessary                    
+                if (objVendor.rename) {
+                    objStream.pipe(rename(objVendor.rename));
+                }
+
+                return objStream
                     .pipe(gulp.dest(strDest + strFolder))
                     .on('end', _callbackInner);
 
