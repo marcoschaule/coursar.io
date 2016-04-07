@@ -32,6 +32,10 @@
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.js" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-translate/2.10.0/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js" }
         ],
+        "angular-confirm": [
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-confirm/1.2.3/angular-confirm.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-confirm/1.2.3/angular-confirm.min.js" }
+        ],
         "font-awesome": [
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css.map" },

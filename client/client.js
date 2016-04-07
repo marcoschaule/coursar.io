@@ -4,7 +4,7 @@
 // Modules
 // *****************************************************************************
 
-angular.module('cio-externals',   ['ui.router', 'pascalprecht.translate']);
+angular.module('cio-externals',   ['ui.router', 'ui.bootstrap', 'angular-confirm', 'pascalprecht.translate']);
 angular.module('cio-contants',    []);
 angular.module('cio-values',      []);
 angular.module('cio-templates',   []);

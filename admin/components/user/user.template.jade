@@ -57,6 +57,7 @@ include user.mixins.include.jade
                     |&nbsp;
                     a.btn.btn-sm.btn-danger(
                             data-ng-disabled="objUser.isAdmin",
+                            data-confirm="Are you sure you want to delete that user?",
                             data-ng-click="vm.deleteUser(objUser)")
                         i.fa.fa-trash
                     |&nbsp;
