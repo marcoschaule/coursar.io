@@ -77,26 +77,26 @@ app.disable('x-powered-by');
 // *****************************************************************************
 
 // Routers
-var commonRouter    = require('./components/common/common.routes.js').init(app, env);
-var authRouter      = require('./components/auth/auth.routes.js').init(app, env);
-var authAdminRouter = require('./components/auth/auth-admin.routes.js').init(app, env);
-var userRouter      = require('./components/user/user.routes.js').init(app, env);
-var userAdminRouter = require('./components/user/user-admin.routes.js').init(app, env);
+var commonRouter    = require('./components/common/common.routes.js');
+var authRouter      = require('./components/auth/auth.routes.js');
+var authAdminRouter = require('./components/auth/auth-admin.routes.js');
+var userRouter      = require('./components/user/user.routes.js');
+var userAdminRouter = require('./components/user/user-admin.routes.js');
 
 // public routes
-commonRouter.public();
-authRouter.public();
-authAdminRouter.public();
+commonRouter.public(app, env);
+authRouter.public(app);
+authAdminRouter.public(app);
 
 // private routes
-authRouter.authorize();
-authRouter.private();
-userRouter.private();
+authRouter.authorize(app);
+authRouter.private(app);
+userRouter.private(app);
 
 // admin routes
-authAdminRouter.authorize();
-authAdminRouter.private();
-userAdminRouter.private();
+authAdminRouter.authorize(app);
+authAdminRouter.private(app);
+userAdminRouter.private(app);
 
 // *****************************************************************************
 // Error handling

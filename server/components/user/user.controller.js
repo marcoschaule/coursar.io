@@ -7,6 +7,16 @@
 var UserService = require('./user.service.js');
 
 // *****************************************************************************
+// Exports
+// *****************************************************************************
+
+module.exports.createUser     = createUser;
+module.exports.readUser       = readUser;
+module.exports.updateUser     = updateUser;
+module.exports.deleteUser     = deleteUser;
+module.exports.updatePassword = updatePassword;
+
+// *****************************************************************************
 // Controller functions
 // *****************************************************************************
 
@@ -136,16 +146,6 @@ function updatePassword(req, res, next) {
 // *****************************************************************************
 // Helper functions
 // *****************************************************************************
-
-// *****************************************************************************
-// Exports
-// *****************************************************************************
-
-module.exports.createUser     = createUser;
-module.exports.readUser       = readUser;
-module.exports.updateUser     = updateUser;
-module.exports.deleteUser     = deleteUser;
-module.exports.updatePassword = updatePassword;
 
 // *****************************************************************************
 

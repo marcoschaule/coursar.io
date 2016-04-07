@@ -24,12 +24,7 @@ module.exports = CreateRouter;
  * @param {Object} objRoutes  object of the routes to be defined
  */
 function CreateRouter(objRoutes) {
-    var router = new Router(objRoutes);
-    return (objApp, strEnv) => {
-        router.app = objApp;
-        router.env = strEnv;
-        return router;
-    };
+    return new Router(objRoutes);
 }
 
 // *****************************************************************************
@@ -50,13 +45,17 @@ class Router {
      * @param {Object} objRoutes  object of the routes to be defined
      */
     constructor(objRoutes) {
-        this.app    = null;
-        this.env    = null;
-        this.routes = {
-            public   : objRoutes.public,
-            private  : objRoutes.private,
-            authorize: objRoutes.authorize,
-        };
+        this.routes = {};
+
+        if (objRoutes.public) {
+            this.routes.public = objRoutes.public;
+        }
+        if (objRoutes.private) {
+            this.routes.private = objRoutes.private;
+        }
+        if (objRoutes.authorize) {
+            this.routes.authorize = objRoutes.authorize;
+        }
     }
 
     // *************************************************************************
@@ -65,10 +64,11 @@ class Router {
      * Public Router method to setup the public routes.
      * 
      * @public
-     * @return {Object}  object of the Router object itself
+     * @param {Object} app  object of the Express application instance
+     * @return {Object}     object of the Router object itself
      */
-    public() {
-        this._route('public');
+    public(app) {
+        this._route('public', app);
         return this;
     }
 
@@ -78,10 +78,11 @@ class Router {
      * Public Router method to setup the private routes.
      * 
      * @public
-     * @return {Object}  object of the Router object itself
+     * @param {Object} app  object of the Express application instance
+     * @return {Object}     object of the Router object itself
      */
-    private() {
-        this._route('private');
+    private(app) {
+        this._route('private', app);
         return this;
     }
 
@@ -91,10 +92,11 @@ class Router {
      * Public Router method to setup the authorization.
      * 
      * @public
-     * @return {Object}  object of the Router object itself
+     * @param {Object} app  object of the Express application instance
+     * @return {Object}     object of the Router object itself
      */
-    authorize() {
-        this._authorize();
+    authorize(app) {
+        this._authorize(app);
         return this;
     }
 
@@ -103,12 +105,13 @@ class Router {
     // *************************************************************************
 
     /**
-     * Private Router method to set the routes for an defined environment and key.
+     * Private Router method to set the routes for a defined key.
      *
      * @private
      * @param {String} strKey  string of the kind of routes (public, private or authorize)
+     * @param {Object} app     object of the Express application instance
      */
-    _route(strKey) {
+    _route(strKey, app) {
         if (!this.routes[strKey]) {
             throw new Error(`The routes are not defined for the key ${strKey}!`);
         }
@@ -122,11 +125,12 @@ class Router {
             arrRoutes = objRoutes[strMethod];
 
             for (j = 0; j < arrRoutes.length; j += 1) {
-                arrRouteDefinitions = arrRoutes[0];
+                arrRouteDefinitions = arrRoutes[j];
                 if ('string' !== typeof arrRouteDefinitions[0]) {
                     throw new Error('Array of router definitions expects first element to be a string!');
                 }
-                this.app[strMethod].apply(this.app, arrRouteDefinitions);
+
+                app[strMethod].apply(app, arrRouteDefinitions);
             }
         }
     }
@@ -138,13 +142,13 @@ class Router {
      *
      * @private
      */
-    _authorize() {
+    _authorize(app) {
         if (!this.routes.authorize || !this.routes.authorize.length) {
             throw new Error('The routes are not defined for authorization!');
         }
 
         for (var i = 0; i < this.routes.authorize.length; i += 1) {
-            this.app.use(this.routes.authorize[i]);
+            app.use(this.routes.authorize[i]);
         }
     }
 }

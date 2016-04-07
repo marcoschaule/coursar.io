@@ -62,7 +62,7 @@ objRoutes.authorize = [
 // Exports
 // *****************************************************************************
 
-module.exports.init = CreateRouter(objRoutes);
+module.exports = CreateRouter(objRoutes);
 
 // *****************************************************************************
 

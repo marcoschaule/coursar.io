@@ -5,82 +5,48 @@
 // *****************************************************************************
 
 var AuthAdminCtrl = require('./auth-admin.controller.js');
-
-// local variables
-var _isInit = false;
-var _app, _env;
+var CreateRouter  = require('../../classes/router.class.js');
+var objRoutes     = {};
 
 // *****************************************************************************
-// Routes linking
+// Route definitions
 // *****************************************************************************
 
 /**
- * Router function to init the router.
- * 
- * @public
- * 
- * @param  {Object} app  object of express app
- * @param  {String} env  string of current app's environment
- * @return {Object}      object of setter functions
+ * Object of the public routes.
+ * @type {Object}
  */
-function init(app, env) {
-    _app    = app;
-    _env    = env;
-    _isInit = true;
-
-    return {
-        public   : setPublicRoutes,
-        private  : setPrivateRoutes,
-        authorize: setAuthorization,
-    };
-}
-
-// *****************************************************************************
+objRoutes.public = {
+    put: [
+        ['/admin/sign-in',     
+            AuthAdminCtrl.signIn],
+    ],
+};
 
 /**
- * Router function to set public routes.
- * 
- * @public
+ * Object of the private routes.
+ * @type {Object}
  */
-function setPublicRoutes() {
-
-    // PUT routes
-    _app.put('/admin/sign-in',     
-            AuthAdminCtrl.signIn);
-}
-
-// *****************************************************************************
+objRoutes.private = {
+    put: [
+        ['/admin/is-signed-in',
+            AuthAdminCtrl.isSignedIn],
+    ],
+};
 
 /**
- * Router function to set public routes.
- * 
- * @public
+ * Array of the authorization functions.
+ * @type {Array}
  */
-function setPrivateRoutes() {
-
-    // PUT routes
-    _app.put('/admin/is-signed-in',
-            AuthAdminCtrl.isSignedIn);
-}
-
-// *****************************************************************************
-
-/**
- * Router function to set authorization for all following routes.
- * 
- * @public
- */
-function setAuthorization() {
-
-    // authorization middleware to authorize all following routes
-    _app.use(AuthAdminCtrl.authorize);
-}
+objRoutes.authorize = [
+    AuthAdminCtrl.authorize
+];
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.init = init;
+module.exports = CreateRouter(objRoutes);
 
 // *****************************************************************************
 

@@ -5,6 +5,73 @@
 // *****************************************************************************
 
 var UserAdminCtrl = require('./user-admin.controller.js');
+var CreateRouter  = require('../../classes/router.class.js');
+var objRoutes     = {};
+
+// *****************************************************************************
+// Route definitions
+// *****************************************************************************
+
+/**
+ * Object of the private routes.
+ * @type {Object}
+ */
+objRoutes.private = {
+    put: [
+        ['/user-admin',
+            UserAdminCtrl.handleRequest],
+    ],
+};
+
+// *****************************************************************************
+// Exports
+// *****************************************************************************
+
+module.exports = CreateRouter(objRoutes);
+
+// *****************************************************************************
+
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(function() { 'use strict';
+
+// *****************************************************************************
+// Includes and definitions
+// *****************************************************************************
+
+var UserAdminCtrl = require('./user-admin.controller.js');
 
 // local variables
 var _isInit = false;
