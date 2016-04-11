@@ -18,6 +18,7 @@ require('./settings/auth.settings.js');
 require('./settings/errors.settings.js');
 require('./settings/paths.settings.js');
 require('./settings/captcha.settings.js');
+require('./settings/upload.settings.js');
 
 // setup errors by loading the library
 require('./libs/error.lib.js');
@@ -77,26 +78,28 @@ app.disable('x-powered-by');
 // *****************************************************************************
 
 // Routers
-var commonRouter    = require('./components/common/common.routes.js');
-var authRouter      = require('./components/auth/auth.routes.js');
-var authAdminRouter = require('./components/auth/auth-admin.routes.js');
-var userRouter      = require('./components/user/user.routes.js');
-var userAdminRouter = require('./components/user/user-admin.routes.js');
+var commonRoutes       = require('./components/common/common.routes.js');
+var authRoutes         = require('./components/auth/auth.routes.js');
+var authAdminRoutes    = require('./components/auth/auth-admin.routes.js');
+var userRoutes         = require('./components/user/user.routes.js');
+var userAdminRoutes    = require('./components/user/user-admin.routes.js');
+var contentAdminRoutes = require('./components/content/content.routes.js');
 
 // public routes
-commonRouter.public(app, env);
-authRouter.public(app);
-authAdminRouter.public(app);
+commonRoutes.public(app, env);
+authRoutes.public(app);
+authAdminRoutes.public(app);
 
 // private routes
-authRouter.authorize(app);
-authRouter.private(app);
-userRouter.private(app);
+authRoutes.authorize(app);
+authRoutes.private(app);
+userRoutes.private(app);
 
 // admin routes
-authAdminRouter.authorize(app);
-authAdminRouter.private(app);
-userAdminRouter.private(app);
+authAdminRoutes.authorize(app);
+authAdminRoutes.private(app);
+userAdminRoutes.private(app);
+contentAdminRoutes.private(app);
 
 // *****************************************************************************
 // Error handling

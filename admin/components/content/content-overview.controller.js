@@ -22,48 +22,68 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller($document, Upload) {
+function Controller($window, $timeout, $document, Upload) {
     var vm = this;
 
     // *****************************************************************************
     // Private variables
     // *****************************************************************************
 
+    var _urlFileCreate = '/admin/content/create';
+
     // *****************************************************************************
     // Public variables
     // *****************************************************************************
+
+    vm.modelContent = {
+        title: 'Content Title',
+        name : 'content-name',
+        text : 'Lorem ipsum Eu dolore aliqua et laborum labore nostrud consequat proident laborum deserunt sint nisi Excepteur cillum proident id est sit cillum quis eiusmod qui sunt veniam sed adipisicing officia tempor commodo anim nisi sunt voluptate Excepteur minim non elit est ut non Excepteur deserunt ex sed ut consectetur aute laborum consectetur veniam reprehenderit commodo commodo anim ea ut sit veniam voluptate ullamco laborum laboris est magna irure incididunt deserunt adipisicing pariatur veniam id reprehenderit aliquip laboris ad deserunt anim dolor cillum in labore dolore minim nostrud laboris amet nisi laborum id anim fugiat cupidatat nisi enim aute aliqua laborum aliquip officia quis sit fugiat est ad proident ea laboris commodo voluptate magna non nostrud in exercitation sed exercitation laboris pariatur dolore velit sint enim incididunt cupidatat voluptate veniam do sunt occaecat nisi pariatur anim aliquip in qui ea do nulla consequat laboris ullamco culpa sint in esse consequat in minim elit nulla proident sunt irure laboris ut aute occaecat irure in incididunt sunt anim fugiat aliquip Duis sint est.',
+    };
 
     // *****************************************************************************
     // Controller function linking
     // *****************************************************************************
 
-    vm.createContent      = createContent;
-    vm.removeFileFromList = removeFileFromList;
+    vm.createContent    = createContent;
+    vm.removeMediaFile  = removeMediaFile;
+    vm.removeImageFiles = removeImageFiles;
 
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
 
+    /**
+     * Controller function to create a content.
+     *
+     * @public
+     */
     function createContent() {
         var objData = {
             title     : vm.modelContent.title,
             name      : vm.modelContent.name,
             text      : vm.modelContent.text,
+            mediaFile : vm.modelContent.mediaFile,
             imageFiles: vm.modelContent.imageFiles,
         };
 
         var objUpload = {
-            url : 'upload/url',
+            url : _urlFileCreate,
             data: objData,
+            method: 'PUT',
+            headers: { 'X-Access-Token': $window.localStorage.accessToken },
+            arrayKey: '',
         };
 
         return Upload.upload(objUpload).then(function (resp) {
-            console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+            console.log('Success! File uploaded.');
+            console.log(resp);
         }, function (resp) {
             console.log('Error status: ' + resp.status);
-        }, function (evt) {
-            console.log('progress: ' + parseInt(100.0 * evt.loaded / evt.total) + '% ' + evt.config.data.file.name);
         });
+        // }, function (evt) {
+        //     console.log('progress: ' + parseInt(100.0 * evt.loaded / evt.total) + '% ' + evt.config.data.file.name);
+        // });
     }
 
     // *****************************************************************************
@@ -75,10 +95,10 @@ function Controller($document, Upload) {
      * @param {Object|String} mixFileToRemove  object of the file to be removed
      *                                         or string "all" to remove all
      */
-    function removeFileFromList(mixFileToRemove) {
-        var i, indexToRemove;
+    function removeImageFiles(mixFileToRemove) {
+        var i;
 
-        if (!vm.modelContent.imageFiles.length || vm.modelContent.imageFiles.length <= 0) {
+        if (!vm.modelContent.imageFiles.length || vm.modelContent.imageFiles.length <= 0) {
             return;
         }
         if ('all' === mixFileToRemove) {
@@ -94,6 +114,17 @@ function Controller($document, Upload) {
     }
 
     // *****************************************************************************
+
+    /**
+     * Controller function to remove the media file.
+     *
+     * @public
+     */
+    function removeMediaFile() {
+        vm.modelContent.mediaFile = null;
+    }
+
+    // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
 
@@ -104,12 +135,32 @@ function Controller($document, Upload) {
      */
     function _setupCodeMirror() {
         var elContentText = $document[0].getElementById('content-text');
-        var myCodeMirror  = CodeMirror(function(elToReplace) {
+        var isChanging    = false;
+        var objOptions    = { };
+        var timeoutWait;
+
+        var objEditor  = CodeMirror(function(elToReplace) {
             elContentText.parentNode.replaceChild(elToReplace, elContentText);
         }, {
             mode       : 'markdown',
+            value      : vm.modelContent.text,
             lineNumbers: true,
         });
+        objEditor.on('change', _resize);
+
+        function _resize(objCodeMirrorInstance, eventChange) {
+            if (isChanging) {
+                return;
+            }
+            clearTimeout(timeoutWait);
+            
+            timeoutWait = setTimeout(function() {
+                isChanging = true;
+                objCodeMirrorInstance.wrapParagraphsInRange(
+                        eventChange.from, CodeMirror.changeEnd(eventChange), objOptions);
+                isChanging = false;
+            }, 200);
+        }
 
     } _setupCodeMirror();
 

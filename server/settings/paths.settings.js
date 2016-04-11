@@ -10,65 +10,62 @@ var path = require('path');
 // Settings object
 // *****************************************************************************
 
+if (!global.paths) {
+    global.paths = {};
+}
 if (!global.settings) {
     global.settings = {};
 }
-settings.paths = { settings: {} };
+global.paths          = { settings: {} };
+global.settings.paths = global.paths;
 
+// *****************************************************************************
+// Basic paths
 // *****************************************************************************
 
 /**
- * Basic server directory path including all aliases.
+ * Basic server path.
  * @type {String}
  */
 settings.paths.basepath = path.join(process.cwd(), 'server');
-settings.paths.base     = settings.paths.basepath;
-settings.paths.server   = settings.paths.basepath;
-
-// *****************************************************************************
 
 /**
- * General settings path.
+ * Basic classes path.
  * @type {String}
  */
-settings.paths.general = path.join(settings.paths.basepath, 'settings', 'general.settings.js');
-
-// *****************************************************************************
+paths.classes = path.join(paths.basepath, 'classes');
 
 /**
- * Database settings path.
+ * Basic settings path.
  * @type {String}
  */
-settings.paths.database = path.join(settings.paths.basepath, 'settings', 'database.settings.js');
-settings.paths.db       = settings.paths.database;
-
-// *****************************************************************************
+paths.settings = path.join(paths.basepath, 'settings');
 
 /**
- * Errors settings path.
+ * Basic libraries path.
  * @type {String}
  */
-settings.paths.errors = path.join(settings.paths.basepath, 'settings', 'errors.settings.js');
-
-// *****************************************************************************
+paths.libs = path.join(paths.basepath, 'libs');
 
 /**
- * Paths settings path.
+ * Basic components path.
  * @type {String}
  */
-settings.paths.paths = path.join(settings.paths.basepath, 'settings', 'paths.settings.js');
-
-// *****************************************************************************
+paths.components = path.join(paths.basepath, 'components');
 
 /**
- * Authentication settings path.
+ * Basic templates path.
  * @type {String}
  */
-settings.paths.auth = path.join(settings.paths.basepath, 'settings', 'auth.settings.js');
+paths.templates = path.join(paths.basepath, 'templates');
 
 // *****************************************************************************
-// Exports
+// Aliases
 // *****************************************************************************
+
+// Basepath aliases
+settings.paths.base   = settings.paths.basepath;
+settings.paths.server = settings.paths.basepath;
 
 // *****************************************************************************
 

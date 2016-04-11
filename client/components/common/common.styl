@@ -12,7 +12,12 @@ fieldset
 fieldset:first-child
     margin-top 0
 label
+    display block
     font-weight normal
+label.border-bottom
+    border-bottom 1px solid #ddd
+    margin-bottom .5rem
+    padding-bottom .25rem
 a, *[data-ng-click]
     cursor pointer
 
@@ -51,6 +56,8 @@ hr
     font-size .5rem
 
 // colors
+.white
+    color white
 .red
     color red
 .blue
@@ -59,6 +66,8 @@ hr
     color green
 .gray
     color gray
+.black
+    color black
 
 // display and position
 .inline
@@ -231,6 +240,30 @@ hr
     height 28px
     width 28px
     margin -14px 0 0 -14px
+
+// *****************************************************************************
+// Media
+// *****************************************************************************
+
+.video-placeholder
+    background-color black
+    border 1px solid #333
+    border-radius 6px
+    cursor pointer
+    margin 1rem 0
+    position relative
+    text-align center
+    width 100%
+.video-placeholder > i
+    line-height 15rem
+    margin-top 3rem
+    color rgba(255,255,255,.2)
+.video-placeholder > p
+    background-color rgba(255,255,255,.2)
+    color red
+    padding .5rem 0
+    margin 0 1rem 1rem 1rem
+    text-align center !important
 
 // *****************************************************************************
 // Chrome hacks

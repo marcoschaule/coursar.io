@@ -65,12 +65,15 @@
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.min.css.map" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.min.js" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.min.js.map" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.js" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.min.js" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.min.js.map" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.js" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.min.js" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.min.js.map" }
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.js",           "rename": "codemirror-markdown.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.min.js",       "rename": "codemirror-markdown.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.min.js.map",   "rename": "codemirror-markdown.min.js.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.js",         "rename": "codemirror-markdown-fold.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.min.js",     "rename": "codemirror-markdown-fold.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.min.js.map", "rename": "codemirror-markdown-fold.min.js.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/wrap/hardwrap.js",              "rename": "codemirror-hardwrap.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/wrap/hardwrap.min.js",          "rename": "codemirror-hardwrap.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/wrap/hardwrap.min.js.map",      "rename": "codemirror-hardwrap.min.js.map" }
         ]
     }
 }
