@@ -17,7 +17,7 @@
 
 // includes
 var mongoose           = require('mongoose');
-var ContentCommon      = require('./content-common.resource.js');
+var objResourceCommon  = require('./content.resource.js');
 var Schema             = mongoose.Schema;
 var Url                = mongoose.SchemaTypes.Url;
 
@@ -29,13 +29,11 @@ var _strCollectionName = 'contents-learning-basic';
 // Resource definition
 // *****************************************************************************
 
-var objResource = ContentCommon.extendWith({
+var objResource = objResourceCommon.extendWith({
     text     : { trim: true, type: String },
     urlVideo : { trim: true, type: Url },
     urlAudio : { trim: true, type: Url },
 });
-
-console.log(">>> Debug ====================; objResource:", objResource, '\n\n');
 
 // *****************************************************************************
 // Schema definition

@@ -36,6 +36,17 @@
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-confirm/1.2.3/angular-confirm.js" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-confirm/1.2.3/angular-confirm.min.js" }
         ],
+        "angular-file-upload": [
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/FileAPI.flash.swf",          "rename": "angular-file-upload-file-api.flash.swf" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/FileAPI.js",                 "rename": "angular-file-upload-file-api.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/FileAPI.min.js",             "rename": "angular-file-upload-file-api.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload-all.js",      "rename": "angular-file-upload-all.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload-all.min.js",  "rename": "angular-file-upload-all.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload-shim.js",     "rename": "angular-file-upload-shim.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload-shim.min.js", "rename": "angular-file-upload-shim.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload.js",          "rename": "angular-file-upload.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload.min.js",      "rename": "angular-file-upload.min.js" }
+        ],
         "font-awesome": [
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css.map" },
@@ -46,6 +57,20 @@
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.ttf" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.woff" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/fonts/fontawesome-webfont.woff2" }
+        ],
+        "codemirror": [
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.css" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.min.css" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.min.css.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/codemirror.min.js.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/mode/markdown/markdown.min.js.map" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.4/addon/fold/markdown-fold.min.js.map" }
         ]
     }
 }

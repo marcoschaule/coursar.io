@@ -1,0 +1,103 @@
+//- ****************************************************************************
+//- Mixins
+//- ****************************************************************************
+
+mixin tableFilesList(arrFiles)
+    div(data-ng-if="#{arrFiles}.length > 0")
+        table.table.table-striped
+            tbody
+                tr(data-ng-repeat="objFile in #{arrFiles}")
+                    td.left  {{ objFile.name }}
+                    td(width="15%").left
+                        i.text-danger.fa.fa-times
+                        |&nbsp;not uploaded yet
+                    td(width="5%").right: a.btn.btn-xs.btn-danger(
+                            data-ng-click="vm.removeFileFromList(objFile)")
+                        i.fa.fa-trash
+        .right
+            a.btn.btn-danger(data-ng-click="vm.removeFileFromList('all')") Remove all
+
+//- ****************************************************************************
+//- Template
+//- ****************************************************************************
+
+.wrapper
+    h4 Content overview
+    form(name="vm.formContentNew",
+            data-ng-submit="vm.createContent()")
+
+        fieldset.form-group.margin-top-2rem
+            label(for="content-title") Title:
+            input.form-control(id="content-title",
+                    type="text",
+                    name="contentTitle",
+                    alt="Content title to be used to name the content",
+                    placeholder="Title",
+                    data-ng-model="vm.modelContent.title")
+
+        fieldset.form-group
+            label(for="content-name") Name:
+            input.form-control(id="content-name",
+                    type="text",
+                    name="contentName",
+                    alt="Content name to be used to identify the content",
+                    placeholder="Name",
+                    data-ng-model="vm.modelContent.name")
+
+        hr
+
+        fieldset.form-group.margin-top-2rem
+            label(for="content-media-file") Media file (video or audio):
+            .file-upload-drop-box.vpadding-2rem(
+                    name="mediaFile",
+                    accept="image/*",
+                    data-ng-model="vm.modelContent.mediaFile",
+                    data-ngf-select="",
+                    data-ngf-drop="",
+                    data-ngf-drag-over-class="'dragover'",
+                    data-ngf-multiple="false",
+                    data-ngf-pattern="'*'")
+                div Drop files here or click to load files
+                div
+                    br
+                    i.fa.fa-5x.fa-file-video-o
+                    span.xl &nbsp;/&nbsp;
+                    i.fa.fa-5x.fa-file-audio-o
+
+        fieldset.form-group.margin-top-2rem
+            label(for="content-file") Text:
+            textarea.code-mirror.form-control(
+                    id="content-text",
+                    name="contentText",
+                    type="text",
+                    rows="12",
+                    alt="Content text as the basic content",
+                    data-ng-model="vm.modelContent.text")
+        
+        fieldset.form-group.margin-top-2rem
+            label(for="content-image-files") Images:
+            .file-upload-drop-box.vpadding-2rem(
+                    name="image-files",
+                    accept="image/*",
+                    data-ng-model="vm.modelContent.imageFiles",
+                    data-ngf-select="",
+                    data-ngf-drop="",
+                    data-ngf-drag-over-class="'dragover'",
+                    data-ngf-multiple="true",
+                    data-ngf-pattern="'image/*,application/pdf'")
+                div Drop image-files here or click to load image-files
+                div
+                    br
+                    i.fa.fa-5x.fa-file-picture-o
+                //- div
+                //-     i.fa.fa-5x.fa-file-video-o
+                //-     span.xl &nbsp;/&nbsp;
+                //-     i.fa.fa-5x.fa-file-audio-o
+            div.file-upload-not-available(
+                    data-ngf-no-file-drop="")
+                |File Drag/Drop is not supported for this browser
+            div.files-list
+                +tableFilesList('vm.modelContent.files')
+
+        fieldset.form-group.margin-top-2rem
+            button.btn.btn-primary Create

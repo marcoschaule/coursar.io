@@ -1,34 +1,72 @@
 h4 Navigation
 nav
     ul
-        li
-            a(data-ui-sref="dashboard", data-ui-sref-active="active")
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="dashboard")
                 |Dashboard
-        li
-            a(data-ui-sref="structure", data-ui-sref-active="active")
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="structure")
                 |Structure
-        li
-            a(data-ui-sref="courses", data-ui-sref-active="active")
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="courses")
                 |Courses
-        li
-            a(data-ui-sref="lessons", data-ui-sref-active="active")
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="lessons")
                 |Lessons
-        li
-            a(data-ui-sref="contents", data-ui-sref-active="active")
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="contents")
                 |Contents
-        li
-            a(data-ui-sref="achievements", data-ui-sref-active="active")
+            ul(data-ng-show="vm.ifStateIncludes('content')")
+                
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="contentLearningBasicNew")
+                        |New basic
+                
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="contentLearningPresentationNew")
+                        |New presentation
+                
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="contentLearningStreamNew")
+                        |New stream
+                
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="contentExeciseMultipleChoiceNew")
+                        |New multiple choice
+                
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="contentExerciseCompleteText")
+                        |New complete text
+                
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="contentExerciseCompleteSequence")
+                        |New complete sequence
+                
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="contentExercisePractical")
+                        |New practical
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="achievements")
                 |Achievements
-        li
-            a(data-ui-sref="comments", data-ui-sref-active="active")
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="comments")
                 |Comments
-        li
-            a(data-ui-sref="users", data-ui-sref-active="active")
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="users")
                 |Users
-            ul(data-ui-sref-active="visible")
-                li
-                    a(data-ui-sref="userNew", data-ui-sref-active="active")
+            ul(data-ng-show="vm.ifStateIncludes('user')")
+
+                li(data-ui-sref-active="active")
+                    a(data-ui-sref="userNew")
                         |New user
-        li
-            a(data-ui-sref="settings", data-ui-sref-active="active")
+        
+        li(data-ui-sref-active="active")
+            a(data-ui-sref="settings")
                 |Settings

@@ -22,7 +22,7 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller() {
+function Controller($state) {
     var vm = this;
 
     // *****************************************************************************
@@ -37,9 +37,22 @@ function Controller() {
     // Controller function linking
     // *****************************************************************************
 
+    vm.ifStateIncludes = ifStateIncludes;
+
     // *****************************************************************************
     // Controller function definitions
     // *****************************************************************************
+
+    /**
+     * Controller function to test if current state includes a given string.
+     *
+     * @public
+     * @param  {String}  strNeedle  string of the context to be included
+     * @return {Boolean}            true if context is included in state name
+     */
+    function ifStateIncludes(strNeedle) {
+        return $state.current.name.indexOf(strNeedle) >= 0;
+    }
 
     // *****************************************************************************
     // Helper function definitions

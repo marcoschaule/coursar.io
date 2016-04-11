@@ -38,6 +38,18 @@ hr
 // Common classes
 // *****************************************************************************
 
+// font-size
+.xl
+    font-size 5rem
+.lg
+    font-size 3rem
+.md
+    font-size 1rem
+.sm
+    font-size .7rem
+.xs
+    font-size .5rem
+
 // colors
 .red
     color red
@@ -82,20 +94,20 @@ hr
 
 // margins
 .vmargin-half-rem
-    height .5rem
-    width 100%
+    martin-top .25rem
+    margin-bottom .25rem
 .vmargin-1rem
-    height 1rem
-    width 100%
+    martin-top .5rem
+    margin-bottom .5rem
 .vmargin-2rem
-    height 2rem
-    width 100%
+    martin-top 1rem
+    margin-bottom 1rem
 .vmargin-3rem
-    height 3rem
-    width 100%
+    martin-top 1.5rem
+    margin-bottom 1.5rem
 .vmargin-4rem
-    height 4rem
-    width 100%
+    martin-top 2rem
+    margin-bottom 2rem
 
 // paddings
 .vpadding-half-rem
@@ -277,15 +289,21 @@ input.inactive
     // background-color rgba(200, 200, 200, .1)
 
 fieldset.horizontal,
-fieldset.horizontal > .hrow
+fieldset.horizontal > .hrow,
+fieldset.form-inline-full,
+fieldset.form-inline-full > .hrow
     overflow hidden
 fieldset.horizontal > label,
-fieldset.horizontal > .hrow > label
+fieldset.horizontal > .hrow > label,
+fieldset.form-inline-full > label,
+fieldset.form-inline-full > .hrow > label
     width 20%
     float left
     padding .45em 0
 fieldset.horizontal > input,
-fieldset.horizontal > .hrow > input
+fieldset.horizontal > .hrow > input,
+fieldset.form-inline-full > input,
+fieldset.form-inline-full > .hrow > input
     width 80%
     float left
 

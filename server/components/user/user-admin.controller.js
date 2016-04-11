@@ -4,7 +4,7 @@
 // Includes and definitions
 // *****************************************************************************
 
-var UserAdminController = require('./user-admin.service.js');
+var UserAdminService = require('./user-admin.service.js');
 
 // *****************************************************************************
 // Exports
@@ -35,13 +35,13 @@ function handleRequest(req, res, next) {
     var arrArgs      = [objData, __callback];
     var isSingular   = 's' !== strTarget.charAt(strTarget.length-1);
 
-    if (!strTarget || !UserAdminController[strTarget]) {
+    if (!strTarget || !UserAdminService[strTarget]) {
         return next();
     }
     if ('readUsers' === strTarget) {
         arrArgs.splice(1, 0, objModifiers);
     }
-    return UserAdminController[strTarget].apply(UserAdminController, arrArgs);
+    return UserAdminService[strTarget].apply(UserAdminService, arrArgs);
 
     function __callback(objErr, mixUsers) {
         if (objErr) {

@@ -21,7 +21,7 @@
 // includes
 var mongoose           = require('mongoose');
 var mongooseLib        = require('../../libs/mongoose.lib.js');
-var ResContentCommon   = require('../../libs/mongoose.lib.js');
+var objResourceCommon  = require('./content.resource.js');
 
 // definitions
 var Schema             = mongoose.Schema;
@@ -35,7 +35,7 @@ var _strCollectionName = 'contents-exercising-multiple-choice';
 // Resource definition
 // *****************************************************************************
 
-var objResource = ContentCommon.extendWith({
+var objResource = objResourceCommon.extendWith({
     type     : CioTypes.TypeExerciseMC,
     exercises: [{
         question: {

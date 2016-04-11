@@ -19,6 +19,7 @@
 // includes
 var mongoose           = require('mongoose');
 var mongooseLib        = require('../../libs/mongoose.lib.js');
+var objResourceCommon  = require('./content.resource.js');
 
 // definitions
 var Schema             = mongoose.Schema;
@@ -32,7 +33,7 @@ var _strCollectionName = 'contents-exercising-practical';
 // Resource definition
 // *****************************************************************************
 
-var objResource = ContentCommon.extendWith({
+var objResource = objResourceCommon.extendWith({
     exercise : {
         problem: {
             text  : CioTypes.String,
