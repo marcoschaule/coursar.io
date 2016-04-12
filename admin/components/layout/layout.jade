@@ -28,6 +28,15 @@ html(lang="en")
         .spinner(data-ng-if="flags.isProcessing")
             i.fa.fa-2x.fa-spinner.fa-spin
 
+        .spinner(data-ng-if="flags.isPending")
+            i.fa.fa-2x.fa-spinner.fa-spin
+            uib-progressbar.progress-striped.active(
+                    animate="false",
+                    data-max="100",
+                    data-value="pending.percent")
+                i {{ pending.percent }}%
+
+
         include layout-scripts-vendor.include.jade
         include layout-scripts-user.include.jade
     

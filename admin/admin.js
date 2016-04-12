@@ -108,6 +108,17 @@ _configTranslationProvider.$inject = ['$translateProvider'];
 function _runSpinner($rootScope) {
     $rootScope.flags = {
         isProcessing: false,
+        isPending   : false,
+    };
+    $rootScope.pending = {
+        max    : 0,
+        current: 0,
+        percent: 0,
+    };
+    $rootScope.pending.set = function(numCurrent, numMax) {
+        $rootScope.pending.max     = numMax;
+        $rootScope.pending.current = numCurrent;
+        $rootScope.pending.percent = (numCurrent/numMax * 100).toFixed(0);
     };
 }
 

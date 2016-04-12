@@ -46,6 +46,13 @@ gulp.task('clean:prod-admin', () => del(['./.build/prod-admin/**/*']));
 // *****************************************************************************
 
 /**
+ * Task to delete all files and folders in the "prod-admin" build folder.
+ */
+gulp.task('clean:uploads', () => del(['./.uploads/**/*']));
+
+// *****************************************************************************
+
+/**
  * Task to delete all files and folders in
  * the server folder.
  */

@@ -1,0 +1,125 @@
+//- ****************************************************************************
+//- Mixins
+//- ****************************************************************************
+
+mixin tableMediaFile()
+    table.table.table-striped: tbody
+        tr
+            td.left  {{ vm.modelContent.mediaFile.name }}
+            td(width="15%").left
+                i.text-danger.fa.fa-times
+                |&nbsp;not uploaded yet
+            td(width="5%").right: a.btn.btn-xs.btn-danger(
+                    data-ng-click="vm.removeMediaFile()")
+                i.fa.fa-trash
+
+mixin tableImageFiles
+    table.table.table-striped: tbody
+        tr(data-ng-repeat="objFile in vm.modelContent.imageFiles")
+            td.left  {{ objFile.name }}
+            td(width="15%").left
+                i.text-danger.fa.fa-times
+                |&nbsp;not uploaded yet
+            td(width="5%").right: a.btn.btn-xs.btn-danger(
+                    data-ng-click="vm.removeImageFiles(objFile)")
+                i.fa.fa-trash
+
+//- ****************************************************************************
+//- Template
+//- ****************************************************************************
+
+.wrapper
+    h4 Create new basic learning content
+    form(name="vm.formContentNew",
+            data-ng-submit="vm.createContent()")
+
+        fieldset.form-group.margin-top-2rem
+            label(for="content-title") Title:
+            input.form-control(id="content-title",
+                    type="text",
+                    name="contentTitle",
+                    alt="Content title to be used to name the content",
+                    placeholder="Title",
+                    data-ng-model="vm.modelContent.title")
+
+        fieldset.form-group
+            label(for="content-name") Name:
+            input.form-control(id="content-name",
+                    type="text",
+                    name="contentName",
+                    alt="Content name to be used to identify the content",
+                    placeholder="Name",
+                    data-ng-model="vm.modelContent.name")
+
+        hr
+
+        fieldset.form-group.margin-top-2rem
+            label.border-bottom(for="content-media-file")
+                |Video or audio files:
+            .left(data-ng-if="vm.modelContent.mediaFile.name")
+                .video-placeholder
+                    i.white.fa.fa-5x.fa-play-circle-o
+                    p.
+                        File <strong>{{ vm.modelContent.mediaFile.name }}</strong>
+                        not uploaded, yet.
+
+                //- video(
+                //-     ngf-src="vm.modelContent.mediaFile",
+                //-     ngf-background="vm.modelContent.mediaFile", 
+                //-     ngf-resize="{ width: 20, height: 20, quality: 0.9 }",
+                //-     ngf-no-object-url="false")
+            .left
+                a.btn.btn-default(
+                        id="content-media-file",
+                        name="mediaFile",
+                        accept="audio/*,video/*",
+                        data-ng-model="vm.modelContent.mediaFile",
+                        data-ngf-select="",
+                        data-ngf-pattern="'audio/*,video/*'")
+                    |Select video or audio file for upload
+                |&nbsp;
+                a.btn.btn-danger(
+                        data-ng-if="vm.modelContent.mediaFile", 
+                        data-ng-click="vm.removeMediaFile('all')")
+                    |Remove file from upload
+
+            .left(data-ng-if="vm.modelContent.mediaFile.url")
+                video(width="320", height="240", controls)
+                    source(type="video/mp4", src="{{vm.modelContent.mediaFile.url}}")
+                    |Your browser does not support the video tag.
+
+        fieldset.form-group.margin-top-2rem
+            label(for="content-text") Text:
+            textarea.code-mirror.form-control(
+                    id="content-text",
+                    name="contentText",
+                    type="text",
+                    rows="12",
+                    alt="Content text as the basic content",
+                    data-ng-model="vm.modelContent.text")
+        
+        fieldset.form-group.margin-top-2rem
+            label.border-bottom(for="content-image-files")
+                |Image files:
+            .file-upload-not-available(
+                    data-ngf-no-file-drop="")
+                |File Drag/Drop is not supported for this browser
+            .files-list(data-ng-if="vm.modelContent.imageFiles.length > 0")
+                +tableImageFiles
+            .left
+                a.btn.btn-default(
+                        id="content-image-files",
+                        accept="image/*",
+                        data-ng-model="vm.modelContent.imageFiles",
+                        data-ngf-select="",
+                        data-ngf-multiple="true",
+                        data-ngf-pattern="'image/*'")
+                    |Select image files for upload
+                |&nbsp;
+                a.btn.btn-danger(
+                        data-ng-if="vm.modelContent.imageFiles.length > 0", 
+                        data-ng-click="vm.removeImageFiles('all')")
+                    |Remove all files from upload
+
+        fieldset.form-group.margin-top-2rem
+            button.btn.btn-primary Create

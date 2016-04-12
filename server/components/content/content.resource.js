@@ -17,7 +17,7 @@
 
 // includes
 var _           = require('underscore');
-var mongooseLib = require('../../libs/mongoose.lib.js');
+var mongooseLib = require(paths.libs + '/mongoose.lib.js');
 
 // definitions
 var CioTypes    = mongooseLib.schemaTypes;
@@ -34,6 +34,7 @@ var objResource = {
     title    : CioTypes.String,
     name     : CioTypes.StringDashCase,
     state    : CioTypes.StatePublish,
+    type     : CioTypes.TypeContent,
 };
 
 // *****************************************************************************

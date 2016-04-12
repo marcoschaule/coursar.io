@@ -27,7 +27,7 @@ var CioTypes           = mongooseLib.schemaTypes;
 
 // private variables
 var _strModelName      = 'ContentExercisingPractical';
-var _strCollectionName = 'contents-exercising-practical';
+var _strCollectionName = 'contents';
 
 // *****************************************************************************
 // Resource definition

@@ -4,12 +4,8 @@
 // Includes and definitions
 // *****************************************************************************
 
-var multer       = require('multer');
 var ContentCtrl  = require('./content.controller.js');
 var CreateRouter = require('../../classes/router.class.js');
-var libUpload    = require(paths.libs + '/upload.lib.js');
-
-var uploadImages = multer(libUpload.settingsWithStorage('images'));
 var objRoutes    = {};
 
 // *****************************************************************************
@@ -23,13 +19,10 @@ var objRoutes    = {};
 objRoutes.private = {
     put: [
         ['/admin/content',
+            // upload files with each request, but only if available
+            ContentCtrl.uploadContent,
+            // handle creation, update and deletion of the content
             ContentCtrl.handleContent],
-        ['/admin/content/create',
-            uploadImages.fields([
-                { name: 'mediaFile',  maxCount: 1 },
-                { name: 'imageFiles' }
-            ]),
-            ContentCtrl.createContent],
     ],
 };
 

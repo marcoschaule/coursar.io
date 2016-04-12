@@ -1,5 +1,5 @@
 /**
- * @name        CioAuthService
+ * @name        CioComService
  * @author      Marc Stark <self@marcstark.com>
  * @file        This file is an AngularJS service.
  * 
@@ -22,12 +22,12 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Service($rootScope, $state, $window, $timeout, $http, $q) {
+function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
     var service = {};
 
-    // *****************************************************************************
+    // *************************************************************************
     // Private variables
-    // *****************************************************************************
+    // *************************************************************************
 
     var _numRepeatCounter  = 4;
     var _numRepeatPeriod   = 800; // pause period in milliseconds
@@ -35,26 +35,27 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
     var _objTimeouts       = {};
     var _objCancelers      = {};
 
-    // *****************************************************************************
+    // *************************************************************************
     // Public variables
-    // *****************************************************************************
+    // *************************************************************************
 
     $rootScope.flags = $rootScope.flags || {};
 
-    // *****************************************************************************
+    // *************************************************************************
     // Service function linking
-    // *****************************************************************************
+    // *************************************************************************
 
     service.get         = get;
     service.post        = post;
     service.put         = put;
     service.patch       = patch;
     service.remove      = remove;
+    service.upload      = upload;
     service.deleteToken = deleteToken;
 
-    // *****************************************************************************
+    // *************************************************************************
     // Service function definitions
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Service function to send a "GET" request to the server.
@@ -72,7 +73,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         return _prepareRequest('GET', objRequest, callback);
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Service function to send a "POST" request to the server.
@@ -91,7 +92,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         return _prepareRequest('POST', objRequest, callback);
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Service function to send a "PUT" request to the server.
@@ -110,7 +111,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         return _prepareRequest('PUT', objRequest, callback);
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Service function to send a "GET" request to the server.
@@ -129,7 +130,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         return _prepareRequest('PATCH', objRequest, callback);
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Service function to send a "DELETE" request to the server.
@@ -148,7 +149,55 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         return _prepareRequest('DELETE', objRequest, callback);
     }
 
-    // *****************************************************************************
+    // *************************************************************************
+
+    /**
+     * Service function to perform an upload request.
+     *
+     * @public
+     * @param {Object}   objRequest  object of the request
+     * @param {Function} callback    function for callback
+     */
+    function upload(objRequest, callback) {
+        $rootScope.flags.isPending = true;
+
+        objRequest.id       = objRequest.id;
+        objRequest.url      = objRequest.url;
+        objRequest.data     = objRequest.data     || {};
+        objRequest.method   = objRequest.method   || 'PUT';
+        objRequest.headers  = objRequest.headers  || {};
+        objRequest.arrayKey = '';
+
+        // extend header with tokens if they are available
+        _extendHeaders(objRequest.headers);
+
+        return Upload.upload(objRequest).then(
+            
+            // upload success callback
+            function _uploadSuccess(objResponse) {
+                // console.log(">>> Debug ====================; _uploadSuccess: objResponse:", objResponse, '\n\n');
+                $rootScope.flags.isPending = false;
+                return 'function' === typeof callback &&
+                        callback(objResponse);
+            },
+
+            // upload error callback
+            function _uploadError(objResponse) {
+                // console.log(">>> Debug ====================; _uploadError: objResponse:", objResponse, '\n\n');
+                $rootScope.flags.isPending = false;
+                return 'function' === typeof callback &&
+                        callback(null, objResponse);
+            },
+
+            // upload pending callback
+            function _uploadPending(objResponse) {
+                // console.log(">>> Debug ====================; _uploadPending: objResponse:", objResponse, '\n\n');
+                return 'function' === typeof callback &&
+                        callback(null, null, objResponse);
+            });
+    }
+
+    // *************************************************************************
 
     /**
      * Service function to delete a token from the local storage.
@@ -166,9 +215,9 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         return $window.localStorage.removeItem(strTokenName);
     }
 
-    // *****************************************************************************
+    // *************************************************************************
     // Helper function definitions
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Helper function to prepare for request by choosing between request
@@ -230,7 +279,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         } __sendRequest();
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Helper function to request the server. This function uses the "$http"
@@ -273,7 +322,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
             _requestCallback(objRequest, true, callback)); // true  = is error case
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Helper function to request with timeout the server.
@@ -303,7 +352,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         }, _numTimeoutDefault));
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Helper function to process request callbacks - in both success and error
@@ -346,7 +395,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         };
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Helper function to handle delivered tokens. If any token is send from
@@ -374,7 +423,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         }
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     /**
      * Helper function to extend the headers (object) with tokens if they
@@ -394,11 +443,11 @@ function Service($rootScope, $state, $window, $timeout, $http, $q) {
         return objHeaders;
     }
 
-    // *****************************************************************************
+    // *************************************************************************
 
     return service;
 
-    // *****************************************************************************
+    // *************************************************************************
 }
 
 // *****************************************************************************

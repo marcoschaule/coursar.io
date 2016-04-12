@@ -4,23 +4,14 @@
 // Includes and definitions
 // *****************************************************************************
 
-var mongoose = require('mongoose');
-var Schema   = mongoose.Schema;
-var ObjectId = mongoose.Schema.ObjectId;
-var Url      = mongoose.SchemaTypes.Url;
-
-// *****************************************************************************
-// Exports
-// *****************************************************************************
-
-module.exports.schemaTypes = defineSchemaTypes();
+var mongoose       = require('mongoose');
+var Schema         = mongoose.Schema;
+var ObjectId       = mongoose.Schema.ObjectId;
+var Url            = mongoose.SchemaTypes.Url;
+var objSchemaTypes = {};
 
 // *****************************************************************************
 // (Additional) Mongoose schema types
-// *****************************************************************************
-
-var objSchemaTypes = {};
-
 // *****************************************************************************
 
 // Flags
@@ -46,16 +37,14 @@ objSchemaTypes.StringCamelCase = { trim: true, type: String, validate: /[a-zA-Z]
 
 // states and types
 objSchemaTypes.StatePublish    = { type: String, default: 'draft', validate: /draft|published/ };
-objSchemaTypes.TypeExerciseMC  = { type: String, default: 'one', validate: /one|mixed/ };
-
+objSchemaTypes.TypeContent     = { type: String, default: 'basic', validate: /basic|presentation|stream|multipleChoice|completeText|completeSequence|practical/ };
+objSchemaTypes.TypeExerciseMC  = { type: String, default: 'one',   validate: /one|mixed/ };
 
 // *****************************************************************************
-// Library functions
+// Exports
 // *****************************************************************************
 
-function defineSchemaTypes() {
-    return objSchemaTypes;
-}
+module.exports.schemaTypes = objSchemaTypes;
 
 // *****************************************************************************
 

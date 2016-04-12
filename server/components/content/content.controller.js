@@ -8,63 +8,81 @@ var multer         = require('multer');
 var ContentService = require('./content.service.js');
 var libUpload      = require(paths.libs + '/upload.lib.js');
 
-var uploadMedia    = multer(libUpload.settingsWithStorage('media'));
 var uploadImages   = multer(libUpload.settingsWithStorage('images'));
+var objRoutes      = {};
+
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.createContent = createContent;
 module.exports.handleContent = handleContent;
+module.exports.uploadContent = uploadContent;
 
 // *****************************************************************************
 // Controller functions
 // *****************************************************************************
 
-function createContent(req, res, next) {
-    var objFileMedia   = req.file;
-    var arrFilesImages = req.files;
-    var objData        = req.body;
+function readContent(req, res, next) {
 
-    var objCreate = {
-        mediaFile     : req.file,
-        arrFilesImages: req.files,
-        data          : objData,
-    };
-
-    console.log(">>> Debug ====================; req.body:", req.body);
-    console.log(">>> Debug ====================; req.file:", req.file);
-    console.log(">>> Debug ====================; req.files:", req.files, '\n\n');
-    return res.status(200).json({});
 }
 
 // *****************************************************************************
 
+/**
+ * Controller function to handle the content request except for creation.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
 function handleContent(req, res, next) {
-    var strTarget    = req.body.target;
-    var objData      = req.body.data      || null;
-    var objModifiers = req.body.modifiers || {};
-    var arrArgs      = [objData, __callback];
-    var isSingular   = 's' !== strTarget.charAt(strTarget.length-1);
+    var strTarget     = req.body.target;
+    var objContent    = req.body.content     || null;
+    var objModifiers  = req.body.modifiers   || null;
 
-    if (!strTarget || !ContentService[strTarget]) {
-        return next(new Error('Target not defined in service!'));
-    }
-    if ('readUsers' === strTarget) {
-        arrArgs.splice(1, 0, objModifiers);
-    }
-    return UserAdminController[strTarget].apply(UserAdminController, arrArgs);
+    var isSingular    = (strTarget && 's' !== strTarget.charAt(strTarget.length-1));
+    var isReadRequest = (strTarget.indexOf('read') >= 0 && objModifiers);
 
-    function __callback(objErr, mixUsers) {
+    if (req.files.mediaFile && req.files.mediaFile.length > 0) {
+        objContent.mediaFile = req.files.mediaFile[0];
+    }
+    if (req.files.imageFiles && req.files.imageFiles.length > 0) {
+        objContent.imageFiles = req.files.imageFiles;
+    }
+
+    var arrArgs = [objContent, __callback];
+    isReadRequest && arrArgs.splice(1, 0, objModifiers);
+
+    return ContentService[strTarget].apply(ContentService, arrArgs);
+
+    function __callback(objErr, mixContent) {
         if (objErr) {
             return next(objErr);
         }
         if (isSingular) {
-            return res.status(200).json({ err: null, objUser: mixUsers });
+            return res.status(200).json({ err: null, objContent: mixContent });
         }
-        return res.status(200).json({ err: null, arrUsers: mixUsers });
+        return res.status(200).json({ err: null, arrContents: mixContent });
     }
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to upload content files send from client.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function uploadContent(req, res, next) {
+    return uploadImages.fields([
+        { name: 'mediaFile',  maxCount: 1 },
+        { name: 'imageFiles' }
+    ])(req, res, next);
 }
 
 // *****************************************************************************
