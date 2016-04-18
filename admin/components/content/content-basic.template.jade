@@ -5,7 +5,7 @@
 mixin tableMediaFile()
     table.table.table-striped: tbody
         tr
-            td.left  {{ vm.modelContent.mediaFile.name }}
+            td.left  {{ vm.modelContentNew.mediaFile.name }}
             td(width="15%").left
                 i.text-danger.fa.fa-times
                 |&nbsp;not uploaded yet
@@ -15,7 +15,7 @@ mixin tableMediaFile()
 
 mixin tableImageFiles
     table.table.table-striped: tbody
-        tr(data-ng-repeat="objFile in vm.modelContent.imageFiles")
+        tr(data-ng-repeat="objFile in vm.modelContentNew.imageFiles")
             td.left  {{ objFile.name }}
             td(width="15%").left
                 i.text-danger.fa.fa-times
@@ -40,7 +40,8 @@ mixin tableImageFiles
                     name="contentTitle",
                     alt="Content title to be used to name the content",
                     placeholder="Title",
-                    data-ng-model="vm.modelContent.title")
+                    data-ng-required="true",
+                    data-ng-model="vm.modelContentNew.title")
 
         fieldset.form-group
             label(for="content-name") Name:
@@ -49,43 +50,44 @@ mixin tableImageFiles
                     name="contentName",
                     alt="Content name to be used to identify the content",
                     placeholder="Name",
-                    data-ng-model="vm.modelContent.name")
+                    data-ng-required="true",
+                    data-ng-model="vm.modelContentNew.name")
 
         hr
 
         fieldset.form-group.margin-top-2rem
             label.border-bottom(for="content-media-file")
                 |Video or audio files:
-            .left(data-ng-if="vm.modelContent.mediaFile.name")
+            .left(data-ng-if="vm.modelContentNew.mediaFile.name")
                 .video-placeholder
                     i.white.fa.fa-5x.fa-play-circle-o
                     p.
-                        File <strong>{{ vm.modelContent.mediaFile.name }}</strong>
+                        File <strong>{{ vm.modelContentNew.mediaFile.name }}</strong>
                         not uploaded, yet.
 
                 //- video(
-                //-     ngf-src="vm.modelContent.mediaFile",
-                //-     ngf-background="vm.modelContent.mediaFile", 
-                //-     ngf-resize="{ width: 20, height: 20, quality: 0.9 }",
-                //-     ngf-no-object-url="false")
+                //-     data-ngf-src="vm.modelContentNew.mediaFile.filename",
+                //-     data-ngf-background="", 
+                //-     data-ngf-resize="{ width: 200, height: 200, quality: 0.9 }",
+                //-     data-ngf-no-object-url="false")
             .left
                 a.btn.btn-default(
                         id="content-media-file",
                         name="mediaFile",
                         accept="audio/*,video/*",
-                        data-ng-model="vm.modelContent.mediaFile",
+                        data-ng-model="vm.modelContentNew.mediaFile",
                         data-ngf-select="",
                         data-ngf-pattern="'audio/*,video/*'")
                     |Select video or audio file for upload
                 |&nbsp;
                 a.btn.btn-danger(
-                        data-ng-if="vm.modelContent.mediaFile", 
+                        data-ng-if="vm.modelContentNew.mediaFile", 
                         data-ng-click="vm.removeMediaFile('all')")
                     |Remove file from upload
 
-            .left(data-ng-if="vm.modelContent.mediaFile.url")
-                video(width="320", height="240", controls)
-                    source(type="video/mp4", src="{{vm.modelContent.mediaFile.url}}")
+            .left(data-ng-if="vm.modelContent.mediaFile.filename")
+                video(controls)
+                    source(type="video/mp4", src="{{ '/admin/content/file/' + vm.modelContentNew.mediaFile.filename }}")
                     |Your browser does not support the video tag.
 
         fieldset.form-group.margin-top-2rem
@@ -96,7 +98,7 @@ mixin tableImageFiles
                     type="text",
                     rows="12",
                     alt="Content text as the basic content",
-                    data-ng-model="vm.modelContent.text")
+                    data-ng-model="vm.modelContentNew.text")
         
         fieldset.form-group.margin-top-2rem
             label.border-bottom(for="content-image-files")
@@ -104,22 +106,24 @@ mixin tableImageFiles
             .file-upload-not-available(
                     data-ngf-no-file-drop="")
                 |File Drag/Drop is not supported for this browser
-            .files-list(data-ng-if="vm.modelContent.imageFiles.length > 0")
+            .files-list(data-ng-if="vm.modelContentNew.imageFiles.length > 0")
                 +tableImageFiles
             .left
                 a.btn.btn-default(
                         id="content-image-files",
                         accept="image/*",
-                        data-ng-model="vm.modelContent.imageFiles",
+                        data-ng-model="vm.modelContentNew.imageFiles",
                         data-ngf-select="",
                         data-ngf-multiple="true",
                         data-ngf-pattern="'image/*'")
                     |Select image files for upload
                 |&nbsp;
                 a.btn.btn-danger(
-                        data-ng-if="vm.modelContent.imageFiles.length > 0", 
+                        data-ng-if="vm.modelContentNew.imageFiles.length > 0", 
                         data-ng-click="vm.removeImageFiles('all')")
                     |Remove all files from upload
 
         fieldset.form-group.margin-top-2rem
-            button.btn.btn-primary Create
+            button.btn.btn-primary(
+                    data-ng-disabled="vm.formContentNew.$invalid")
+                |Create

@@ -7,43 +7,57 @@
 var multer         = require('multer');
 var ContentService = require('./content.service.js');
 var libUpload      = require(paths.libs + '/upload.lib.js');
-
 var uploadImages   = multer(libUpload.settingsWithStorage('images'));
-var objRoutes      = {};
-
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.handleContent = handleContent;
+module.exports.readContents  = readContents;
+module.exports.createContent = createOrUpdateContent;
+module.exports.updateContent = createOrUpdateContent;
 module.exports.uploadContent = uploadContent;
+module.exports.getFile       = getFile;
 
 // *****************************************************************************
 // Controller functions
 // *****************************************************************************
 
-function readContent(req, res, next) {
-
-}
-
-// *****************************************************************************
-
 /**
- * Controller function to handle the content request except for creation.
+ * Controller function to read contents.
  *
  * @public
  * @param {Object}   req   object of Express request
  * @param {Object}   res   object of Express response
  * @param {Function} next  function of callback for next middleware
  */
-function handleContent(req, res, next) {
-    var strTarget     = req.body.target;
-    var objContent    = req.body.content     || null;
-    var objModifiers  = req.body.modifiers   || null;
+function readContents(req, res, next) {
+    var arrContentIds = req.body.contentIds || null;
+    var objMidifiers  = req.body.modifiers  || null;
 
-    var isSingular    = (strTarget && 's' !== strTarget.charAt(strTarget.length-1));
-    var isReadRequest = (strTarget.indexOf('read') >= 0 && objModifiers);
+    return ContentService.readContents(req.session.user, arrContentIds,
+            objMidifiers, (objErr, arrContents) => {
+
+        if (objErr) {
+            return next(objErr);
+        }
+        return res.status(200).json({ err: null, contents: arrContents });
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to either create or update one content.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function createOrUpdateContent(req, res, next) {
+    var strTarget  = req.body.target || 'createContentBasic';
+    var objContent = req.body.content;
 
     if (req.files.mediaFile && req.files.mediaFile.length > 0) {
         objContent.mediaFile = req.files.mediaFile[0];
@@ -52,20 +66,14 @@ function handleContent(req, res, next) {
         objContent.imageFiles = req.files.imageFiles;
     }
 
-    var arrArgs = [objContent, __callback];
-    isReadRequest && arrArgs.splice(1, 0, objModifiers);
+    return ContentService[strTarget].call(ContentService, req.session.user,
+            objContent, (objErr, objContentFinal) => {
 
-    return ContentService[strTarget].apply(ContentService, arrArgs);
-
-    function __callback(objErr, mixContent) {
         if (objErr) {
             return next(objErr);
         }
-        if (isSingular) {
-            return res.status(200).json({ err: null, objContent: mixContent });
-        }
-        return res.status(200).json({ err: null, arrContents: mixContent });
-    }
+        return res.status(200).json({ err: null, content: objContentFinal });
+    });
 }
 
 // *****************************************************************************
@@ -84,6 +92,24 @@ function uploadContent(req, res, next) {
         { name: 'imageFiles' }
     ])(req, res, next);
 }
+
+// *****************************************************************************
+
+/**
+ * Controller function to get the file.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function getFile(req, res, next) {
+    console.log(">>> Debug ====================; req.params:", req.params, '\n\n');
+}
+
+// *****************************************************************************
+// Helper functions
+// *****************************************************************************
 
 // *****************************************************************************
 

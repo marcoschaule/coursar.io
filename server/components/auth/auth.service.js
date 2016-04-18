@@ -59,7 +59,7 @@ module.exports.isEmailAvailable      = isEmailAvailable;
 function signIn(objSignIn, objInfo, objSession, callback) {
     var regexUsername = new RegExp('^' + objSignIn.username + '$', 'i');
     var objUserReturn = {};
-    var objErrorReturn, strUserId;
+    var objErrorReturn, strUserId, objUserCurrent;
 
     return async.waterfall([
 
@@ -90,10 +90,14 @@ function signIn(objSignIn, objInfo, objSession, callback) {
             // get MongoDB user id
             strUserId = objUser._id.toString();
 
+            // create a current user object to use it application widely
+            objUserCurrent = { _id: strUserId, username: objUser.username, email: objUser.email };
+
             // this will be stored in redis
             objSession.userId       = strUserId;
             objSession.username     = objUser.username;
             objSession.email        = objUser.email;
+            objSession.user         = objUserCurrent;
             objSession.createdAt    = Date.now();
             objSession.updatedAt    = Date.now();
             objSession.sessionAge   = settings.auth.session.sessionAge;

@@ -29,8 +29,10 @@ function Service(CioComService) {
     // Private variables
     // *************************************************************************
 
-    var _strUrlContentCommon = '/admin/content';
-    var _strUrlContentUpload = '/admin/content/upload';
+    var _strUrlContentCreate = '/admin/content/create';
+    var _strUrlContentRead   = '/admin/content/read';
+    var _strUrlContentUpdate = '/admin/content/update';
+    var _strUrlContentDelete = '/admin/content/delete';
 
     // *************************************************************************
     // Public variables
@@ -57,7 +59,7 @@ function Service(CioComService) {
     function createContent(objRequest, callback) {
         objRequest.method = 'PUT';
         objRequest.id     = 'create-content';
-        objRequest.url    = _strUrlContentCommon;
+        objRequest.url    = _strUrlContentCreate;
         objRequest.data   = objRequest.data;
         return CioComService.upload(objRequest, callback);
     }
@@ -73,9 +75,14 @@ function Service(CioComService) {
      * @param {Function} callback    function for callback
      */
     function handleContent(objRequest, callback) {
-        objRequest.id     = objRequest.id || 'read-contents';
-        objRequest.url    = _strUrlContentCommon;
-        objRequest.data   = objRequest.data;
+        if (!callback && 'function' === typeof objRequest) {
+            callback   = objRequest;
+            objRequest = {};
+        }
+
+        objRequest.id     = objRequest.id   || 'read-contents';
+        objRequest.url    = objRequest.url  || _strUrlContentRead;
+        objRequest.data   = objRequest.data || {};
         return CioComService.put(objRequest, callback);
     }
 

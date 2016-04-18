@@ -175,23 +175,20 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
             
             // upload success callback
             function _uploadSuccess(objResponse) {
-                // console.log(">>> Debug ====================; _uploadSuccess: objResponse:", objResponse, '\n\n');
+                $rootScope.flags.isPending = false;
+                return 'function' === typeof callback &&
+                        callback(null, objResponse && objResponse.data || objResponse);
+            },
+
+            // upload error callback
+            function _uploadError(objResponse) {
                 $rootScope.flags.isPending = false;
                 return 'function' === typeof callback &&
                         callback(objResponse);
             },
 
-            // upload error callback
-            function _uploadError(objResponse) {
-                // console.log(">>> Debug ====================; _uploadError: objResponse:", objResponse, '\n\n');
-                $rootScope.flags.isPending = false;
-                return 'function' === typeof callback &&
-                        callback(null, objResponse);
-            },
-
             // upload pending callback
             function _uploadPending(objResponse) {
-                // console.log(">>> Debug ====================; _uploadPending: objResponse:", objResponse, '\n\n');
                 return 'function' === typeof callback &&
                         callback(null, null, objResponse);
             });

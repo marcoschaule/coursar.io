@@ -8,3 +8,25 @@
 
 .wrapper
     h4 Content overview
+    
+    table.table.table-striped
+        thead
+            tr
+                th.left  Title
+                th.left  Name
+                th.right Actions
+        tbody
+            tr(data-ng-repeat="objContent in vm.arrContents")
+                td.left  {{ objContent.title }}
+                td.left  {{ objContent.name }}
+                td.right
+                    a.btn.btn-sm.btn-primary(
+                            data-ui-sref="contents.basicEdit({ id: objContent._id })")
+                        i.fa.fa-pencil
+                    |&nbsp;
+                    a.btn.btn-sm.btn-primary
+                        i.fa.fa-check(data-ng-show="'published' === objContent.state")
+                        i.fa.fa-times(data-ng-show="'draft'     === objContent.state")
+                    |&nbsp;
+                    a.btn.btn-sm.btn-danger
+                        i.fa.fa-trash

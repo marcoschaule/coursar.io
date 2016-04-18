@@ -14,8 +14,26 @@ setError(`500|ERRORS.CONTENT.GENERAL|
 setError(`500|ERRORS.CONTENT.CREATE.GENERAL|
     Content "create": an unexpected error occurred.`);
 
-setError(`500|ERRORS.CONTENT.CREATE.SAVE|
-    Content "create": error while saving the data.`);
+// *****************************************************************************
+// Content "read" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.CONTENT.READ.GENERAL|
+    Content "read": an unexpected error occurred.`);
+
+// *****************************************************************************
+// Content "update" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.CONTENT.UPDATE.GENERAL|
+    Content "update": an unexpected error occurred.`);
+
+// *****************************************************************************
+// Content "delete" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.CONTENT.DELETE.GENERAL|
+    Content "delete": an unexpected error occurred.`);
 
 // *****************************************************************************
 

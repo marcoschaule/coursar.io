@@ -22,7 +22,7 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller($window, $timeout, $document, Upload) {
+function Controller(CioContentService) {
     var vm = this;
 
     // *****************************************************************************
@@ -32,6 +32,8 @@ function Controller($window, $timeout, $document, Upload) {
     // *****************************************************************************
     // Public variables
     // *****************************************************************************
+
+    vm.arrContents = [];
 
     // *****************************************************************************
     // Controller function linking
@@ -44,6 +46,28 @@ function Controller($window, $timeout, $document, Upload) {
     // *****************************************************************************
     // Helper function definitions
     // *****************************************************************************
+
+    /**
+     * Helper function to initialize the controller.
+     * 
+     * @private
+     */
+    function _init() {
+         _readContents();
+    } _init();
+
+    // *****************************************************************************
+
+    /**
+     * Helper function to read all contents.
+     *
+     * @private
+     */
+    function _readContents() {
+        return CioContentService.handleContent(function(objErr, objResult) {
+            vm.arrContents = objResult.contents;
+        });
+    }
 
     // *****************************************************************************
 }

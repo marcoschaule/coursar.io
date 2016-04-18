@@ -4,7 +4,17 @@
 // Modules
 // *****************************************************************************
 
-angular.module('cio-externals',   ['ui.router', 'ui.bootstrap', 'angular-confirm', 'pascalprecht.translate', 'ngFileUpload']);
+angular.module('cio-externals',   [
+    'ngSanitize',
+    'ui.router',
+    'ui.bootstrap',
+    'angular-confirm',
+    'pascalprecht.translate',
+    'ngFileUpload',
+    'com.2fdevs.videogular',
+    'com.2fdevs.videogular.plugins.controls',
+    'com.2fdevs.videogular.plugins.buffering',
+]);
 angular.module('cio-contants',    []);
 angular.module('cio-values',      []);
 angular.module('cio-templates',   []);

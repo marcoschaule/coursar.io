@@ -16,6 +16,7 @@
 // *****************************************************************************
 
 // includes
+var _                  = require('underscore');
 var mongoose           = require('mongoose');
 var mongooseLib        = require(paths.libs + '/mongoose.lib.js');
 var objResourceCommon  = require('./content.resource.js');
@@ -28,20 +29,21 @@ var Url                = mongoose.SchemaTypes.Url;
 // private variables
 var _strModelName      = 'ContentLearningBasic';
 var _strCollectionName = 'contents';
+var typeStringNoSelect = _.extend(CioTypes.String, { select: false });
 
 // *****************************************************************************
 // Resource definition
 // *****************************************************************************
 
 var objMediaFile = {
-    fieldname   : CioTypes.String,
+    fieldname   : typeStringNoSelect,
     originalname: CioTypes.String,
-    encoding    : CioTypes.String,
+    encoding    : typeStringNoSelect,
     mimetype    : CioTypes.String,
-    destination : CioTypes.String,
+    destination : typeStringNoSelect,
     filename    : CioTypes.String,
-    path        : CioTypes.String,
-    size        : Number,
+    path        : typeStringNoSelect,
+    size        : { type: Number, select: false },
 }; 
 
 var objResource = objResourceCommon.extendWith({

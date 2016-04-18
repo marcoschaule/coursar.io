@@ -70,6 +70,7 @@ var stateContentLearningBasicEdit = {
     name       : 'contents.basicEdit',
     controller : 'CioContentBasicCtrl as vm',
     templateUrl: 'content-basic.template.html',
+    params     : { id: null, content: null }
 };
 
 // *****************************************************************************

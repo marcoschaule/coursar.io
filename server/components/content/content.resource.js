@@ -16,11 +16,17 @@
 // *****************************************************************************
 
 // includes
-var _           = require('underscore');
-var mongooseLib = require(paths.libs + '/mongoose.lib.js');
+var _                  = require('underscore');
+var mongoose           = require('mongoose');
+var mongooseLib        = require(paths.libs + '/mongoose.lib.js');
 
 // definitions
-var CioTypes    = mongooseLib.schemaTypes;
+var Schema             = mongoose.Schema;
+var CioTypes           = mongooseLib.schemaTypes;
+
+// private variables
+var _strModelName      = 'Content';
+var _strCollectionName = 'contents';
 
 // *****************************************************************************
 // Resource definition
@@ -54,11 +60,26 @@ function extendWith(objToExtend) {
 }
 
 // *****************************************************************************
+// Schema definition
+// *****************************************************************************
+
+var schema = new Schema(objResource, { collection: _strCollectionName });
+
+// *****************************************************************************
+// Model definition
+// *****************************************************************************
+
+var Model = mongoose.model(_strModelName, schema, _strCollectionName);
+
+// *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.resource   = objResource;
-module.exports.extendWith = extendWith;
+module.exports.extendWith     = extendWith;
+module.exports.resource       = objResource;
+module.exports.schema         = schema;
+module.exports.Model          = Model;
+module.exports[_strModelName] = Model;
 
 // *****************************************************************************
 

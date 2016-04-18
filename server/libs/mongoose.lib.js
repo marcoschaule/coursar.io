@@ -24,9 +24,6 @@ objSchemaTypes.NumberPos0      = { type: Number, min: 0 };
 objSchemaTypes.NumberNeg       = { type: Number, max: -1 };
 objSchemaTypes.NumberNeg0      = { type: Number, max: 0 };
 
-// References
-objSchemaTypes.UserRef         = { _id: { type: ObjectId }, username: { trim: true, type: String } };
-
 // Dates
 objSchemaTypes.DateDef         = { type: Date, default: Date.now() };
 
@@ -39,6 +36,9 @@ objSchemaTypes.StringCamelCase = { trim: true, type: String, validate: /[a-zA-Z]
 objSchemaTypes.StatePublish    = { type: String, default: 'draft', validate: /draft|published/ };
 objSchemaTypes.TypeContent     = { type: String, default: 'basic', validate: /basic|presentation|stream|multipleChoice|completeText|completeSequence|practical/ };
 objSchemaTypes.TypeExerciseMC  = { type: String, default: 'one',   validate: /one|mixed/ };
+
+// References
+objSchemaTypes.UserRef         = { _id: ObjectId, username: objSchemaTypes.String, email: objSchemaTypes.String };
 
 // *****************************************************************************
 // Exports

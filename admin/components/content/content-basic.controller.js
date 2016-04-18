@@ -22,7 +22,7 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller($rootScope, $state, $window, $timeout, $document, CioContentService) {
+function Controller($rootScope, $state, $sce, $timeout, $document, CioContentService) {
     var vm = this;
 
     // *************************************************************************
@@ -33,11 +33,9 @@ function Controller($rootScope, $state, $window, $timeout, $document, CioContent
     // Public variables
     // *************************************************************************
 
-    vm.modelContent = {
-        title: 'Content Title',
-        name : 'content-name',
-        text : 'Lorem ipsum Eu dolore aliqua et laborum labore nostrud consequat proident laborum deserunt sint nisi Excepteur cillum proident id est sit cillum quis eiusmod qui sunt veniam sed adipisicing officia tempor commodo anim nisi sunt voluptate Excepteur minim non elit est ut non Excepteur deserunt ex sed ut consectetur aute laborum consectetur veniam reprehenderit commodo commodo anim ea ut sit veniam voluptate ullamco laborum laboris est magna irure incididunt deserunt adipisicing pariatur veniam id reprehenderit aliquip laboris ad deserunt anim dolor cillum in labore dolore minim nostrud laboris amet nisi laborum id anim fugiat cupidatat nisi enim aute aliqua laborum aliquip officia quis sit fugiat est ad proident ea laboris commodo voluptate magna non nostrud in exercitation sed exercitation laboris pariatur dolore velit sint enim incididunt cupidatat voluptate veniam do sunt occaecat nisi pariatur anim aliquip in qui ea do nulla consequat laboris ullamco culpa sint in esse consequat in minim elit nulla proident sunt irure laboris ut aute occaecat irure in incididunt sunt anim fugiat aliquip Duis sint est.',
-    };
+    vm.modelContent    = null;
+    vm.modelContentNew = null;
+    vm.objConfigVideo  = null;
 
     // *************************************************************************
     // Controller function linking
@@ -60,12 +58,12 @@ function Controller($rootScope, $state, $window, $timeout, $document, CioContent
         var objData = {
             target    : 'createContentBasic',
             modifiers : null,
-            mediaFile : vm.modelContent.mediaFile,
-            imageFiles: vm.modelContent.imageFiles,
+            mediaFile : vm.modelContentNew.mediaFile,
+            imageFiles: vm.modelContentNew.imageFiles,
             content   : {
-                title: vm.modelContent.title,
-                name : vm.modelContent.name,
-                text : vm.modelContent.text,
+                title: vm.modelContentNew.title,
+                name : vm.modelContentNew.name,
+                text : vm.modelContentNew.text,
             },
         };
 
@@ -80,17 +78,45 @@ function Controller($rootScope, $state, $window, $timeout, $document, CioContent
                 // do something
             }
             if (objPendingEvent) {
-                $rootScope.pending.set(objPendingEvent.position, objPendingEvent.totalSize);
-                console.log(">>> Debug ====================; objPendingEvent:", objPendingEvent, '\n\n');
-                return;
+                return $rootScope.pending.set(objPendingEvent.loaded, objPendingEvent.total);
+            }
+            if (objResult.content && objResult.content._id) {
+                return $state.go('contents.basicEdit', {
+                    id     : objResult.content._id.toString(),
+                    content: objResult.content,
+                });
             }
         });
     }
 
     // *************************************************************************
 
+    /**
+     * Controller function to read the current content.
+     *
+     * @public
+     */
     function readContent() {
+        if ($state.params.content) {
+            return (vm.modelContentNew = $state.params.content);
+        }
+        if (!$state.params.id) {
+            return;
+        }
 
+        var objRequest = {
+            data: { contentIds: [$state.params.id] }
+        };
+
+        return CioContentService.handleContent(objRequest, function(objErr, objResult) {
+            if (objErr) {
+                // do something
+                return;
+            }
+            vm.modelContent   = objResult.contents;
+            vm.objConfigVideo = _setupVideo(vm.modelContent.mediaFile);
+            console.log(">>> Debug ====================; vm.modelContent:", vm.modelContent, '\n\n');
+        });
     }
 
     // *************************************************************************
@@ -105,16 +131,16 @@ function Controller($rootScope, $state, $window, $timeout, $document, CioContent
     function removeImageFiles(mixFileToRemove) {
         var i;
 
-        if (!vm.modelContent.imageFiles.length || vm.modelContent.imageFiles.length <= 0) {
+        if (!vm.modelContentNew.imageFiles.length || vm.modelContentNew.imageFiles.length <= 0) {
             return;
         }
         if ('all' === mixFileToRemove) {
-            vm.modelContent.imageFiles = [];
+            vm.modelContentNew.imageFiles = [];
         }
         
-        for (i = 0; i < vm.modelContent.imageFiles.length; i += 1) {
-            if (vm.modelContent.imageFiles[i] === mixFileToRemove) {
-                vm.modelContent.imageFiles.splice(i, 1);
+        for (i = 0; i < vm.modelContentNew.imageFiles.length; i += 1) {
+            if (vm.modelContentNew.imageFiles[i] === mixFileToRemove) {
+                vm.modelContentNew.imageFiles.splice(i, 1);
                 return;
             }
         }
@@ -128,15 +154,22 @@ function Controller($rootScope, $state, $window, $timeout, $document, CioContent
      * @public
      */
     function removeMediaFile() {
-        vm.modelContent.mediaFile = null;
+        vm.modelContentNew.mediaFile = null;
     }
 
     // *************************************************************************
     // Helper function definitions
     // *************************************************************************
 
+    /**
+     * Helper function to initialize the controller.
+     *
+     * @private
+     */
     function _init() {
-
+        if ($state.params.id) {
+            readContent();
+        }
     } _init();
 
     // *************************************************************************
@@ -156,7 +189,7 @@ function Controller($rootScope, $state, $window, $timeout, $document, CioContent
             elContentText.parentNode.replaceChild(elToReplace, elContentText);
         }, {
             mode       : 'markdown',
-            value      : vm.modelContent.text,
+            value      : vm.modelContentNew && vm.modelContentNew.text || '',
             lineNumbers: true,
         });
         objEditor.on('change', _resize);
@@ -176,6 +209,30 @@ function Controller($rootScope, $state, $window, $timeout, $document, CioContent
         }
 
     } _setupCodeMirror();
+
+    // *************************************************************************
+
+    /**
+     * Helper function to setup the video file.
+     *
+     * @private
+     */
+    function _setupVideo(objMediaFile) {
+        var objConfig = {
+            sources: [
+                { src: $sce.trustAsResourceUrl('http://static.videogular.com/assets/videos/videogular.mp4'), type: 'video/mp4' },
+            ],
+            tracks: [{
+                src: 'http://www.videogular.com/assets/subs/pale-blue-dot.vtt',
+                kind: 'subtitles',
+                srclang: 'en',
+                label: 'English',
+                default: '',
+            }],
+            theme: '/styles/vendor/videogular.css',
+        };
+        return objConfig;
+    }
 
     // *************************************************************************
 }

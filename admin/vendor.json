@@ -47,6 +47,22 @@
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload.js",          "rename": "angular-file-upload.js" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload.min.js",      "rename": "angular-file-upload.min.js" }
         ],
+        "videogular": [
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular/v1.4.3/videogular.js" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular/v1.4.3/videogular.min.js" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-controls/v1.4.3/vg-controls.js",       "rename": "videogular-controls.js" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-controls/v1.4.3/vg-controls.min.js",   "rename": "videogular-controls.min.js" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-buffering/v1.4.3/vg-buffering.js",     "rename": "videogular-buffering.js" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-buffering/v1.4.3/vg-buffering.min.js", "rename": "videogular-buffering.min.js" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/videogular.css" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/videogular.css.map" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/videogular.min.css" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/fonts/videogular.dev.svg" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/fonts/videogular.svg" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/fonts/videogular.eot" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/fonts/videogular.ttf" },
+            { "file": "https://raw.githubusercontent.com/videogular/bower-videogular-themes-default/v1.4.3/fonts/videogular.woff" }
+        ],
         "font-awesome": [
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css.map" },

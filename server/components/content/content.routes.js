@@ -17,12 +17,34 @@ var objRoutes    = {};
  * @type {Object}
  */
 objRoutes.private = {
+    get: [
+
+        // read a media file
+        ['/admin/content/file/:filename',
+            // handle creation of the content
+            ContentCtrl.getFile],
+    ],
     put: [
-        ['/admin/content',
+
+        // create one content
+        ['/admin/content/create',
             // upload files with each request, but only if available
             ContentCtrl.uploadContent,
-            // handle creation, update and deletion of the content
-            ContentCtrl.handleContent],
+            // handle creation of the content
+            ContentCtrl.createContent],
+
+        // create one content
+        ['/admin/content/read',
+            // handle creation of the content
+            ContentCtrl.readContents],
+        
+        // update one content
+        ['/admin/content/update',
+            // upload files with each request, but only if available
+            ContentCtrl.uploadContent,
+            // handle updating of the content
+            ContentCtrl.updateContent],
+
     ],
 };
 
