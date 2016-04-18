@@ -65,11 +65,6 @@ mixin tableImageFiles
                         File <strong>{{ vm.modelContentNew.mediaFile.name }}</strong>
                         not uploaded, yet.
 
-                //- video(
-                //-     data-ngf-src="vm.modelContentNew.mediaFile.filename",
-                //-     data-ngf-background="", 
-                //-     data-ngf-resize="{ width: 200, height: 200, quality: 0.9 }",
-                //-     data-ngf-no-object-url="false")
             .left
                 a.btn.btn-default(
                         id="content-media-file",
@@ -85,10 +80,29 @@ mixin tableImageFiles
                         data-ng-click="vm.removeMediaFile('all')")
                     |Remove file from upload
 
+            .vmargin-1rem
+            //- video#video(width="320", height="240", controls)
+            //-     source#video-source(src="{{vm.modelContent.mediaFile.filename}}", type="video/mp4")
             .left(data-ng-if="vm.modelContent.mediaFile.filename")
-                video(controls)
-                    source(type="video/mp4", src="{{ '/admin/content/file/' + vm.modelContentNew.mediaFile.filename }}")
-                    |Your browser does not support the video tag.
+                videogular(
+                        data-vg-player-ready='vm.ready($API)',
+                        data-vg-update-state="vm.test($state)",
+                        data-vg-theme='vm.objConfigVideo.theme.url')
+                    vg-media(
+                            data-vg-src='vm.objConfigVideo.sources',
+                            data-vg-tracks='vm.objConfigVideo.tracks')
+                    vg-controls
+                        vg-play-pause-button
+                        vg-time-display {{ currentTime | date:'mm:ss' }}
+                        vg-scrub-bar
+                            vg-scrub-bar-current-time
+                        vg-time-display {{ timeLeft | date:'mm:ss' }}
+                        vg-volume
+                            vg-mute-button
+                            vg-volume-bar
+                        vg-fullscreen-button
+                    vg-overlay-play
+                    vg-buffering
 
         fieldset.form-group.margin-top-2rem
             label(for="content-text") Text:

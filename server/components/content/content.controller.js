@@ -4,6 +4,8 @@
 // Includes and definitions
 // *****************************************************************************
 
+var fs             = require('fs');
+var path           = require('path');
 var multer         = require('multer');
 var ContentService = require('./content.service.js');
 var libUpload      = require(paths.libs + '/upload.lib.js');
@@ -104,7 +106,40 @@ function uploadContent(req, res, next) {
  * @param {Function} next  function of callback for next middleware
  */
 function getFile(req, res, next) {
-    console.log(">>> Debug ====================; req.params:", req.params, '\n\n');
+    var strPath = path.join(paths.uploads, req.params.filename);
+    var arrPositions, numStart, numTotal, numEnd, numChunksize, strRange, stream;
+
+    return fs.stat(strPath, (objErr, stats) => {
+        strRange = req.headers && req.headers.range;
+
+        if (objErr) {
+            return next(objErr);
+        }
+        if (!strRange) {
+            return res.sendStatus(416); // 416 Wrong range
+        }
+        
+        arrPositions = strRange.replace(/bytes=/, '').split('-');
+        numStart     = parseInt(arrPositions[0], 10);
+        numTotal     = stats.size;
+        numEnd       = arrPositions[1] ? parseInt(arrPositions[1], 10) : numTotal - 1;
+        numChunksize = (numEnd - numStart) + 1;
+
+        res.writeHead(206, {
+            'Content-Range' : 'bytes ' + numStart + '-' + numEnd + '/' + numTotal,
+            'Accept-Ranges' : 'bytes',
+            'Content-Type'  : 'video/mp4',
+            'Content-Length': numChunksize,
+        });
+
+        stream = fs.createReadStream(strPath, { start: numStart, end: numEnd });
+        stream.on('open', () => {
+            return stream.pipe(res);
+        });
+        stream.on('error', (err) => {
+            return res.end(err);
+        });
+    });
 }
 
 // *****************************************************************************

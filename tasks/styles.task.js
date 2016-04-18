@@ -11,7 +11,8 @@ var replace      = require('gulp-replace');
 var flatten      = require('gulp-flatten');
 var autoprefixer = require('gulp-autoprefixer');
 
-var autoPrefBrowserSupport = 'last 5 versions';
+var _autoPrefBrowserSupport      = 'last 5 versions';
+var _arrStylesToReplaceFontsPath = ['font-awesome'];
 
 // *****************************************************************************
 // Basic tasks - styles
@@ -89,7 +90,7 @@ function _setupTaskForUserStyles(strWhich) {
         .pipe(stylus())
         .pipe(flatten())
         .pipe(autoprefixer({
-            browsers: [autoPrefBrowserSupport],
+            browsers: [_autoPrefBrowserSupport],
             cascade : false,
         }))
         .pipe(gulp.dest(`./.build/dev${strExt}/styles/`))
@@ -112,10 +113,18 @@ function _setupTaskForVendorStyles(strWhich) {
             `./.build/vendor${strExt}/**/*.css`,
             `!./.build/vendor${strExt}/**/*.min.css`
         ])
-        .pipe(gulpif(_testForFile('font-awesome'), replace(/..\/fonts/g, '../../fonts')))
+
+        // replace the relative font path of "font-awesome" files
+        .pipe(gulpif(_testForFile('font-awesome'),
+            replace(/..\/fonts/g, '../../fonts')))
+
+        // replace the relative font path of "videogular" files
+        .pipe(gulpif(_testForFile('videogular'),
+            replace(/url\(\"fonts\//g, 'url("../../fonts/')))
+        
         .pipe(flatten())
         .pipe(autoprefixer({
-            browsers: [autoPrefBrowserSupport],
+            browsers: [_autoPrefBrowserSupport],
             cascade : false,
         }))
         .pipe(gulp.dest(`./.build/dev${strExt}/styles/vendor`))
@@ -128,13 +137,22 @@ function _setupTaskForVendorStyles(strWhich) {
  * Helper function to test if a file is within the pipeline.
  * 
  * @private
- * @param  {String}  strFileName  string of the file name
- * @return {Boolean}              true if the file was found
+ * @param  {String|Array}  mixFileName  string or array of the file name(s)
+ * @return {Boolean}                    true if the file was found
  */
-function _testForFile(strFileName) {
+function _testForFile(mixFileName) {
+    var arrFileNames = mixFileName;
+    var i;
+
+    if ('string' === typeof mixFileName) {
+        arrFileNames = [mixFileName];
+    }
+
     return function(objFile) {
-        if (objFile.path.indexOf(strFileName) >= 0) {
-            return true;
+        for (i = 0; i < arrFileNames.length; i += 1) {
+            if (objFile.path.indexOf(arrFileNames[i]) >= 0) {
+                return true;
+            }
         }
         return false;
     };

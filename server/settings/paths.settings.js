@@ -59,6 +59,12 @@ paths.components = path.join(paths.basepath, 'components');
  */
 paths.templates = path.join(paths.basepath, 'templates');
 
+/**
+ * Basic uploads path.
+ * @type {String}
+ */
+paths.uploads = path.join(paths.basepath, '../', '.uploads');
+
 // *****************************************************************************
 // Aliases
 // *****************************************************************************

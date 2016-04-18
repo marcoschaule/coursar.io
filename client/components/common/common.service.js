@@ -51,6 +51,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
     service.patch       = patch;
     service.remove      = remove;
     service.upload      = upload;
+    service.getToken    = getToken;
     service.deleteToken = deleteToken;
 
     // *************************************************************************
@@ -168,8 +169,9 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
         objRequest.headers  = objRequest.headers  || {};
         objRequest.arrayKey = '';
 
+        // TODO: remove, is not done by interceptor service!
         // extend header with tokens if they are available
-        _extendHeaders(objRequest.headers);
+        // _extendHeaders(objRequest.headers);
 
         return Upload.upload(objRequest).then(
             
@@ -192,6 +194,22 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
                 return 'function' === typeof callback &&
                         callback(null, null, objResponse);
             });
+    }
+
+    // *************************************************************************
+
+    /**
+     * Service function to get the current token.
+     *
+     * @public
+     * @param  {String} strWhich  string of which token to take ("accessToken" or "csrfToken")
+     * @return {String}           string of the token to be returned
+     */
+    function getToken(strWhich) {
+        if (strWhich.match(/csrf/gi)) {
+            return $window.localStorage.csrfToken;
+        }
+        return $window.localStorage.accessToken;
     }
 
     // *************************************************************************
@@ -299,8 +317,9 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
         // activate the processing to enable spinners and wait functions, etc.
         !objRequest.isSpinnerDisabled && ($rootScope.flags.isProcessing = true);
 
+        // TODO: remove, is not done by interceptor service!
         // extend header with tokens if they are available
-        _extendHeaders(objRequest.headers);
+        // _extendHeaders(objRequest.headers);
 
         // cancel the request if necessary
         _objCancelers[strIdentifier] &&
@@ -370,9 +389,10 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
         // return the "$http" success and error callback
         return function(objResult) {
             
+            // TODO: remove, is not done by interceptor service!
             // write all tokens in session storage; if there is any token send
             // from server, that means, token needs to be refreshed
-            _handleTokens(objResult.headers);
+            // _handleTokens(objResult.headers);
 
             // if it was an error, set the error object with the
             // whole result data object.
@@ -394,6 +414,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
 
     // *************************************************************************
 
+    // TODO: remove, is not done by interceptor service!
     /**
      * Helper function to handle delivered tokens. If any token is send from
      * server, that means, that token needs to be refreshed (overridden) here
@@ -422,6 +443,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
 
     // *************************************************************************
 
+    // TODO: remove, is not done by interceptor service!
     /**
      * Helper function to extend the headers (object) with tokens if they
      * are available in local storage.

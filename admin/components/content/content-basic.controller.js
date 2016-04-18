@@ -22,7 +22,8 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller($rootScope, $state, $sce, $timeout, $document, CioContentService) {
+function Controller($rootScope, $state, $http, $sce, $timeout, $document,
+        CioContentService, CioComService) {
     var vm = this;
 
     // *************************************************************************
@@ -113,9 +114,11 @@ function Controller($rootScope, $state, $sce, $timeout, $document, CioContentSer
                 // do something
                 return;
             }
-            vm.modelContent   = objResult.contents;
-            vm.objConfigVideo = _setupVideo(vm.modelContent.mediaFile);
-            console.log(">>> Debug ====================; vm.modelContent:", vm.modelContent, '\n\n');
+            vm.modelContent = objResult.contents;
+
+            if (vm.modelContent && vm.modelContent.mediaFile) {
+                vm.objConfigVideo = _setupVideo(vm.modelContent.mediaFile);
+            }
         });
     }
 
@@ -129,16 +132,13 @@ function Controller($rootScope, $state, $sce, $timeout, $document, CioContentSer
      *                                         or string "all" to remove all
      */
     function removeImageFiles(mixFileToRemove) {
-        var i;
-
         if (!vm.modelContentNew.imageFiles.length || vm.modelContentNew.imageFiles.length <= 0) {
             return;
         }
         if ('all' === mixFileToRemove) {
             vm.modelContentNew.imageFiles = [];
         }
-        
-        for (i = 0; i < vm.modelContentNew.imageFiles.length; i += 1) {
+        for (var i = 0; i < vm.modelContentNew.imageFiles.length; i += 1) {
             if (vm.modelContentNew.imageFiles[i] === mixFileToRemove) {
                 vm.modelContentNew.imageFiles.splice(i, 1);
                 return;
@@ -218,15 +218,22 @@ function Controller($rootScope, $state, $sce, $timeout, $document, CioContentSer
      * @private
      */
     function _setupVideo(objMediaFile) {
+        var strPath = [
+            '/admin/content/file/',
+            objMediaFile.filename,
+            '?accessToken=',
+            CioComService.getToken('accessToken')
+        ].join('');
+
         var objConfig = {
             sources: [
-                { src: $sce.trustAsResourceUrl('http://static.videogular.com/assets/videos/videogular.mp4'), type: 'video/mp4' },
+                { src: $sce.trustAsResourceUrl(strPath), type: 'video/mp4' },
             ],
             tracks: [{
-                src: 'http://www.videogular.com/assets/subs/pale-blue-dot.vtt',
-                kind: 'subtitles',
+                src    : 'http://www.videogular.com/assets/subs/pale-blue-dot.vtt',
+                kind   : 'subtitles',
                 srclang: 'en',
-                label: 'English',
+                label  : 'English',
                 default: '',
             }],
             theme: '/styles/vendor/videogular.css',

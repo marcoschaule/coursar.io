@@ -38,7 +38,7 @@ angular.module('cio')
     .run(_runAuthentication);
 
 // *****************************************************************************
-// Helper functions
+// Helper functions config setters
 // *****************************************************************************
 
 /**
@@ -97,6 +97,8 @@ function _configTranslationProvider($translateProvider) {
 // injection
 _configTranslationProvider.$inject = ['$translateProvider'];
 
+// *****************************************************************************
+// Helper functions - config runners
 // *****************************************************************************
 
 /**
