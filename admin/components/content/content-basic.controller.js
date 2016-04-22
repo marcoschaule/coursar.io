@@ -22,8 +22,8 @@ angular
 // *****************************************************************************
 
 /* @ngInject */
-function Controller($rootScope, $state, $http, $sce, $timeout, $document,
-        CioContentService, CioComService) {
+function Controller($rootScope, $scope, $state, $sce, $window, $document,
+        CioContentService) {
     var vm = this;
 
     // *************************************************************************
@@ -34,17 +34,29 @@ function Controller($rootScope, $state, $http, $sce, $timeout, $document,
     // Public variables
     // *************************************************************************
 
-    vm.modelContent    = null;
-    vm.modelContentNew = null;
-    vm.objConfigVideo  = null;
+    vm.modelContent    = {};
+    vm.modelContentNew = {};
+    vm.objConfigVideo  = {};
+    vm.flags           = { isNameEncodedTitle: true };
+    vm.state           = { nameAvailability: 'idle' };
 
     // *************************************************************************
     // Controller function linking
     // *************************************************************************
 
-    vm.createContent    = createContent;
-    vm.removeMediaFile  = removeMediaFile;
-    vm.removeImageFiles = removeImageFiles;
+    vm.createContent          = createContent;
+    vm.readContent            = readContent;
+    vm.updateContent          = updateContent;
+    vm.deleteContent          = deleteContent;
+    vm.deleteContentMediaFile = deleteContentMediaFile;
+    vm.deleteContentImageFile = deleteContentImageFile;
+    vm.addMediaFile           = addMediaFile;
+    vm.addMediaFilePoster     = addMediaFilePoster;
+    vm.removeMediaFile        = removeMediaFile;
+    vm.removeMediaFilePoster  = removeMediaFilePoster;
+    vm.removeImageFiles       = removeImageFiles;
+    vm.testContentName        = testContentName;
+    vm.encodeName             = encodeName;
 
     // *************************************************************************
     // Controller function definitions
@@ -57,22 +69,19 @@ function Controller($rootScope, $state, $http, $sce, $timeout, $document,
      */
     function createContent() {
         var objData = {
-            target    : 'createContentBasic',
-            modifiers : null,
-            mediaFile : vm.modelContentNew.mediaFile,
-            imageFiles: vm.modelContentNew.imageFiles,
-            content   : {
+            target         : 'createContentBasic',
+            modifiers      : null,
+            mediaFile      : vm.modelContentNew.mediaFile,
+            mediaFilePoster: vm.modelContentNew.mediaFilePoster,
+            imageFiles     : vm.modelContentNew.imageFiles,
+            content        : {
                 title: vm.modelContentNew.title,
                 name : vm.modelContentNew.name,
                 text : vm.modelContentNew.text,
             },
         };
 
-        var objRequest = {
-            data: objData,
-        };
-
-        return CioContentService.createContent(objRequest,
+        return CioContentService.createContent(objData,
                 function(objErr, objResult, objPendingEvent) {
 
             if (objErr) {
@@ -105,21 +114,69 @@ function Controller($rootScope, $state, $http, $sce, $timeout, $document,
             return;
         }
 
-        var objRequest = {
-            data: { contentIds: [$state.params.id] }
-        };
-
-        return CioContentService.handleContent(objRequest, function(objErr, objResult) {
+        return CioContentService.readContent($state.params.id, function(objErr, objResult) {
             if (objErr) {
                 // do something
                 return;
             }
             vm.modelContent = objResult.contents;
-
             if (vm.modelContent && vm.modelContent.mediaFile) {
-                vm.objConfigVideo = _setupVideo(vm.modelContent.mediaFile);
+                vm.objConfigVideo = _setupMediaFile(vm.modelContent.mediaFile);
             }
         });
+    }
+
+    // *************************************************************************
+
+    function updateContent() {}
+    
+    // *************************************************************************
+
+    /**
+     * Controller function to delete a whole content and redirect to the
+     * overview page.
+     *
+     * @public
+     */
+    function deleteContent() {
+        var strContentId = vm.modelContent._id;
+        return CioContentService.deleteContent(strContentId, function(objErr) {
+            if (objErr) {
+                // do something
+                return;
+            }
+            return $state.go('contents.overview');
+        });
+    }
+    
+    // *************************************************************************
+    
+    /**
+     * Controller function to delete a content media file.
+     *
+     * @public
+     */
+    function deleteContentMediaFile() {
+        var strMediaFileName = vm.modelContent.mediaFile.filename;
+
+        if (!strMediaFileName) {
+            return;
+        }
+
+        return CioContentService.deleteContentMediaFile(
+                strMediaFileName, function(objErr, objResult) {
+            
+            if (objErr) {
+                // do something
+                return;
+            }
+            return (vm.modelContent.mediaFile = null);
+        });
+    }
+    
+    // *************************************************************************
+    
+    function deleteContentImageFile(strImageFile) {
     }
 
     // *************************************************************************
@@ -149,12 +206,122 @@ function Controller($rootScope, $state, $http, $sce, $timeout, $document,
     // *************************************************************************
 
     /**
+     * Controller function to add a media file to the model.
+     *
+     * @public
+     * @param {Object} objEvent  object of the "select" event
+     */
+    function addMediaFile(objEvent) {
+        if (!objEvent || !objEvent.target || !objEvent.target.files) {
+            return;
+        }
+        if (!vm.modelContentNew.mediaFile) {
+            vm.modelContentNew.mediaFile = {};
+        }
+
+        var _URL                         = $window.URL || $window.webkitURL;
+        var objFile                      = objEvent.target.files[0];
+        var objUrl                       = _URL.createObjectURL(objFile);
+        vm.modelContentNew.mediaFile     = objFile;
+        vm.modelContentNew.mediaFile.url = $sce.trustAsResourceUrl(objUrl);
+    }
+
+    // *************************************************************************
+
+    /**
+     * Controller function to add the media file screenshot in local memory.
+     * The screenshot will be attached to the submit when creating the content.
+     *
+     * @public
+     */
+    function addMediaFilePoster() {
+        if (!vm.modelContentNew || !vm.modelContentNew.mediaFile) {
+            return;
+        }
+
+        // create a canvas (HTML5) element
+        var elCanvas    = document.createElement('canvas');
+
+        // get the media file element (tag)
+        var elMediaFile = document.getElementById('media-file-new');
+
+        // define size depending on the media file
+        var numWidth    = elMediaFile.clientWidth;
+        var numHeight   = elMediaFile.clientHeight;
+
+        // set the canvas element's size
+        elCanvas.width  = numWidth;
+        elCanvas.height = numHeight;
+
+        // get the 2D context of the canvas to manipulate it
+        var context = elCanvas.getContext('2d');
+
+        // draw the screenshot of the media file into the context
+        context.drawImage(elMediaFile, 0, 0, numWidth, numHeight);
+
+        // display the image in the view
+        var objUrl = elCanvas.toDataURL();
+        vm.modelContentNew.mediaFilePoster    = objUrl;
+        vm.modelContentNew.mediaFilePosterTmp = $sce.trustAsResourceUrl(objUrl);
+    }
+
+    // *************************************************************************
+
+    /**
+     * Controller function to remove the media file screenshot.
+     *
+     * @public
+     */
+    function removeMediaFilePoster() {
+        vm.modelContentNew.mediaFile.screenshot = null;
+    }
+
+    // *************************************************************************
+
+    /**
      * Controller function to remove the media file.
      *
      * @public
      */
     function removeMediaFile() {
         vm.modelContentNew.mediaFile = null;
+    }
+
+    // *************************************************************************
+
+    /**
+     * Controller function to test the content name for availability.
+     * 
+     * @public
+     */
+    function testContentName() {
+        if (!vm.modelContentNew || !vm.modelContentNew.name) {
+            return;
+        }
+        vm.formContent.$setValidity('contentName', true);
+        vm.state.nameAvailability = 'pending';
+        return CioContentService.testContentName(vm.modelContentNew.name,
+                function(objErr, objResult) {
+            vm.state.nameAvailability = objResult.state;
+            vm.formContent.$setValidity('contentName', 'available' === objResult.state);
+            return;
+        });
+    }
+
+    // *************************************************************************
+
+    /**
+     * Controller function to transform the title into dash case if checkbox
+     * is active.
+     *
+     * @public
+     */
+    function encodeName() {
+        if (vm.flags.isNameEncodedTitle &&
+                vm.modelContentNew &&
+                vm.modelContentNew.title) {
+            vm.modelContentNew.name = vm.modelContentNew.title.toDashCaseSave();
+        }
     }
 
     // *************************************************************************
@@ -167,6 +334,7 @@ function Controller($rootScope, $state, $http, $sce, $timeout, $document,
      * @private
      */
     function _init() {
+        _setupCodeMirror();
         if ($state.params.id) {
             readContent();
         }
@@ -188,27 +356,12 @@ function Controller($rootScope, $state, $http, $sce, $timeout, $document,
         var objEditor  = CodeMirror(function(elToReplace) {
             elContentText.parentNode.replaceChild(elToReplace, elContentText);
         }, {
-            mode       : 'markdown',
-            value      : vm.modelContentNew && vm.modelContentNew.text || '',
-            lineNumbers: true,
+            mode          : 'markdown',
+            value         : vm.modelContentNew && vm.modelContentNew.text || '',
+            lineNumbers   : true,
+            viewportMargin: Infinity,
         });
-        objEditor.on('change', _resize);
-
-        function _resize(objCodeMirrorInstance, eventChange) {
-            if (isChanging) {
-                return;
-            }
-            clearTimeout(timeoutWait);
-            
-            timeoutWait = setTimeout(function() {
-                isChanging = true;
-                objCodeMirrorInstance.wrapParagraphsInRange(
-                        eventChange.from, CodeMirror.changeEnd(eventChange), objOptions);
-                isChanging = false;
-            }, 200);
-        }
-
-    } _setupCodeMirror();
+    }
 
     // *************************************************************************
 
@@ -217,29 +370,22 @@ function Controller($rootScope, $state, $http, $sce, $timeout, $document,
      *
      * @private
      */
-    function _setupVideo(objMediaFile) {
-        var strPath = [
-            '/admin/content/file/',
-            objMediaFile.filename,
-            '?accessToken=',
-            CioComService.getToken('accessToken')
-        ].join('');
-
-        var objConfig = {
-            sources: [
-                { src: $sce.trustAsResourceUrl(strPath), type: 'video/mp4' },
-            ],
-            tracks: [{
-                src    : 'http://www.videogular.com/assets/subs/pale-blue-dot.vtt',
-                kind   : 'subtitles',
-                srclang: 'en',
-                label  : 'English',
-                default: '',
-            }],
-            theme: '/styles/vendor/videogular.css',
-        };
-        return objConfig;
+    function _setupMediaFile() {
+        var strUrl = CioContentService.buildMediaFileUrl(
+            vm.modelContent.mediaFile.filename);
+        vm.modelContent.mediaFile.url = $sce.trustAsResourceUrl(strUrl);
     }
+
+    // *************************************************************************
+    // Watchers
+    // *************************************************************************
+
+    /**
+     * Watcher to watch the content name change.
+     */
+    $scope.$watch('vm.modelContentNew.name', function(strValueNew) {
+        testContentName();
+    });
 
     // *************************************************************************
 }

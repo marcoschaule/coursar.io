@@ -1,0 +1,209 @@
+//- ****************************************************************************
+//- Mixins
+//- ****************************************************************************
+
+mixin checkboxEncodeName
+    label(for="content-name-encode")
+        |encode name&nbsp;
+        input(id="content-name-encode",
+                type="checkbox",
+                data-ng-model="vm.flags.isNameEncodedTitle")
+
+//- ****************************************************************************
+
+mixin inputTitle(strModel)
+    label(for="content-title") Title:
+    input.form-control(id="content-title",
+            type="text",
+            name="contentTitle",
+            alt="Content title to be used to name the content",
+            placeholder="Title",
+            data-ng-required="true",
+            data-ng-change="vm.encodeName()",
+            data-ng-model="#{strModel}.title")
+
+//- ****************************************************************************
+
+mixin inputName(strModel)
+    label(for="content-name")
+        .float-left Name:
+        .float-right: +checkboxEncodeName
+        .clear
+    input.form-control(id="content-name",
+            type="text",
+            name="contentName",
+            alt="Content name to be used to identify the content",
+            placeholder="Name",
+            data-ng-required="true",
+            data-ng-model="#{strModel}.name")
+
+//- ****************************************************************************
+
+mixin textareaText(strModel)
+    label(for="content-text") Text:
+    textarea.code-mirror.form-control(
+            id="content-text",
+            name="contentText",
+            type="text",
+            rows="25",
+            alt="Content text as the basic content",
+            data-ng-model="#{strModel}.text")
+
+//- ****************************************************************************
+
+mixin inputImageFiles
+    label.border-bottom(for="content-image-files")
+        |Image files:
+    .file-upload-not-available(
+            data-ngf-no-file-drop="")
+        |File Drag/Drop is not supported for this browser
+    .files-list(data-ng-if="vm.modelContent.imageFiles.length > 0")
+        +tableImageFiles
+    .files-list(data-ng-if="vm.modelContentNew.imageFiles.length > 0")
+        +tableImageFilesNew
+    .left
+        a.btn.btn-default(
+                id="content-image-files",
+                accept="image/*",
+                data-ng-model="vm.modelContentNew.imageFiles",
+                data-ngf-select="",
+                data-ngf-multiple="true",
+                data-ngf-pattern="'image/*'")
+            |Select image files for upload
+        |&nbsp;
+        a.btn.btn-danger(
+                data-ng-if="vm.modelContentNew.imageFiles.length > 0", 
+                data-ng-click="vm.removeImageFiles('all')")
+            |Remove all files from upload
+
+//- ****************************************************************************
+
+mixin tableMediaFile
+    table.table.table-striped: tbody
+        tr
+            td.left  {{ vm.modelContentNew.mediaFile.name }}
+            td(width="15%").left
+                i.text-danger.fa.fa-times
+                |&nbsp;not uploaded yet
+            td(width="5%").right: a.btn.btn-xs.btn-danger(
+                    data-ng-click="vm.removeMediaFile()")
+                i.fa.fa-trash
+
+//- ****************************************************************************
+
+mixin tableImageFilesNew
+    table.table.table-striped: tbody
+        tr(data-ng-repeat="objFile in vm.modelContentNew.imageFiles")
+            td.left  {{ objFile.name }}
+            td(width="15%").left
+                i.text-danger.fa.fa-times
+                |&nbsp;not uploaded yet
+            td(width="5%").right: a.btn.btn-xs.btn-danger(
+                    data-ng-click="vm.removeImageFiles(objFile)")
+                i.fa.fa-trash
+
+//- ****************************************************************************
+
+mixin tableImageFiles
+    table.table.table-striped: tbody
+        tr(data-ng-repeat="objFile in vm.modelContent.imageFiles")
+            td.left  {{ objFile.filename }}
+            td(width="15%").left
+                i.text-success.fa.fa-check
+                |&nbsp;uploaded
+            td(width="5%").right: a.btn.btn-xs.btn-danger(
+                    data-ng-click="vm.removeImageFiles(objFile)")
+                i.fa.fa-trash
+
+//- ****************************************************************************
+
+mixin mediaFile(strId, strUrlObject)
+    .media-file.relative.border-round
+        video.border-round(id="#{strId}",
+                width="100%",
+                controls="controls")
+            source(src="{{ #{strUrlObject}.url }}",
+                    type="{{ #{strUrlObject}.mimetype }}")
+        .absolute.abs-top.abs-left.margin-1rem.white
+            h4 {{ #{strUrlObject}.name }}
+        .absolute.abs-top.abs-right.margin-2rem
+            a.btn.btn-danger(data-ng-click="vm.removeMediaFile('all')")
+                i.fa.fa-trash
+
+//- ****************************************************************************
+
+mixin mediaFilePoster(strId, strUrlObject)
+    .screenshot.relative.border-round
+        img.border-round(id="#{strId}",
+                style="display: block;",
+                src="{{ #{strUrlObject}.mediaFilePosterTmp }}")
+        .fill.border-round.border-fat
+        .absolute.abs-top.abs-left.margin-1rem.white
+            h4 {{ #{strUrlObject}.mediaFile.name }} - Poster
+        .absolute.abs-top.abs-right.margin-2rem
+            a.btn.btn-danger(data-ng-click="vm.removeMediaFilePoster()")
+                i.fa.fa-trash
+
+//- ****************************************************************************
+
+mixin alertNameAvailability
+    .alert.alert-success(data-ng-show="'available' === vm.state.nameAvailability")
+        i.fa.fa-check
+        |&nbsp;&nbsp;Available
+    .alert.alert-danger(data-ng-show="'not-available' === vm.state.nameAvailability")
+        i.fa.fa-times
+        |&nbsp;&nbsp;Not available
+    .alert.alert-info(data-ng-show="'pending' === vm.state.nameAvailability")
+        i.fa.fa-spinner.fa-pulse
+        |&nbsp;&nbsp;Pending...
+    .alert.alert-danger(data-ng-show="'error' === vm.state.nameAvailability")
+        i.fa.fa-exclamation-triangle
+        |&nbsp;&nbsp;An error occured.
+    .alert.alert-default(data-ng-show="'idle' === vm.state.nameAvailability")
+        i.fa.fa-exclamation-triangle
+        |&nbsp;&nbsp;Please change name to test if it is available.
+
+//- ****************************************************************************
+
+mixin buttonSelectMediaFile(strModel)
+    a.btn.btn-default(
+            id="content-media-file",
+            name="mediaFile",
+            accept="audio/*,video/*",
+            data-ngf-model=strModel + ".mediaFile",
+            data-ngf-select="vm.addMediaFile($event)",
+            data-ngf-pattern="'audio/*,video/*'")
+        |Select media file
+    |&nbsp;
+
+mixin buttonTakePoster
+    a.btn.btn-default(data-ng-click="vm.addMediaFilePoster()")
+        |Take screenshot
+    |&nbsp;
+
+mixin buttonRemovePoster
+    a.btn.btn-danger(data-ng-click="vm.removeMediaFilePoster()")
+        |Remove screenshot
+    |&nbsp;
+
+mixin buttonRemoveFile
+    a.btn.btn-danger(data-ng-click="vm.removeMediaFile('all')")
+        |Remove file
+    |&nbsp;
+
+mixin buttonDeleteVideo
+    a.btn.btn-danger(data-ng-click="")
+        |Delete video
+    |&nbsp;
+
+mixin buttonCreateContent
+    button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
+        |Create
+
+mixin buttonSaveContent
+    button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
+        |Save
+
+mixin buttonDeleteContent
+    a.btn.btn-danger(data-ng-click="vm.deleteContent()")
+        |Delete

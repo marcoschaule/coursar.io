@@ -73,8 +73,8 @@ function Service(CioComService) {
     /**
      * Service function to sign user in. In case of success, the service
      * provides a variable "isSignedIn".
-     * @public
      * 
+     * @public
      * @param {Object}   objData                 object of user data to sign in
      * @param {Object}   objData.username        string of user name
      * @param {Object}   objData.password        string of user password
@@ -108,8 +108,8 @@ function Service(CioComService) {
     /**
      * Service function to sign user up and in afterwards. In case of success,
      * the service provides a variable "isSignedIn".
-     * @public
      * 
+     * @public
      * @param {Object}   objData                 object of user data to sign in
      * @param {Object}   objData.username        string of user name
      * @param {Object}   objData.email           string of user email
@@ -141,6 +141,8 @@ function Service(CioComService) {
 
     /**
      * Service function to sign out a user.
+     *
+     * @public
      */
     function signOut(callback) {
         callback = 'function' === typeof callback && callback || function(){};
@@ -160,8 +162,8 @@ function Service(CioComService) {
 
     /**
      * Service function verify the user's email.
-     * @public
      * 
+     * @public
      * @param {Object}   objData      object of user data
      * @param {String}   objData.rid  string of Redis session ID
      * @param {Function} callback     function for callback
@@ -181,8 +183,8 @@ function Service(CioComService) {
 
     /**
      * Service function to send an email if user forgot username.
-     * @public
      * 
+     * @public
      * @param {Object}   objData        object of user data
      * @param {String}   objData.email  string of user email from account
      * @param {Function} callback       function for callback
@@ -204,8 +206,8 @@ function Service(CioComService) {
 
     /**
      * Service function to send an email if user forgot password.
-     * @public
      * 
+     * @public
      * @param {Object}   objData        object of user data
      * @param {String}   objData.email  string of user email from account
      * @param {Function} callback       function for callback
@@ -228,8 +230,8 @@ function Service(CioComService) {
     /**
      * Service function to send the new password and the Redis id to
      * change the password.
-     * @public
      * 
+     * @public
      * @param {Object}   objData        object of user data
      * @param {String}   objData.email  string of user email from account
      * @param {Function} callback       function for callback
@@ -251,8 +253,8 @@ function Service(CioComService) {
 
     /**
      * Service function to get user from server.
-     * @public
      * 
+     * @public
      * @param {Function} callback  function for callback
      */
     function getUser(callback) {
@@ -278,8 +280,8 @@ function Service(CioComService) {
 
     /**
      * Service function to test if username or email is available.
-     * @public
      * 
+     * @public
      * @param {String}   strWhich  string of either "username" or "email"
      * @param {Object}   objData   object of user data
      * @param {Function} callback  function for callback
@@ -301,8 +303,8 @@ function Service(CioComService) {
     /**
      * Service function to test if user is signed in. If not, try to sign in
      * user by requesting server.
-     * @public
      * 
+     * @public
      * @param {Function} callback  function for callback
      */
     function testSignedIn(callback) {

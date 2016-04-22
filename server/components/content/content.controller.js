@@ -9,17 +9,19 @@ var path           = require('path');
 var multer         = require('multer');
 var ContentService = require('./content.service.js');
 var libUpload      = require(paths.libs + '/upload.lib.js');
-var uploadImages   = multer(libUpload.settingsWithStorage('images'));
+var uploads        = multer(libUpload.settingsWithStorage());
 
 // *****************************************************************************
 // Exports
 // *****************************************************************************
 
-module.exports.readContents  = readContents;
-module.exports.createContent = createOrUpdateContent;
-module.exports.updateContent = createOrUpdateContent;
-module.exports.uploadContent = uploadContent;
-module.exports.getFile       = getFile;
+module.exports.readContents   = readContents;
+module.exports.createContent  = createOrUpdateContent;
+module.exports.updateContent  = createOrUpdateContent;
+module.exports.deleteContents = deleteContents;
+module.exports.uploadContent  = uploadContent;
+module.exports.readMediaFile  = readMediaFile;
+module.exports.testName       = testName;
 
 // *****************************************************************************
 // Controller functions
@@ -37,8 +39,8 @@ function readContents(req, res, next) {
     var arrContentIds = req.body.contentIds || null;
     var objMidifiers  = req.body.modifiers  || null;
 
-    return ContentService.readContents(req.session.user, arrContentIds,
-            objMidifiers, (objErr, arrContents) => {
+    return ContentService.readContents(arrContentIds, objMidifiers,
+            (objErr, arrContents) => {
 
         if (objErr) {
             return next(objErr);
@@ -81,6 +83,26 @@ function createOrUpdateContent(req, res, next) {
 // *****************************************************************************
 
 /**
+ * Controller function to delete contents.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function deleteContents(req, res, next) {
+    var arrContentIds = req.body.arrContentIds;
+    return Content.deleteContents(arrContentIds, objErr => {
+        if (objErr) {
+            return next(objErr);
+        }
+        return res.status(200).json({ err: null, success: true });
+    });
+}
+
+// *****************************************************************************
+
+/**
  * Controller function to upload content files send from client.
  *
  * @public
@@ -89,8 +111,12 @@ function createOrUpdateContent(req, res, next) {
  * @param {Function} next  function of callback for next middleware
  */
 function uploadContent(req, res, next) {
-    return uploadImages.fields([
-        { name: 'mediaFile',  maxCount: 1 },
+    console.log(">>> Debug ====================; req.body:", req.body, '\n\n');
+    console.log(">>> Debug ====================; req.file:", req.file, '\n\n');
+    console.log(">>> Debug ====================; req.files:", req.files, '\n\n');
+    return uploads.fields([
+        { name: 'mediaFile',       maxCount: 1 },
+        { name: 'mediaFilePoster', maxCount: 1 },
         { name: 'imageFiles' }
     ])(req, res, next);
 }
@@ -105,20 +131,21 @@ function uploadContent(req, res, next) {
  * @param {Object}   res   object of Express response
  * @param {Function} next  function of callback for next middleware
  */
-function getFile(req, res, next) {
-    var strPath = path.join(paths.uploads, req.params.filename);
-    var arrPositions, numStart, numTotal, numEnd, numChunksize, strRange, stream;
+function readMediaFile(req, res, next) {
+    var arrPositions, numStart, numTotal, numEnd, numChunksize, stream;
+    var strPath  = encodeURI(path.join(paths.uploads, req.params.filename)); // TODO: care about encoding
+    var strRange = req.headers && req.headers.range;
+    
+    if (!strRange) {
+        return res.sendStatus(416); // 416 Wrong range
+    }
 
     return fs.stat(strPath, (objErr, stats) => {
-        strRange = req.headers && req.headers.range;
-
         if (objErr) {
+            console.error(objErr);
             return next(objErr);
         }
-        if (!strRange) {
-            return res.sendStatus(416); // 416 Wrong range
-        }
-        
+
         arrPositions = strRange.replace(/bytes=/, '').split('-');
         numStart     = parseInt(arrPositions[0], 10);
         numTotal     = stats.size;
@@ -136,9 +163,31 @@ function getFile(req, res, next) {
         stream.on('open', () => {
             return stream.pipe(res);
         });
-        stream.on('error', (err) => {
-            return res.end(err);
+        stream.on('error', (objErr) => {
+            console.error(objErr);
+            return res.end(objErr);
         });
+    });
+}
+
+// *****************************************************************************
+
+function removeImageFile(req, res, next) {}
+
+// *****************************************************************************
+
+/**
+ * Controller function to test the name for availability.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function testName(req, res, next) {
+    var strName = req.body.name;
+    return ContentService.testName(strName, (objErr, strResult) => {
+        return res.json({ err: objErr, state: strResult });
     });
 }
 

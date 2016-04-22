@@ -84,6 +84,7 @@ function _setupTaskScriptsUser(isAdmin) {
              `${strWhich}/libs/**/*.js`,
              `${strWhich}/${strWhich}.js`,
              `${strWhich}/components/**/*.js`,
+             `server/extensions/**/*.js`,
         ])
         .pipe(through.obj(_renderRequiredFileFromServer))
         .pipe(through.obj(_renderRequiredFileRaw))

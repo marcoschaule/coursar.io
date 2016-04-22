@@ -42,7 +42,7 @@ require('./tasks/watchers.js')(gulp);
  * Task to build the development files.
  */
 gulp.task('build:dev', callback => runSequence(
-    ['lint:js', 'lint:json'],
+    // ['lint:js', 'lint:json'],
     ['clean:dev'],
     ['layout:dev', 'scripts:dev', 'styles:dev', 'fonts:dev', 'assets:dev', 'lang:dev', 'templates', 'statics:dev'],
     callback
@@ -54,7 +54,7 @@ gulp.task('build:dev', callback => runSequence(
  * Task to build the development files.
  */
 gulp.task('build:dev-admin', callback => runSequence(
-    ['lint:js', 'lint:json'],
+    // ['lint:js', 'lint:json'],
     ['clean:dev-admin'],
     ['layout:dev-admin', 'scripts:dev-admin', 'styles:dev-admin', 'fonts:dev-admin', 'assets:dev-admin', 'lang:dev-admin', 'templates-admin', 'statics:dev-admin'],
     callback
@@ -66,7 +66,7 @@ gulp.task('build:dev-admin', callback => runSequence(
  * Task to build the production files.
  */
 gulp.task('build:prod', callback => runSequence(
-    ['lint:js', 'lint:json'],
+    // ['lint:js', 'lint:json'],
     ['layout:dev', 'scripts:dev', 'styles:dev'],
     ['clean:prod', 'create:prod'],
     ['fonts:prod', 'assets:prod', 'statics:prod'],
@@ -79,7 +79,7 @@ gulp.task('build:prod', callback => runSequence(
  * Task to build the production files.
  */
 gulp.task('build:prod-admin', callback => runSequence(
-    ['lint:js', 'lint:json'],
+    // ['lint:js', 'lint:json'],
     ['layout:dev-admin', 'scripts:dev-admin', 'styles:dev-admin'],
     ['clean:prod-admin', 'create:prod-admin'],
     ['fonts:prod-admin', 'assets:prod-admin', 'statics:prod-admin'],

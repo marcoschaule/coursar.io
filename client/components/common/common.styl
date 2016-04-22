@@ -69,6 +69,18 @@ hr
 .black
     color black
 
+// background colors
+.bg-white
+    background-color white
+.bg-white-10p
+    background-color rgba(255, 255, 255, .10)
+.bg-white-25p
+    background-color rgba(255, 255, 255, .25)
+.bg-white-50p
+    background-color rgba(255, 255, 255, .50)
+.bg-white-75p
+    background-color rgba(255, 255, 255, .75)
+
 // display and position
 .inline
     display inline
@@ -84,6 +96,22 @@ hr
     position absolute
 .fixed
     position fixed
+.fill
+    position absolute
+    width 100%
+    height 100%
+    top 0
+    left 0
+    bottom 0
+    right 0
+.abs-top
+    top 0
+.abs-right
+    right 0
+.abs-bottom
+    bottom 0
+.abs-left
+    left 0
 
 // text alignment
 .center
@@ -101,7 +129,7 @@ hr
 .float-right
     float right
 
-// margins
+// vertical margins
 .vmargin-half-rem
     martin-top .25rem
     margin-bottom .25rem
@@ -118,7 +146,7 @@ hr
     martin-top 2rem
     margin-bottom 2rem
 
-// paddings
+// vertical paddings
 .vpadding-half-rem
     padding-bottom .5rem
     padding-top .5rem
@@ -136,6 +164,14 @@ hr
     padding-top 4rem
 
 // margins
+.margin-1rem
+    margin 1rem
+.margin-2rem
+    margin 2rem
+.margin-3rem
+    margin 3rem
+.margin-4rem
+    margin 4rem
 .margin-top-half-rem
     margin-top .5rem
 .margin-top-1rem
@@ -160,6 +196,16 @@ hr
     margin-right 1rem
 .margin-right-2rem
     margin-right 2rem
+
+// paddings
+.padding-1rem
+    padding 1rem
+.padding-2rem
+    padding 2rem
+.padding-3rem
+    padding 3rem
+.padding-4rem
+    padding 4rem
 
 // no margins
 .no-margin
@@ -211,12 +257,45 @@ hr
     text-decoration underline
 
 // borders
+.border-round
+    border-radius 4px
+.border-fat
+    border 10px solid rgba(255, 255, 255, 0.4)
 .border-bottom
     border-bottom 1px solid #ddd
     margin-bottom 1.5rem
     padding-bottom .5rem
 .no-border
     border none !important
+
+.no-events
+    pointer-events none
+    
+// sizes
+.height-100p
+    height 100%
+.height-90p
+    height 90%
+.height-80p
+    height 80%
+.height-75p
+    height 75%
+.height-50p
+    height 50%
+.height-25p
+    height 25%
+.width-100p
+    width 100%
+.width-90p
+    width 90%
+.width-80p
+    width 80%
+.width-75p
+    width 75%
+.width-50p
+    width 50%
+.width-25p
+    width 25%
 
 // *****************************************************************************
 // Spinner
@@ -250,7 +329,7 @@ hr
     z-index 100000
 
 // *****************************************************************************
-// Media
+// Media files
 // *****************************************************************************
 
 .video-placeholder
@@ -302,7 +381,7 @@ input:-webkit-autofill, input:-webkit-autofill:focus
     padding 8px 10px
 .alert.alert-xs
     padding 4px 5px
-.alert.alert-muted
+.alert.alert-muted, .alert.alert-default
     background-color #eee
     color rgb(119, 119, 119)
     border-color #ddd
@@ -354,6 +433,22 @@ fieldset.form-inline-full > .hrow > input
     padding 6px 12px
 a.addon-filler
     cursor pointer
+    
+// *****************************************************************************
+// CodeMirror
+// *****************************************************************************
+
+.code-mirror
+    height auto
+
+.CodeMirror
+    border 1px solid #ddd !important
+    border-radius 6px
+    box-shadow inset 0 1px 3px rgba(0, 0, 0, .075)
+    z-index 0
+    height auto
+    overflow hidden
+    position relative
 
 // *****************************************************************************
 // Google's reCaptcha overrides

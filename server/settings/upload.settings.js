@@ -23,7 +23,7 @@ settings.upload.fileNameFormat = '{{date}}_{{fileName}}';
  * Common file upload date format.
  * @type {String}
  */
-settings.upload.dateFormat = 'YYYY-MM-DD_HH-mm-ss';
+settings.upload.dateFormat = 'YYYY-MM-DD_HH-mm-ss-SSS';
 
 /**
  * Media file upload destination.

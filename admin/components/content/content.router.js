@@ -58,7 +58,7 @@ var stateContentLearningBasicNew = {
     url        : '/content-basic',
     name       : 'contents.basicNew',
     controller : 'CioContentBasicCtrl as vm',
-    templateUrl: 'content-basic.template.html',
+    templateUrl: 'content-basic-new.template.html',
 };
 
 /**

@@ -68,7 +68,7 @@ function Service($window) {
      * @return {Object}             object of the rejection object
      */
     function interceptRequestError(objRejection) {
-        console.error(objRejection);
+        // console.error(objRejection);
         return objRejection;
     }
 
@@ -96,7 +96,7 @@ function Service($window) {
      * @return {Object}             object of the rejection object
      */
     function interceptResponseError(objRejection) {
-        console.error(objRejection);
+        // console.error(objRejection);
         return objRejection;
     }
 

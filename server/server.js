@@ -86,6 +86,7 @@ var userAdminRoutes    = require('./components/user/user-admin.routes.js');
 var contentAdminRoutes = require('./components/content/content.routes.js');
 
 // public routes
+contentAdminRoutes.private(app);
 commonRoutes.public(app, env);
 authRoutes.public(app);
 authAdminRoutes.public(app);
@@ -99,7 +100,6 @@ userRoutes.private(app);
 authAdminRoutes.authorize(app);
 authAdminRoutes.private(app);
 userAdminRoutes.private(app);
-contentAdminRoutes.private(app);
 
 // *****************************************************************************
 // Error handling

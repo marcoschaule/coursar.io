@@ -4,6 +4,7 @@
 // Includes and definitions
 // *****************************************************************************
 
+var fs                   = require('fs');
 var async                = require('async');
 var contentBasicResource = require('./content-basic.resource.js');
 var contentResource      = require('./content.resource.js');
@@ -24,6 +25,8 @@ module.exports.createContentPractical        = null;
 module.exports.readContents                  = readContents;
 module.exports.updateContents                = updateContents;
 module.exports.deleteContents                = deleteContents;
+module.exports.deleteContentFiles            = deleteContentFiles;
+module.exports.testName                      = testName;
 
 // *****************************************************************************
 // Service functions - default CRUD functions
@@ -61,12 +64,11 @@ function createContentBasic(objUserSimple, objContent, callback) {
  * Service function to read multiple or all contents.
  * 
  * @public
- * @param {Object}        objUserSimple   object of a simplified version of the current user
- * @param {Array|String}  [mixContentIds]  (optinal) array or string of content ids
- * @param {Object}        [objModifiers]   (optinal) object of modifiers
- * @param {Function}      callback         function for callback
+ * @param {Array|String} [mixContentIds]  (optinal) array or string of content ids
+ * @param {Object}       [objModifiers]   (optinal) object of modifiers
+ * @param {Function}     callback         function for callback
  */
-function readContents(objUserSimple, mixContentIds, objModifiers, callback) {
+function readContents(mixContentIds, objModifiers, callback) {
     if (!callback && 'function' === typeof objModifiers) {
         callback = objModifiers;
     }
@@ -118,11 +120,10 @@ function readContents(objUserSimple, mixContentIds, objModifiers, callback) {
  * Service function to update multiple contents.
  * 
  * @public
- * @param {Object}        objUserSimple  object of a simplified version of the current user
- * @param {Array|String}  mixContents    array or string of the contents to be updated
- * @param {Function}      callback       function for callback
+ * @param {Array|String} mixContents  array or string of the contents to be updated
+ * @param {Function}     callback     function for callback
  */
-function updateContents(objUserSimple, mixContents, callback) {
+function updateContents(mixContents, callback) {
     var arrContents = mixContents;
 
     if (Object.prototype.toString.call(mixContents) !== '[object Array]') {
@@ -150,28 +151,127 @@ function updateContents(objUserSimple, mixContents, callback) {
  * Service function to delete multiple contents.
  * 
  * @public
- * @param {Object}        objUserSimple  object of a simplified version of the current user
- * @param {Array|String}  mixContentIds  array or string of content ids
- * @param {Function}      callback       function for callback
+ * @param {Array|String} mixContentIds  array or string of content ids
+ * @param {Function}     callback       function for callback
  */
-function deleteContents(objUserSimple, mixContentIds, callback) {
-    var objQuery      = {};
-    var arrContentIds = mixContentIds || [];
+function deleteContents(mixContentIds, callback) {
+    var strSelect = 'mediaFile imageFiles';
+    var arrContentIds, objQuery, arrFiles;
     
-    if ('string' === typeof mixContentIds) {
-        arrContentIds = [mixContentIds];
-    }
-    if (arrContentIds && arrContentIds.length > 0) {
-        objQuery = { _id: { $in: arrContentIds } };
-    }
+    arrContentIds = 'string' === typeof mixContentIds ?
+        [mixContentIds] : mixContentIds;
+    objQuery = { _id: { $in: arrContentIds } };
 
-    return ContentBasic.remove(objQuery, (objErr, objModifications) => {
+    return async.series([
+
+            // get contents by id to get all connected files
+            (_callback) => {
+                return Content
+                    .find(objQuery)
+                    .select(strSelect)
+                    .exec((objErr, arrContents) => {
+
+                    if (objErr) {
+                        console.error(ERRORS.CONTENT.DELETE.READ_CONTENTS);
+                        console.error(objErr);
+                        return _callback(ERRORS.CONTENT.DELETE.READ_CONTENTS);
+                    }
+                    return _callback(null, arrContents);
+                });
+            },
+
+            // extract files from contents array
+            (arrContents, _callback) => {
+                arrFiles = _extractFilesFromArrayOfContents(arrContents);
+                if (!arrFiles) {
+                    console.error(ERRORS.CONTENT.DELETE.EXTRACT_FILES);
+                    return _callback(ERRORS.CONTENT.DELETE.EXTRACT_FILES);
+                }
+                return _callback(null, arrFiles);
+            },
+
+            // delete all files
+            (arrFiles, _callback) => {
+                return deleteContentFiles(arrFiles, objErr => {
+                    if (objErr) {
+                        console.error(ERRORS.CONTENT.DELETE.DELETE_FILES);
+                        console.error(objErr);
+                        return _callback(ERRORS.CONTENT.DELETE.DELETE_FILES);
+                    }
+                    return _callback(null, arrContents);
+                });
+            },
+
+            // delete contents
+            (_callback) => {
+                return ContentBasic.remove(objQuery, (objErr, objResult) => {
+                    if (objErr) {
+                        console.error(ERRORS.CONTENT.DELETE.DELETE_CONTENTS);
+                        console.error(objErr);
+                        return _callback(ERRORS.CONTENT.DELETE.DELETE_CONTENTS);
+                    }
+                    return _callback(null, arrContents);
+                });
+            },
+        ],
+
+        // series callback function
+        // "objResult" can be "{ nRemoved: 4 }"
+        (objErr, objResult) => callback(objErr, objResult));
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to delete one file or an array of files, attached to an content.
+ *
+ * @public
+ * @param {String|Array} mixFiles  string of filename or array of strings of filenames
+ * @param {Function}     callback  function for callback
+ */
+function deleteContentFiles(mixFiles, callback) {
+    var arrFiles = 'string' === typeof mixFiles ? [mixFiles] : mixFiles;
+    var strFilePath;
+
+    return async.eachSeries(arrFiles,
+
+        // eachSeries action function
+        (strFilename, _callback) => {
+            strFilePath = path.join(paths.uploads, strFilename);
+            return fs.unlink(strFilePath, _callback);
+        }, 
+
+        // eachSeries callback function
+        objErr => {
+            if (objErr) {
+                console.error(ERRORS.CONTENT.DELETE_FILES.GENERAL);
+                console.error(objErr);
+                return callback(ERRORS.CONTENT.DELETE_FILES.GENERAL);
+            }
+            return callback(null);
+        });
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to test if the name is available.
+ *
+ * @public
+ * @param {String}   strName   string of the content's name
+ * @param {Function} callback  function for callback
+ */
+function testName(strName, callback) {
+    return Content.findOne({ name: strName }, (objErr, objResult) => {
         if (objErr) {
-            console.error(ERRORS.CONTENT.DELETE.GENERAL);
+            console.error(ERRORS.CONTENT.TEST_NAME.GENERAL);
             console.error(objErr);
-            return callback(ERRORS.CONTENT.DELETE.GENERAL);
+            return callback(ERRORS.CONTENT.TEST_NAME.GENERAL, 'error');
         }
-        return callback(null, objModifications);
+        if (!objResult) {
+            return callback(null, 'available');
+        }
+        return callback(null, 'not-available');
     });
 }
 
@@ -198,6 +298,45 @@ function _extendContent(objUserSimple, objContent, isCreation) {
     objContent.name      = isCreation && objContent.name;
     objContent.state     = isCreation && 'draft';
     return objContent;
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to extract all files from multiple contents at once.
+ *
+ * @public
+ * @param  {Array} arrContents  array of content objects to extract files from
+ * @return {Array}              array of files extracted from each content object
+ */
+function _extractFilesFromArrayOfContents(arrContents) {
+    var arrFilesTotal = [], i;
+    for (i = 0; i < arrContents.length; i += 1) {
+        arrFilesTotal.concat(_extractFilesFromContent(arrContents[i]));
+    }
+    return arrFilesTotal;
+}
+
+// *****************************************************************************
+
+/**
+ * Helper function to extract all files from content.
+ *
+ * @public
+ * @param  {Object} objContent  object of the content to extract all files from
+ * @return {Array}              array of the files that have been extracted
+ */
+function _extractFilesFromContent(objContent) {
+    var arrFiles = [];
+    if (objContent.imageFiles && objContent.imageFiles.length > 0) {
+        arrFiles = objContent.imageFiles.map(objFile => {
+            return objFile.filename;
+        });
+    }
+    if (objContent.mediaFile && objContent.mediaFile.filename) {
+        arrFiles.push(objContent.mediaFile.filename);
+    }
+    return arrFiles;
 }
 
 // *****************************************************************************

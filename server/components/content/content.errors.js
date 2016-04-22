@@ -35,6 +35,32 @@ setError(`500|ERRORS.CONTENT.UPDATE.GENERAL|
 setError(`500|ERRORS.CONTENT.DELETE.GENERAL|
     Content "delete": an unexpected error occurred.`);
 
+setError(`500|ERRORS.CONTENT.DELETE.READ_CONTENTS|
+    Content "delete": error with reading contents to extract filenames.`);
+
+setError(`500|ERRORS.CONTENT.DELETE.EXTRACT_FILES|
+    Content "delete": error with extracting filenames.`);
+
+setError(`500|ERRORS.CONTENT.DELETE.DELETE_FILES|
+    Content "delete": error with deleting files.`);
+
+setError(`500|ERRORS.CONTENT.DELETE.DELETE_CONTENTS|
+    Content "delete": error with deleting the contents.`);
+
+// *****************************************************************************
+// Content "delete files" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.CONTENT.DELETE_FILES.GENERAL|
+    Content "delete files": an unexpected error occurred.`);
+
+// *****************************************************************************
+// Content "test name" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.CONTENT.TEST_NAME.GENERAL|
+    Content "test name": an unexpected error occurred.`);
+
 // *****************************************************************************
 
 })();

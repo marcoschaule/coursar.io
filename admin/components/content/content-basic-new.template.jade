@@ -9,15 +9,15 @@ include content-basic.mixins.jade
 //- ****************************************************************************
 
 .wrapper
-    h4 Edit existing basic learning content
+    h4 Create new basic learning content
     form(name="vm.formContent",
             data-ng-submit="vm.createContent()")
 
         fieldset.form-group.margin-top-2rem
-            +inputTitle('vm.modelContent')
+            +inputTitle('vm.modelContentNew')
 
         fieldset.form-group
-            +inputName('vm.modelContent')
+            +inputName('vm.modelContentNew')
             .vmargin-1rem
             +alertNameAvailability
 
@@ -27,7 +27,7 @@ include content-basic.mixins.jade
 
             .buttons
                 span(data-ng-if="!vm.modelContent.mediaFile")
-                    +buttonSelectMediaFile
+                    +buttonSelectMediaFile('vm.modelContentNew')
                 span(data-ng-if="vm.modelContentNew.mediaFile")
                     +buttonTakePoster
                 span(data-ng-if="vm.modelContentNew.mediaFile.url && vm.modelContentNew.mediaFilePosterTmp")
@@ -55,7 +55,7 @@ include content-basic.mixins.jade
                         'vm.modelContentNew')
 
         fieldset.form-group.margin-top-2rem
-            +textareaText('vm.modelContent')
+            +textareaText('vm.modelContentNew')
         
         fieldset.form-group.margin-top-2rem
             +inputImageFiles
@@ -63,7 +63,7 @@ include content-basic.mixins.jade
         .vmargin-2rem
         fieldset.form-group
             .float-left
-                +buttonSaveContent
+                +buttonCreateContent
             .float-right
                 +buttonDeleteContent
             .clear

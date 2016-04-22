@@ -20,30 +20,40 @@ objRoutes.private = {
     get: [
 
         // read a media file
-        ['/admin/content/file/:filename',
-            // handle creation of the content
-            ContentCtrl.getFile],
+        ['/admin/content/read-media-file/:filename',
+            ContentCtrl.readMediaFile],
     ],
     put: [
 
         // create one content
         ['/admin/content/create',
-            // upload files with each request, but only if available
             ContentCtrl.uploadContent,
-            // handle creation of the content
             ContentCtrl.createContent],
 
-        // create one content
+        // read contents
         ['/admin/content/read',
-            // handle creation of the content
             ContentCtrl.readContents],
         
         // update one content
         ['/admin/content/update',
-            // upload files with each request, but only if available
             ContentCtrl.uploadContent,
-            // handle updating of the content
             ContentCtrl.updateContent],
+        
+        // delete one content
+        ['/admin/content/delete',
+            ContentCtrl.deleteContents],
+        
+        // delete one media file
+        ['/admin/content/delete-media-file',
+            ContentCtrl.updateContent],
+        
+        // delete one image file
+        ['/admin/content/delete-image-file',
+            ContentCtrl.updateContent],
+        
+        // test if a content name is available
+        ['/admin/content/test-name',
+            ContentCtrl.testName],
 
     ],
 };

@@ -64,7 +64,7 @@ function Controller(CioContentService) {
      * @private
      */
     function _readContents() {
-        return CioContentService.handleContent(function(objErr, objResult) {
+        return CioContentService.readAllContents(function(objErr, objResult) {
             vm.arrContents = objResult.contents;
         });
     }

@@ -13,7 +13,7 @@ var strFAdmin          = path.join(__dirname, '../../../.build/', env + '-admin'
 var objRoutes          = {};
 
 // path exceptions
-var arrAdminExceptions = ['/admin/content/file'];
+var arrAdminExceptions = ['/admin/content/media-file'];
 var arrUserExceptions  = [];
 
 // *****************************************************************************

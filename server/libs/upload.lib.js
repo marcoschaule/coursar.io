@@ -22,8 +22,7 @@ module.exports.settingsWithStorage = settingsWithStorage;
  * Library function to get the settings with the storage attribute.
  *
  * @public
- * @param  {String} strWhich  string of which kind "media" or "images"
- * @return {Object}           object of the transformed settings
+ * @return {Object}  object of the transformed settings
  */
 function settingsWithStorage() {
     var objSettingsLocal = clone(settings.upload);
