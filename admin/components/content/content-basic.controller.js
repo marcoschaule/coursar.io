@@ -68,12 +68,16 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * @public
      */
     function createContent() {
+        var fileMediaFilePoster = CioContentService.makeScreenshotFile(
+            vm.modelContentNew.mediaFilePoster,
+            vm.modelContentNew.mediaFile.name);
+
         var objData = {
             target         : 'createContentBasic',
             modifiers      : null,
-            mediaFile      : vm.modelContentNew.mediaFile,
-            mediaFilePoster: vm.modelContentNew.mediaFilePoster,
             imageFiles     : vm.modelContentNew.imageFiles,
+            mediaFile      : vm.modelContentNew.mediaFile,
+            mediaFilePoster: fileMediaFilePoster,
             content        : {
                 title: vm.modelContentNew.title,
                 name : vm.modelContentNew.name,
@@ -92,8 +96,7 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
             }
             if (objResult.content && objResult.content._id) {
                 return $state.go('contents.basicEdit', {
-                    id     : objResult.content._id.toString(),
-                    content: objResult.content,
+                    id: objResult.content._id.toString(),
                 });
             }
         });
@@ -107,9 +110,6 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * @public
      */
     function readContent() {
-        if ($state.params.content) {
-            return (vm.modelContentNew = $state.params.content);
-        }
         if (!$state.params.id) {
             return;
         }
@@ -120,9 +120,7 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
                 return;
             }
             vm.modelContent = objResult.contents;
-            if (vm.modelContent && vm.modelContent.mediaFile) {
-                vm.objConfigVideo = _setupMediaFile(vm.modelContent.mediaFile);
-            }
+            _setupMediaFiles();
         });
     }
 
@@ -260,7 +258,7 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
         context.drawImage(elMediaFile, 0, 0, numWidth, numHeight);
 
         // display the image in the view
-        var objUrl = elCanvas.toDataURL();
+        var objUrl = elCanvas.toDataURL('image/jpeg');
         vm.modelContentNew.mediaFilePoster    = objUrl;
         vm.modelContentNew.mediaFilePosterTmp = $sce.trustAsResourceUrl(objUrl);
     }
@@ -370,10 +368,16 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      *
      * @private
      */
-    function _setupMediaFile() {
-        var strUrl = CioContentService.buildMediaFileUrl(
+    function _setupMediaFiles() {
+        var strMediaFileUrl = CioContentService.buildMediaFileUrl(
             vm.modelContent.mediaFile.filename);
-        vm.modelContent.mediaFile.url = $sce.trustAsResourceUrl(strUrl);
+        var strMediaFilePosterUrl = CioContentService.buildMediaFileUrl(
+            vm.modelContent.mediaFilePoster.filename, 'poster');
+
+        // set the URLs in the objects locally
+        vm.modelContent.mediaFile.url       = $sce.trustAsResourceUrl(strMediaFileUrl);
+        vm.modelContent.mediaFilePoster.url = $sce.trustAsResourceUrl(strMediaFilePosterUrl);
+        console.log(">>> Debug ====================; vm.modelContent:", vm.modelContent, '\n\n');
     }
 
     // *************************************************************************

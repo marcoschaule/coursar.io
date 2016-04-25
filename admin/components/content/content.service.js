@@ -31,6 +31,8 @@ function Service(CioComService) {
 
     var _strTokenIdentifier           = 'accessToken';
     var _strUrlReadMediaFile          = '/admin/content/read-media-file/';
+    var _strUrlReadMediaFilePoster    = '/admin/content/read-media-file-poster/';
+    var _strUrlReadMediaFileImages    = '/admin/content/read-images/';
     var _strUrlContentCreate          = '/admin/content/create';
     var _strUrlContentRead            = '/admin/content/read';
     var _strUrlContentUpdate          = '/admin/content/update';
@@ -55,6 +57,7 @@ function Service(CioComService) {
     service.deleteContentImageFile = deleteContentImageFile;
     service.testContentName        = testContentName;
     service.buildMediaFileUrl      = buildMediaFileUrl;
+    service.makeScreenshotFile     = makeScreenshotFile;
 
     // *************************************************************************
     // Service function definitions
@@ -194,16 +197,65 @@ function Service(CioComService) {
      * @param  {String} _strFilename  string of the file name to build the URL from
      * @return {String}               string of the URL build from the filename
      */
-    function buildMediaFileUrl(_strFilename) {
-        var _strToken = CioComService.getToken('accessToken');
-        var strUrl    = [
-            _strUrlReadMediaFile,
-            _strFilename + '?',
+    function buildMediaFileUrl(strFilename, strWhich) {
+        var strToken   = CioComService.getToken('accessToken');
+        var strUrlPart = 
+            'poster' === strWhich && _strUrlReadMediaFilePoster ||
+            'image'  === strWhich && _strUrlReadMediaFileImages ||
+            _strUrlReadMediaFile;
+        
+        var strUrl = [
+            strUrlPart,
+            strFilename + '?',
             _strTokenIdentifier + '=',
-            _strToken,
+            strToken,
         ].join('');
 
         return strUrl;
+    }
+
+    // *************************************************************************
+
+    /**
+     * Service function to make a screenshot file from data URL and filename.
+     *
+     * @public
+     * @param  {Object} objDataUrl   object of the data URL
+     * @param  {String} strFilename  string of the filename of the media file source
+     * @return {File}                file of the created image
+     */
+    function makeScreenshotFile(objDataUrl, strFilename) {
+        var strBytes, strMimetype, arrBytes, strFileEnding, blob, file, i;
+
+        // convert base64/URLEncoded data component to raw binary data held in a string
+        if (objDataUrl.split(',')[0].indexOf('base64') >= 0) {
+            strBytes = atob(objDataUrl.split(',')[1]);
+        } else {
+            strBytes = unescape(objDataUrl.split(',')[1]);
+        }
+
+        // separate out the mime component
+        strMimetype = objDataUrl.split(',')[0].split(':')[1].split(';')[0];
+
+        // write the bytes of the string to a typed array
+        arrBytes = new Uint8Array(strBytes.length);
+        for (i = 0; i < strBytes.length; i++) {
+            arrBytes[i] = strBytes.charCodeAt(i);
+        }
+        
+        // define the filename ending
+        strFileEnding = strMimetype.replace('image/', '');
+        
+        // define the whole filename
+        strFilename = strFilename.replace(/\.([\d\w]{2,4})$/, ' - Screenshot.' + strFileEnding);
+
+        // create the blob from the bytes and with the mime type
+        blob = new Blob([arrBytes], { type: strMimetype });
+
+        // create the file from the blob
+        file = new File([blob], strFilename, { type: strMimetype });
+
+        return file; 
     }
 
     // *************************************************************************

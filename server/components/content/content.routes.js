@@ -22,6 +22,10 @@ objRoutes.private = {
         // read a media file
         ['/admin/content/read-media-file/:filename',
             ContentCtrl.readMediaFile],
+
+        // read a media file poster
+        ['/admin/content/read-media-file-poster/:filename',
+            ContentCtrl.readMediaFilePoster],
     ],
     put: [
 

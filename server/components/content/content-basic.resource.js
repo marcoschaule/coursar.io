@@ -29,27 +29,29 @@ var Url                = mongoose.SchemaTypes.Url;
 // private variables
 var _strModelName      = 'ContentLearningBasic';
 var _strCollectionName = 'contents';
-var typeStringNoSelect = _.extend(CioTypes.String, { select: false });
+var _objTypeStringSelect   = _.extend(CioTypes.String, { select: true });
+var _objTypeStringNoSelect = _.extend(CioTypes.String, { select: false });
 
 // *****************************************************************************
 // Resource definition
 // *****************************************************************************
 
 var objMediaFile = {
-    fieldname   : typeStringNoSelect,
-    originalname: CioTypes.String,
-    encoding    : typeStringNoSelect,
-    mimetype    : CioTypes.String,
-    destination : typeStringNoSelect,
-    filename    : CioTypes.String,
-    path        : typeStringNoSelect,
+    fieldname   : _objTypeStringSelect,
+    originalname: _objTypeStringSelect,
+    encoding    : _objTypeStringNoSelect,
+    mimetype    : _objTypeStringSelect,
+    destination : _objTypeStringNoSelect,
+    filename    : _objTypeStringSelect,
+    path        : _objTypeStringNoSelect,
     size        : { type: Number, select: false },
 }; 
 
 var objResource = objResourceCommon.extendWith({
-    text      : CioTypes.String,
-    mediaFile : objMediaFile,
-    imageFiles: [ objMediaFile ],
+    text           : CioTypes.String,
+    mediaFile      : objMediaFile,
+    mediaFilePoster: objMediaFile,
+    imageFiles     : [ objMediaFile ],
 });
 
 // *****************************************************************************

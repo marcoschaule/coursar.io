@@ -15,13 +15,14 @@ var uploads        = multer(libUpload.settingsWithStorage());
 // Exports
 // *****************************************************************************
 
-module.exports.readContents   = readContents;
-module.exports.createContent  = createOrUpdateContent;
-module.exports.updateContent  = createOrUpdateContent;
-module.exports.deleteContents = deleteContents;
-module.exports.uploadContent  = uploadContent;
-module.exports.readMediaFile  = readMediaFile;
-module.exports.testName       = testName;
+module.exports.readContents        = readContents;
+module.exports.createContent       = createOrUpdateContent;
+module.exports.updateContent       = createOrUpdateContent;
+module.exports.deleteContents      = deleteContents;
+module.exports.uploadContent       = uploadContent;
+module.exports.readMediaFile       = readMediaFile;
+module.exports.readMediaFilePoster = readMediaFilePoster;
+module.exports.testName            = testName;
 
 // *****************************************************************************
 // Controller functions
@@ -65,6 +66,9 @@ function createOrUpdateContent(req, res, next) {
 
     if (req.files.mediaFile && req.files.mediaFile.length > 0) {
         objContent.mediaFile = req.files.mediaFile[0];
+    }
+    if (req.files.mediaFilePoster && req.files.mediaFilePoster.length > 0) {
+        objContent.mediaFilePoster = req.files.mediaFilePoster[0];
     }
     if (req.files.imageFiles && req.files.imageFiles.length > 0) {
         objContent.imageFiles = req.files.imageFiles;
@@ -111,9 +115,6 @@ function deleteContents(req, res, next) {
  * @param {Function} next  function of callback for next middleware
  */
 function uploadContent(req, res, next) {
-    console.log(">>> Debug ====================; req.body:", req.body, '\n\n');
-    console.log(">>> Debug ====================; req.file:", req.file, '\n\n');
-    console.log(">>> Debug ====================; req.files:", req.files, '\n\n');
     return uploads.fields([
         { name: 'mediaFile',       maxCount: 1 },
         { name: 'mediaFilePoster', maxCount: 1 },
@@ -124,7 +125,7 @@ function uploadContent(req, res, next) {
 // *****************************************************************************
 
 /**
- * Controller function to get the file.
+ * Controller function to get the media file.
  *
  * @public
  * @param {Object}   req   object of Express request
@@ -168,6 +169,21 @@ function readMediaFile(req, res, next) {
             return res.end(objErr);
         });
     });
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to get the media file poster.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function readMediaFilePoster(req, res, next) {
+    var strFilePath = path.join(paths.uploads, req.params.filename);
+    return res.status(200).sendFile(strFilePath);
 }
 
 // *****************************************************************************

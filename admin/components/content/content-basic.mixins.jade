@@ -121,6 +121,7 @@ mixin mediaFile(strId, strUrlObject)
     .media-file.relative.border-round
         video.border-round(id="#{strId}",
                 width="100%",
+                poster="{{ #{strUrlObject}Poster.url }}",
                 controls="controls")
             source(src="{{ #{strUrlObject}.url }}",
                     type="{{ #{strUrlObject}.mimetype }}")
@@ -198,12 +199,12 @@ mixin buttonDeleteVideo
 
 mixin buttonCreateContent
     button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
-        |Create
+        |Create Content
 
 mixin buttonSaveContent
     button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
-        |Save
+        |Save Content
 
 mixin buttonDeleteContent
     a.btn.btn-danger(data-ng-click="vm.deleteContent()")
-        |Delete
+        |Delete Content
