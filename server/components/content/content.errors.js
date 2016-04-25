@@ -61,6 +61,9 @@ setError(`500|ERRORS.CONTENT.DELETE_CONTENT_IMAGE_FILES.GENERAL|
 setError(`500|ERRORS.CONTENT.DELETE_FILES.GENERAL|
     Content "delete files": an unexpected error occurred.`);
 
+setError(`500|ERRORS.CONTENT.DELETE_FILES.READ_FILE|
+    Content "delete files": error with reading file to get all images.`);
+
 setError(`500|ERRORS.CONTENT.DELETE_FILES.FILE_DOES_NOT_EXIST|
     Content "delete files": error since the file does not exist (anymore).`);
 

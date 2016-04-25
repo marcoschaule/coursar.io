@@ -335,11 +335,12 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      *
      * @public
      */
-    function encodeName() {
+    function encodeName(objModel) {
+        objModel = objModel || vm.modelContentNew;
         if (vm.flags.isNameEncodedTitle &&
-                vm.modelContentNew &&
-                vm.modelContentNew.title) {
-            vm.modelContentNew.name = vm.modelContentNew.title.toDashCaseSave();
+                objModel &&
+                objModel.title) {
+            objModel.name = objModel.title.toDashCaseSave();
         }
     }
 
@@ -377,6 +378,9 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
         var timeoutWait;
 
         var objEditor  = CodeMirror(function(elToReplace) {
+            elContentText &&
+            elContentText.parentNode &&
+            elContentText.parentNode.replaceChild &&
             elContentText.parentNode.replaceChild(elToReplace, elContentText);
         }, {
             mode          : 'markdown',

@@ -39,7 +39,7 @@ var objResource = {
     updatedBy: CioTypes.UserRef,
     updatedAt: CioTypes.DateDef,
     title    : CioTypes.String,
-    name     : CioTypes.StringDashCase,
+    name     : CioTypes.StringDashCaseUnique,
     state    : CioTypes.StatePublish,
     type     : CioTypes.TypeContent,
 };

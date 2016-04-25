@@ -236,19 +236,29 @@ function deleteContentImageFiles(strContentId, arrFilenames, callback) {
     var objQuery   = { _id: strContentId };
     var objUpdate  = { $pull: { imageFiles: { filename: { $in: arrFilenames } } } };
     var objOptions = { multi: true, safe: true };
+    var isAll      = false;
 
-
-    if (arrFilenames.indexOf('all') >= 0) {
+    if ('all' === arrFilenames[0]) {
         objUpdate = { $set: { imageFiles: [] } };
+        isAll     = true;
     }
-
-    Content.collection.find(objQuery, function(e, o) { console.log(">>> Debug ====================; o:", o, '\n\n'); });
-
-    console.log(">>> Debug ====================; strContentId:", strContentId);
-    console.log(">>> Debug ====================; arrFilenames:", arrFilenames);
-    console.log(">>> Debug ====================; objUpdate:", objUpdate, '\n\n');
-
     return async.series([
+
+        // get all files associated with the content
+        (_callback) => {
+            if (!isAll) { // if it is not to delete all files, go to next function
+                return _callback(null);
+            }
+            return Content.findOne(objQuery, (objErr, objResult) => {
+                if (objErr) {
+                    console.error(ERRORS.CONTENT.DELETE_FILES.READ_FILE);
+                    console.error(objErr);
+                    return _callback(ERRORS.CONTENT.DELETE_FILES.READ_FILE);
+                }
+                arrFilenames = objResult.toObject().imageFiles.map(objFile => objFile.filename);
+                return _callback(null);
+            });
+        },
     
         // delete files from hard drive
         (_callback) => {
@@ -257,7 +267,9 @@ function deleteContentImageFiles(strContentId, arrFilenames, callback) {
 
         // delete files from database
         (_callback) => {
-            return Content.collection.update(objQuery, objUpdate, objOptions, (objErr, objModified) => {
+            return ContentBasic.update(objQuery, objUpdate, objOptions, 
+                    (objErr, objModified) => {
+                
                 if (objErr) {
                     console.error(ERRORS.CONTENT.DELETE_CONTENT_IMAGE_FILES.GENERAL);
                     console.error(objErr);
@@ -288,11 +300,10 @@ function deleteContentFiles(mixFiles, callback) {
         (strFilename, _callback) => {
             strFilePath = path.join(paths.uploads, strFilename);
             return fs.stat(strFilePath, (objErr, objStats) => {
-                if (objErr && 'ENOENT' === objErr.code || !objStats.isFile()) {
-                    console.error(ERRORS.CONTENT.DELETE_FILES.FILE_DOES_NOT_EXIST);
-                    return _callback(null);
+                if (objStats && objStats.isFile()) {
+                    return fs.unlink(strFilePath, _callback);
                 }
-                return fs.unlink(strFilePath, _callback);
+                return _callback(null);
             });
         }, 
 

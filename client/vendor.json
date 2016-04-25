@@ -11,10 +11,10 @@
             { "file": "https://code.angularjs.org/1.5.0-rc.0/angular-sanitize.min.js.map" }
         ],
         "angular-ui": [
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.js",     "rename": "angular-ui-bootstrap-tpls.js" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap-tpls.min.js", "rename": "angular-ui-bootstrap-tpls.min.js" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.js",          "rename": "angular-ui-bootstrap.js" },
-            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.0/ui-bootstrap.min.js",      "rename": "angular-ui-bootstrap.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.2/ui-bootstrap-tpls.js",     "rename": "angular-ui-bootstrap-tpls.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.2/ui-bootstrap-tpls.min.js", "rename": "angular-ui-bootstrap-tpls.min.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.2/ui-bootstrap.js",          "rename": "angular-ui-bootstrap.js" },
+            { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.2/ui-bootstrap.min.js",      "rename": "angular-ui-bootstrap.min.js" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.js" },
             { "file": "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js" }
         ],
