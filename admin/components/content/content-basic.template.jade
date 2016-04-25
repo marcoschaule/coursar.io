@@ -34,8 +34,6 @@ include content-basic.mixins.jade
                     +buttonRemovePoster
                 span(data-ng-if="vm.modelContentNew.mediaFile")
                     +buttonRemoveFile
-                span(data-ng-if="vm.modelContent.mediaFile.url")
-                    +buttonDeleteVideo
 
             .media-files
                 div(data-ng-if="vm.modelContent.mediaFile.url")
@@ -53,6 +51,8 @@ include content-basic.mixins.jade
                     +mediaFilePoster(
                         'media-file-new-poster',
                         'vm.modelContentNew')
+                div(data-ng-if="vm.modelContent.mediaFile.url").right
+                    +buttonDeleteVideo
 
         fieldset.form-group.margin-top-2rem
             +textareaText('vm.modelContent')
@@ -61,9 +61,8 @@ include content-basic.mixins.jade
             +inputImageFiles
 
         .vmargin-2rem
-        fieldset.form-group
-            .float-left
-                +buttonSaveContent
-            .float-right
-                +buttonDeleteContent
-            .clear
+        hr
+        fieldset.form-group.right
+            +buttonSaveContent
+            |&nbsp;
+            +buttonDeleteContent

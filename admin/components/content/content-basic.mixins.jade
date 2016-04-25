@@ -69,12 +69,20 @@ mixin inputImageFiles
                 data-ngf-select="",
                 data-ngf-multiple="true",
                 data-ngf-pattern="'image/*'")
-            |Select image files for upload
+            i.fa.fa-file-picture-o
+            |&nbsp;Select image files for upload
         |&nbsp;
         a.btn.btn-danger(
                 data-ng-if="vm.modelContentNew.imageFiles.length > 0", 
                 data-ng-click="vm.removeImageFiles('all')")
-            |Remove all files from upload
+            i.fa.fa-trash
+            |&nbsp;Remove all image files from upload
+        |&nbsp;
+        a.btn.btn-danger(
+                data-ng-if="vm.modelContent.imageFiles.length > 0", 
+                data-ng-click="vm.deleteContentImageFile('all')")
+            i.fa.fa-trash
+            |&nbsp;Delete all uploaded image files
 
 //- ****************************************************************************
 
@@ -174,37 +182,54 @@ mixin buttonSelectMediaFile(strModel)
             data-ngf-model=strModel + ".mediaFile",
             data-ngf-select="vm.addMediaFile($event)",
             data-ngf-pattern="'audio/*,video/*'")
-        |Select media file
+        i.fa.fa-file-video-o
+        |&nbsp;Select media file
     |&nbsp;
 
 mixin buttonTakePoster
     a.btn.btn-default(data-ng-click="vm.addMediaFilePoster()")
-        |Take screenshot
+        i.fa.fa-picture-o
+        |&nbsp;Take screenshot
     |&nbsp;
 
 mixin buttonRemovePoster
     a.btn.btn-danger(data-ng-click="vm.removeMediaFilePoster()")
-        |Remove screenshot
+        i.fa.fa-trash
+        |&nbsp;Remove screenshot
     |&nbsp;
 
 mixin buttonRemoveFile
     a.btn.btn-danger(data-ng-click="vm.removeMediaFile('all')")
-        |Remove file
+        i.fa.fa-trash
+        |&nbsp;Remove file
     |&nbsp;
 
 mixin buttonDeleteVideo
     a.btn.btn-danger(data-ng-click="")
-        |Delete video
+        i.fa.fa-trash
+        |&nbsp;Delete video
+    |&nbsp;
+
+mixin buttonDeleteAllImageFiles
+    a.btn.btn-danger(data-ng-click="")
+        i.fa.fa-trash
+        |&nbsp;Delete all images
     |&nbsp;
 
 mixin buttonCreateContent
     button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
-        |Create Content
+        i.fa.fa-plus
+        |&nbsp;Create Content
+    |&nbsp;
 
 mixin buttonSaveContent
     button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
-        |Save Content
+        i.fa.fa-floppy-o
+        |&nbsp;Save Content
+    |&nbsp;
 
 mixin buttonDeleteContent
     a.btn.btn-danger(data-ng-click="vm.deleteContent()")
-        |Delete Content
+        i.fa.fa-trash
+        |&nbsp;Delete Content
+    |&nbsp;

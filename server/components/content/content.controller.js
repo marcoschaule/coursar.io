@@ -117,8 +117,12 @@ function deleteContents(req, res, next) {
  * @param {Function} next  function of callback for next middleware
  */
 function deleteContentImageFiles(req, res, next) {
+    var strContentId = req.body._id;
     var arrFilenames = req.body.filenames;
-    return ContentService.deleteContentImageFiles(arrFilenames, objErr => {
+    
+    return ContentService.deleteContentImageFiles(strContentId, 
+            arrFilenames, objErr => {
+        
         if (objErr) {
             return next(objErr);
         }

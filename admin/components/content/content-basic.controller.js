@@ -175,18 +175,25 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
     
     // *************************************************************************
     
-    function deleteContentImageFile(strImageFile) {
-        // if ('all' === mixFileToRemove) {
-        //     vm.modelContentNew.imageFiles = [];
-        // }
-        return CioContentService.deleteContentImageFile(strImageFile,
-                function(objErr) {
+    /**
+     * Controller function to delete content image files.
+     *
+     * @public
+     * @param {String|Array} mixFilenames  string or array of the image file(s)
+     */
+    function deleteContentImageFile(mixFilenames) {
+        var strContentId = vm.modelContent._id.toString();
+        var arrFilenames = 'string' === typeof mixFilenames ?
+                [mixFilenames] : mixFilenames;
+        
+        return CioContentService.deleteContentImageFile(strContentId,
+                arrFilenames, function(objErr) {
 
             if (objErr) {
                 // do something
                 return;
             }
-            return removeImageFiles(strImageFile, vm.modelContent);
+            return removeImageFiles(mixFilenames, vm.modelContent);
         });
     }
 
@@ -196,18 +203,21 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * Controller function to remove files from the temporary files list array.
      *
      * @public
-     * @param {String} strFilename  string of the filename of the image to be removed
-     * @param {Object} [objModel]   (optional) object of the model to be used
+     * @param {String|Array} mixFilenames  array or string of the filename of
+     *                                     the image to be removed
+     * @param {Object}       [objModel]    (optional) object of the model to be used
      */
-    function removeImageFiles(strFilename, objModel) {
+    function removeImageFiles(mixFilenames, objModel) {
+        var arrFilenames = 'string' === typeof mixFilenames ?
+                [mixFilenames] : mixFilenames;
         objModel = objModel || vm.modelContentNew;
-        if ('all' === strFilename) {
+
+        if ('all' === mixFilenames) {
             objModel.imageFiles = [];
         }
         for (var i = 0; i < objModel.imageFiles.length; i += 1) {
-            if (objModel.imageFiles[i].filename === strFilename) {
+            if (arrFilenames.indexOf(objModel.imageFiles[i].filename) >= 0) {
                 objModel.imageFiles.splice(i, 1);
-                return;
             }
         }
     }

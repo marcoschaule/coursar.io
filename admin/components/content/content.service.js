@@ -137,15 +137,14 @@ function Service(CioComService) {
      * Service function to delete one media file from a content.
      *
      * @public
-     * @param {String}   strContentId      string of the content id
      * @param {String}   strMediaFilename  string of the media filename
      * @param {Function} callback          function for callback
      */
-    function deleteContentMediaFile(strContentId, strMediaFilename, callback) {
+    function deleteContentMediaFile(strMediaFilename, callback) {
         var objRequest = {
             id  : 'delete-content-media-file',
             url : _strUrlContentDeleteMediaFile,
-            data: { _id: strContentId, mediaFile: strMediaFilename },
+            data: { mediaFile: strMediaFilename },
         };
         return CioComService.put(objRequest, callback);
     }
@@ -156,15 +155,15 @@ function Service(CioComService) {
      * Service function to delete one image file from a content.
      *
      * @public
-     * @param {String}   arrFilenames  string of the image filename
+     * @param {String}   strContentId  string of the content id
+     * @param {Array}    arrFilenames  array of the image filenames
      * @param {Function} callback      function for callback
      */
-    function deleteContentImageFile(arrFilenames, callback) {
-        arrFilenames = 'string' === typeof arrFilenames ? [arrFilenames] : arrFilenames;
+    function deleteContentImageFile(strContentId, arrFilenames, callback) {
         var objRequest = {
             id  : 'delete-content-image-file',
             url : _strUrlContentDeleteImageFiles,
-            data: { filenames: arrFilenames },
+            data: { _id: strContentId, filenames: arrFilenames },
         };
         return CioComService.put(objRequest, callback);
     }

@@ -228,13 +228,25 @@ function deleteContents(mixContentIds, callback) {
  * Service function to delete content image files form hard drive and database.
  *
  * @public
- * @param {Arrasy}   arrFilenames  array of the file names as strings
+ * @param {String}   strContentId  string of the content id
+ * @param {Array}    arrFilenames  array of the file names as strings
  * @param {Function} callback      function for callback
  */
-function deleteContentImageFiles(arrFilenames, callback) {
-    var objQuery   = {};
+function deleteContentImageFiles(strContentId, arrFilenames, callback) {
+    var objQuery   = { _id: strContentId };
     var objUpdate  = { $pull: { imageFiles: { filename: { $in: arrFilenames } } } };
     var objOptions = { multi: true, safe: true };
+
+
+    if (arrFilenames.indexOf('all') >= 0) {
+        objUpdate = { $set: { imageFiles: [] } };
+    }
+
+    Content.collection.find(objQuery, function(e, o) { console.log(">>> Debug ====================; o:", o, '\n\n'); });
+
+    console.log(">>> Debug ====================; strContentId:", strContentId);
+    console.log(">>> Debug ====================; arrFilenames:", arrFilenames);
+    console.log(">>> Debug ====================; objUpdate:", objUpdate, '\n\n');
 
     return async.series([
     
