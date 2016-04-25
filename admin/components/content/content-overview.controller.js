@@ -66,6 +66,7 @@ function Controller(CioContentService) {
     function _readContents() {
         return CioContentService.readAllContents(function(objErr, objResult) {
             vm.arrContents = objResult.contents;
+            console.log(">>> Debug ====================; vm.arrContents:", vm.arrContents, '\n\n');
         });
     }
 

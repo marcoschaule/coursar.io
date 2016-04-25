@@ -120,7 +120,9 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
                 return;
             }
             vm.modelContent = objResult.contents;
+            console.log(">>> Debug ====================; vm.modelContent:", vm.modelContent, '\n\n');
             _setupMediaFiles();
+            _setupCodeMirror(vm.modelContent);
         });
     }
 
@@ -332,9 +334,11 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * @private
      */
     function _init() {
-        _setupCodeMirror();
         if ($state.params.id) {
             readContent();
+        }
+        else {
+            _setupCodeMirror(vm.modelContentNew);
         }
     } _init();
 
@@ -345,17 +349,18 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      *
      * @private
      */
-    function _setupCodeMirror() {
+    function _setupCodeMirror(objModel) {
         var elContentText = $document[0].getElementById('content-text');
         var isChanging    = false;
         var objOptions    = { };
+        var strText       = objModel && objModel.text || '';
         var timeoutWait;
 
         var objEditor  = CodeMirror(function(elToReplace) {
             elContentText.parentNode.replaceChild(elToReplace, elContentText);
         }, {
             mode          : 'markdown',
-            value         : vm.modelContentNew && vm.modelContentNew.text || '',
+            value         : strText,
             lineNumbers   : true,
             viewportMargin: Infinity,
         });
@@ -377,7 +382,6 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
         // set the URLs in the objects locally
         vm.modelContent.mediaFile.url       = $sce.trustAsResourceUrl(strMediaFileUrl);
         vm.modelContent.mediaFilePoster.url = $sce.trustAsResourceUrl(strMediaFilePosterUrl);
-        console.log(">>> Debug ====================; vm.modelContent:", vm.modelContent, '\n\n');
     }
 
     // *************************************************************************

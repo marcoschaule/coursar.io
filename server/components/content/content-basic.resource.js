@@ -16,19 +16,20 @@
 // *****************************************************************************
 
 // includes
-var _                  = require('underscore');
-var mongoose           = require('mongoose');
-var mongooseLib        = require(paths.libs + '/mongoose.lib.js');
-var objResourceCommon  = require('./content.resource.js');
+var _                      = require('underscore');
+var mongoose               = require('mongoose');
+var whitelist              = require('walter-whitelist');
+var mongooseLib            = require(paths.libs + '/mongoose.lib.js');
+var ResourceCommon         = require('./content.resource.js');
 
 // definitions
-var Schema             = mongoose.Schema;
-var CioTypes           = mongooseLib.schemaTypes;
-var Url                = mongoose.SchemaTypes.Url;
+var Schema                 = mongoose.Schema;
+var CioTypes               = mongooseLib.schemaTypes;
+var Url                    = mongoose.SchemaTypes.Url;
 
 // private variables
-var _strModelName      = 'ContentLearningBasic';
-var _strCollectionName = 'contents';
+var _strModelName          = 'ContentLearningBasic';
+var _strCollectionName     = 'contents';
 var _objTypeStringSelect   = _.extend(CioTypes.String, { select: true });
 var _objTypeStringNoSelect = _.extend(CioTypes.String, { select: false });
 
@@ -37,22 +38,44 @@ var _objTypeStringNoSelect = _.extend(CioTypes.String, { select: false });
 // *****************************************************************************
 
 var objMediaFile = {
-    fieldname   : _objTypeStringSelect,
-    originalname: _objTypeStringSelect,
-    encoding    : _objTypeStringNoSelect,
-    mimetype    : _objTypeStringSelect,
-    destination : _objTypeStringNoSelect,
-    filename    : _objTypeStringSelect,
-    path        : _objTypeStringNoSelect,
-    size        : { type: Number, select: false },
+    fieldname   : CioTypes.String,
+    originalname: CioTypes.String,
+    encoding    : CioTypes.String,
+    mimetype    : CioTypes.String,
+    destination : CioTypes.String,
+    filename    : CioTypes.String,
+    path        : CioTypes.String,
+    size        : Number,
 }; 
 
-var objResource = objResourceCommon.extendWith({
+var objResource = ResourceCommon.extendWith({
     text           : CioTypes.String,
     mediaFile      : objMediaFile,
     mediaFilePoster: objMediaFile,
     imageFiles     : [ objMediaFile ],
 });
+
+// *****************************************************************************
+// Whitelist filters
+// *****************************************************************************
+
+var objWhitelistMediaFile = {
+    fieldname   : false,
+    originalname: true,
+    encoding    : false,
+    mimetype    : true,
+    destination : false,
+    filename    : true,
+    path        : false,
+    size        : false,
+};
+
+var objWhitelistResource = {
+    text           : true,
+    mediaFile      : objWhitelistMediaFile,
+    mediaFilePoster: objWhitelistMediaFile,
+    imageFiles     : true,
+};
 
 // *****************************************************************************
 // Schema definition
@@ -70,10 +93,12 @@ var Model = mongoose.model(_strModelName, schema, _strCollectionName);
 // Exports
 // *****************************************************************************
 
-module.exports.resource       = objResource;
-module.exports.schema         = schema;
-module.exports.Model          = Model;
-module.exports[_strModelName] = Model;
+module.exports.filterWhitelistList = ResourceCommon.setupWhitelistFilter();
+module.exports.filterWhitelist     = ResourceCommon.setupWhitelistFilter(objWhitelistResource);
+module.exports.resource            = objResource;
+module.exports.schema              = schema;
+module.exports.Model               = Model;
+module.exports[_strModelName]      = Model;
 
 // *****************************************************************************
 

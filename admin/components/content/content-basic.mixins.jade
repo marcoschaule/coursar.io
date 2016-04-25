@@ -20,7 +20,7 @@ mixin inputTitle(strModel)
             placeholder="Title",
             data-ng-required="true",
             data-ng-change="vm.encodeName()",
-            data-ng-model="#{strModel}.title")
+            data-ng-model=strModel + ".title")
 
 //- ****************************************************************************
 
@@ -35,7 +35,7 @@ mixin inputName(strModel)
             alt="Content name to be used to identify the content",
             placeholder="Name",
             data-ng-required="true",
-            data-ng-model="#{strModel}.name")
+            data-ng-model=strModel + ".name")
 
 //- ****************************************************************************
 
@@ -47,7 +47,7 @@ mixin textareaText(strModel)
             type="text",
             rows="25",
             alt="Content text as the basic content",
-            data-ng-model="#{strModel}.text")
+            data-ng-model=strModel + ".text")
 
 //- ****************************************************************************
 
