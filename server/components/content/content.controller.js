@@ -208,7 +208,7 @@ function readMediaFile(req, res, next) {
  * @param {Function} next  function of callback for next middleware
  */
 function readMediaFilePoster(req, res, next) {
-    var strFilePath = path.join(paths.uploads, req.params.filename);
+    var strFilePath = encodeURI(path.join(paths.uploads, req.params.filename));
     return res.status(200).sendFile(strFilePath);
 }
 

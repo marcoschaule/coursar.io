@@ -68,9 +68,12 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * @public
      */
     function createContent() {
-        var fileMediaFilePoster = CioContentService.makeScreenshotFile(
-            vm.modelContentNew.mediaFilePoster,
-            vm.modelContentNew.mediaFile.name);
+        var fileMediaFilePoster = null;
+        if (vm.modelContentNew.mediaFilePoster) {
+            fileMediaFilePoster = CioContentService.makeScreenshotFile(
+                vm.modelContentNew.mediaFilePoster,
+                vm.modelContentNew.mediaFile.name);
+        }
 
         var objData = {
             target         : 'createContentBasic',

@@ -253,7 +253,7 @@ function Service(CioComService) {
 
         // create the file from the blob
         file = new File([blob], strFilename, { type: strMimetype });
-
+        console.log(">>> Debug ====================; file:", file, '\n\n');
         return file; 
     }
 
