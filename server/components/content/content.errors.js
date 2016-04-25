@@ -48,11 +48,21 @@ setError(`500|ERRORS.CONTENT.DELETE.DELETE_CONTENTS|
     Content "delete": error with deleting the contents.`);
 
 // *****************************************************************************
+// Content "delete content image files" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.CONTENT.DELETE_CONTENT_IMAGE_FILES.GENERAL|
+    Content "delete files": an unexpected error occurred.`);
+
+// *****************************************************************************
 // Content "delete files" errors
 // *****************************************************************************
 
 setError(`500|ERRORS.CONTENT.DELETE_FILES.GENERAL|
     Content "delete files": an unexpected error occurred.`);
+
+setError(`500|ERRORS.CONTENT.DELETE_FILES.FILE_DOES_NOT_EXIST|
+    Content "delete files": error since the file does not exist (anymore).`);
 
 // *****************************************************************************
 // Content "test name" errors

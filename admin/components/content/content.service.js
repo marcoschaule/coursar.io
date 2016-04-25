@@ -29,17 +29,17 @@ function Service(CioComService) {
     // Private variables
     // *************************************************************************
 
-    var _strTokenIdentifier           = 'accessToken';
-    var _strUrlReadMediaFile          = '/admin/content/read-media-file/';
-    var _strUrlReadMediaFilePoster    = '/admin/content/read-media-file-poster/';
-    var _strUrlReadMediaFileImages    = '/admin/content/read-images/';
-    var _strUrlContentCreate          = '/admin/content/create';
-    var _strUrlContentRead            = '/admin/content/read';
-    var _strUrlContentUpdate          = '/admin/content/update';
-    var _strUrlContentDelete          = '/admin/content/delete';
-    var _strUrlContentDeleteMediaFile = '/admin/content/delete-media-file';
-    var _strUrlContentDeleteImageFile = '/admin/content/delete-image-file';
-    var _strUrlTestContentName        = '/admin/content/test-name';
+    var _strTokenIdentifier            = 'accessToken';
+    var _strUrlReadMediaFile           = '/admin/content/read-media-file/';
+    var _strUrlReadMediaFilePoster     = '/admin/content/read-media-file-poster/';
+    var _strUrlReadMediaFileImages     = '/admin/content/read-images/';
+    var _strUrlContentCreate           = '/admin/content/create';
+    var _strUrlContentRead             = '/admin/content/read';
+    var _strUrlContentUpdate           = '/admin/content/update';
+    var _strUrlContentDelete           = '/admin/content/delete';
+    var _strUrlContentDeleteMediaFile  = '/admin/content/delete-media-file';
+    var _strUrlContentDeleteImageFiles = '/admin/content/delete-image-files';
+    var _strUrlTestContentName         = '/admin/content/test-name';
 
     // *************************************************************************
     // Public variables
@@ -156,15 +156,15 @@ function Service(CioComService) {
      * Service function to delete one image file from a content.
      *
      * @public
-     * @param {String}   strContentId      string of the content id
-     * @param {String}   strImageFilename  string of the image filename
-     * @param {Function} callback          function for callback
+     * @param {String}   arrFilenames  string of the image filename
+     * @param {Function} callback      function for callback
      */
-    function deleteContentImageFile(strContentId, strImageFilename, callback) {
+    function deleteContentImageFile(arrFilenames, callback) {
+        arrFilenames = 'string' === typeof arrFilenames ? [arrFilenames] : arrFilenames;
         var objRequest = {
             id  : 'delete-content-image-file',
-            url : _strUrlContentDeleteMediaFile,
-            data: { _id: strContentId, imageFile: strImageFilename },
+            url : _strUrlContentDeleteImageFiles,
+            data: { filenames: arrFilenames },
         };
         return CioComService.put(objRequest, callback);
     }

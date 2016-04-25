@@ -52,8 +52,8 @@ objRoutes.private = {
             ContentCtrl.updateContent],
         
         // delete one image file
-        ['/admin/content/delete-image-file',
-            ContentCtrl.updateContent],
+        ['/admin/content/delete-image-files',
+            ContentCtrl.deleteContentImageFiles],
         
         // test if a content name is available
         ['/admin/content/test-name',

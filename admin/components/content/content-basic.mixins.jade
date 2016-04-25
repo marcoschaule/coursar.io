@@ -99,7 +99,7 @@ mixin tableImageFilesNew
                 i.text-danger.fa.fa-times
                 |&nbsp;not uploaded yet
             td(width="5%").right: a.btn.btn-xs.btn-danger(
-                    data-ng-click="vm.removeImageFiles(objFile)")
+                    data-ng-click="vm.removeImageFiles(objFile.filename)")
                 i.fa.fa-trash
 
 //- ****************************************************************************
@@ -112,7 +112,7 @@ mixin tableImageFiles
                 i.text-success.fa.fa-check
                 |&nbsp;uploaded
             td(width="5%").right: a.btn.btn-xs.btn-danger(
-                    data-ng-click="vm.removeImageFiles(objFile)")
+                    data-ng-click="vm.deleteContentImageFile(objFile.filename)")
                 i.fa.fa-trash
 
 //- ****************************************************************************
@@ -121,8 +121,8 @@ mixin mediaFile(strId, strUrlObject)
     .media-file.relative.border-round
         video.border-round(id="#{strId}",
                 width="100%",
-                poster="{{ #{strUrlObject}Poster.url }}",
-                controls="controls")
+                controls="controls"
+                data-ng-attr-poster="{{ #{strUrlObject}Poster.url }}")
             source(src="{{ #{strUrlObject}.url }}",
                     type="{{ #{strUrlObject}.mimetype }}")
         .absolute.abs-top.abs-left.margin-1rem.white

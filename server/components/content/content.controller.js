@@ -15,14 +15,15 @@ var uploads        = multer(libUpload.settingsWithStorage());
 // Exports
 // *****************************************************************************
 
-module.exports.readContents        = readContents;
-module.exports.createContent       = createOrUpdateContent;
-module.exports.updateContent       = createOrUpdateContent;
-module.exports.deleteContents      = deleteContents;
-module.exports.uploadContent       = uploadContent;
-module.exports.readMediaFile       = readMediaFile;
-module.exports.readMediaFilePoster = readMediaFilePoster;
-module.exports.testName            = testName;
+module.exports.readContents            = readContents;
+module.exports.createContent           = createOrUpdateContent;
+module.exports.updateContent           = createOrUpdateContent;
+module.exports.deleteContents          = deleteContents;
+module.exports.deleteContentImageFiles = deleteContentImageFiles;
+module.exports.uploadContent           = uploadContent;
+module.exports.readMediaFile           = readMediaFile;
+module.exports.readMediaFilePoster     = readMediaFilePoster;
+module.exports.testName                = testName;
 
 // *****************************************************************************
 // Controller functions
@@ -96,7 +97,28 @@ function createOrUpdateContent(req, res, next) {
  */
 function deleteContents(req, res, next) {
     var arrContentIds = req.body.arrContentIds;
-    return Content.deleteContents(arrContentIds, objErr => {
+    return ContentService.deleteContents(arrContentIds, objErr => {
+        if (objErr) {
+            return next(objErr);
+        }
+        return res.status(200).json({ err: null, success: true });
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to delete content image files from hard drive and
+ * database.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function deleteContentImageFiles(req, res, next) {
+    var arrFilenames = req.body.filenames;
+    return ContentService.deleteContentImageFiles(arrFilenames, objErr => {
         if (objErr) {
             return next(objErr);
         }
@@ -185,10 +207,6 @@ function readMediaFilePoster(req, res, next) {
     var strFilePath = path.join(paths.uploads, req.params.filename);
     return res.status(200).sendFile(strFilePath);
 }
-
-// *****************************************************************************
-
-function removeImageFile(req, res, next) {}
 
 // *****************************************************************************
 

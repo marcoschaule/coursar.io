@@ -120,7 +120,6 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
                 return;
             }
             vm.modelContent = objResult.contents;
-            console.log(">>> Debug ====================; vm.modelContent:", vm.modelContent, '\n\n');
             _setupMediaFiles();
             _setupCodeMirror(vm.modelContent);
         });
@@ -177,6 +176,18 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
     // *************************************************************************
     
     function deleteContentImageFile(strImageFile) {
+        // if ('all' === mixFileToRemove) {
+        //     vm.modelContentNew.imageFiles = [];
+        // }
+        return CioContentService.deleteContentImageFile(strImageFile,
+                function(objErr) {
+
+            if (objErr) {
+                // do something
+                return;
+            }
+            return removeImageFiles(strImageFile, vm.modelContent);
+        });
     }
 
     // *************************************************************************
@@ -185,19 +196,17 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * Controller function to remove files from the temporary files list array.
      *
      * @public
-     * @param {Object|String} mixFileToRemove  object of the file to be removed
-     *                                         or string "all" to remove all
+     * @param {String} strFilename  string of the filename of the image to be removed
+     * @param {Object} [objModel]   (optional) object of the model to be used
      */
-    function removeImageFiles(mixFileToRemove) {
-        if (!vm.modelContentNew.imageFiles.length || vm.modelContentNew.imageFiles.length <= 0) {
-            return;
+    function removeImageFiles(strFilename, objModel) {
+        objModel = objModel || vm.modelContentNew;
+        if ('all' === strFilename) {
+            objModel.imageFiles = [];
         }
-        if ('all' === mixFileToRemove) {
-            vm.modelContentNew.imageFiles = [];
-        }
-        for (var i = 0; i < vm.modelContentNew.imageFiles.length; i += 1) {
-            if (vm.modelContentNew.imageFiles[i] === mixFileToRemove) {
-                vm.modelContentNew.imageFiles.splice(i, 1);
+        for (var i = 0; i < objModel.imageFiles.length; i += 1) {
+            if (objModel.imageFiles[i].filename === strFilename) {
+                objModel.imageFiles.splice(i, 1);
                 return;
             }
         }
@@ -348,6 +357,7 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * Helper function to setup the "CodeMirror" textarea.
      *
      * @private
+     * @param {Object} objModel  object of the model to be used
      */
     function _setupCodeMirror(objModel) {
         var elContentText = $document[0].getElementById('content-text');
@@ -374,14 +384,18 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * @private
      */
     function _setupMediaFiles() {
-        var strMediaFileUrl = CioContentService.buildMediaFileUrl(
-            vm.modelContent.mediaFile.filename);
-        var strMediaFilePosterUrl = CioContentService.buildMediaFileUrl(
-            vm.modelContent.mediaFilePoster.filename, 'poster');
-
-        // set the URLs in the objects locally
-        vm.modelContent.mediaFile.url       = $sce.trustAsResourceUrl(strMediaFileUrl);
-        vm.modelContent.mediaFilePoster.url = $sce.trustAsResourceUrl(strMediaFilePosterUrl);
+        if (vm.modelContent.mediaFile && 
+                vm.modelContent.mediaFile.filename) {
+            var strMediaFileUrl = CioContentService.buildMediaFileUrl(
+                vm.modelContent.mediaFile.filename);
+            vm.modelContent.mediaFile.url = $sce.trustAsResourceUrl(strMediaFileUrl);
+        }
+        if (vm.modelContent.mediaFilePoster &&
+                vm.modelContent.mediaFilePoster.filename) {
+            var strMediaFilePosterUrl = CioContentService.buildMediaFileUrl(
+                vm.modelContent.mediaFilePoster.filename, 'poster');
+            vm.modelContent.mediaFilePoster.url = $sce.trustAsResourceUrl(strMediaFilePosterUrl);
+        }
     }
 
     // *************************************************************************

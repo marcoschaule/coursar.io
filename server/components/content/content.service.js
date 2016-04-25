@@ -5,6 +5,7 @@
 // *****************************************************************************
 
 var fs                   = require('fs');
+var path                 = require('path');
 var async                = require('async');
 var contentBasicResource = require('./content-basic.resource.js');
 var contentResource      = require('./content.resource.js');
@@ -25,6 +26,7 @@ module.exports.createContentPractical        = null;
 module.exports.readContents                  = readContents;
 module.exports.updateContents                = updateContents;
 module.exports.deleteContents                = deleteContents;
+module.exports.deleteContentImageFiles       = deleteContentImageFiles;
 module.exports.deleteContentFiles            = deleteContentFiles;
 module.exports.testName                      = testName;
 
@@ -223,6 +225,41 @@ function deleteContents(mixContentIds, callback) {
 // *****************************************************************************
 
 /**
+ * Service function to delete content image files form hard drive and database.
+ *
+ * @public
+ * @param {Arrasy}   arrFilenames  array of the file names as strings
+ * @param {Function} callback      function for callback
+ */
+function deleteContentImageFiles(arrFilenames, callback) {
+    var objQuery   = {};
+    var objUpdate  = { $pull: { imageFiles: { filename: { $in: arrFilenames } } } };
+    var objOptions = { multi: true, safe: true };
+
+    return async.series([
+    
+        // delete files from hard drive
+        (_callback) => {
+            return deleteContentFiles(arrFilenames, _callback);
+        },
+
+        // delete files from database
+        (_callback) => {
+            return Content.collection.update(objQuery, objUpdate, objOptions, (objErr, objModified) => {
+                if (objErr) {
+                    console.error(ERRORS.CONTENT.DELETE_CONTENT_IMAGE_FILES.GENERAL);
+                    console.error(objErr);
+                    return _callback(ERRORS.CONTENT.DELETE_CONTENT_IMAGE_FILES.GENERAL);
+                }
+                return _callback(null);
+            });
+        },
+    ], callback);
+}
+
+// *****************************************************************************
+
+/**
  * Service function to delete one file or an array of files, attached to an content.
  *
  * @public
@@ -238,7 +275,13 @@ function deleteContentFiles(mixFiles, callback) {
         // eachSeries action function
         (strFilename, _callback) => {
             strFilePath = path.join(paths.uploads, strFilename);
-            return fs.unlink(strFilePath, _callback);
+            return fs.stat(strFilePath, (objErr, objStats) => {
+                if (objErr && 'ENOENT' === objErr.code || !objStats.isFile()) {
+                    console.error(ERRORS.CONTENT.DELETE_FILES.FILE_DOES_NOT_EXIST);
+                    return _callback(null);
+                }
+                return fs.unlink(strFilePath, _callback);
+            });
         }, 
 
         // eachSeries callback function
