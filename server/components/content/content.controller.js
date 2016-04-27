@@ -19,6 +19,7 @@ module.exports.readContents            = readContents;
 module.exports.createContent           = createOrUpdateContent;
 module.exports.updateContent           = createOrUpdateContent;
 module.exports.deleteContents          = deleteContents;
+module.exports.deleteContentMediaFile  = deleteContentMediaFile;
 module.exports.deleteContentImageFiles = deleteContentImageFiles;
 module.exports.uploadContent           = uploadContent;
 module.exports.readMediaFile           = readMediaFile;
@@ -98,6 +99,31 @@ function createOrUpdateContent(req, res, next) {
 function deleteContents(req, res, next) {
     var arrContentIds = req.body.arrContentIds;
     return ContentService.deleteContents(arrContentIds, objErr => {
+        if (objErr) {
+            return next(objErr);
+        }
+        return res.status(200).json({ err: null, success: true });
+    });
+}
+
+// *****************************************************************************
+
+/**
+ * Controller function to delete content image files from hard drive and
+ * database.
+ *
+ * @public
+ * @param {Object}   req   object of Express request
+ * @param {Object}   res   object of Express response
+ * @param {Function} next  function of callback for next middleware
+ */
+function deleteContentMediaFile(req, res, next) {
+    var strContentId = req.body._id;
+    var strMediaFile = req.body.mediaFile;
+    
+    return ContentService.deleteContentMediaFile(strContentId, 
+            strMediaFile, objErr => {
+        
         if (objErr) {
             return next(objErr);
         }

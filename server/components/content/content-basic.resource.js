@@ -30,22 +30,23 @@ var Url                    = mongoose.SchemaTypes.Url;
 // private variables
 var _strModelName          = 'ContentLearningBasic';
 var _strCollectionName     = 'contents';
-var _objTypeStringSelect   = _.extend(CioTypes.String, { select: true });
-var _objTypeStringNoSelect = _.extend(CioTypes.String, { select: false });
+var _objTypeStringSelect   = _.extend({}, CioTypes.String, { select: true });
+var _objTypeStringNoSelect = _.extend({}, CioTypes.String, { select: false });
+var _objTypeNumberNoSelect = _.extend({}, CioTypes.NumberPos0, { select: false });
 
 // *****************************************************************************
 // Resource definition
 // *****************************************************************************
 
 var objMediaFile = {
-    fieldname   : CioTypes.String,
-    originalname: CioTypes.String,
-    encoding    : CioTypes.String,
-    mimetype    : CioTypes.String,
-    destination : CioTypes.String,
-    filename    : CioTypes.String,
-    path        : CioTypes.String,
-    size        : Number,
+    fieldname   : _objTypeStringNoSelect,
+    originalname: _objTypeStringSelect,
+    encoding    : _objTypeStringNoSelect,
+    mimetype    : _objTypeStringSelect,
+    destination : _objTypeStringNoSelect,
+    filename    : _objTypeStringSelect,
+    path        : _objTypeStringNoSelect,
+    size        : _objTypeNumberNoSelect,
 }; 
 
 var objResource = ResourceCommon.extendWith({

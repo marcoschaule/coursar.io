@@ -138,7 +138,8 @@ mixin mediaFile(strId, strUrlObject)
         .absolute.abs-top.abs-left.margin-1rem.white
             h4 {{ #{strUrlObject}.name }}
         .absolute.abs-top.abs-right.margin-2rem
-            a.btn.btn-danger(data-ng-click="vm.removeMediaFile('all')")
+            a.btn.btn-danger(data-ng-click="vm.deleteContentMediaFile()",
+            data-confirm="Are you sure you want to delete that media file?")
                 i.fa.fa-trash
 
 //- ****************************************************************************
@@ -189,49 +190,58 @@ mixin buttonSelectMediaFile(strModel)
     |&nbsp;
 
 mixin buttonTakePoster
-    a.btn.btn-default(data-ng-click="vm.addMediaFilePoster()")
+    a.btn.btn-default(
+            data-ng-click="vm.addMediaFilePoster()")
         i.fa.fa-picture-o
         |&nbsp;Take screenshot
     |&nbsp;
 
 mixin buttonRemovePoster
-    a.btn.btn-danger(data-ng-click="vm.removeMediaFilePoster()")
+    a.btn.btn-danger(
+            data-ng-click="vm.removeMediaFilePoster()")
         i.fa.fa-trash
         |&nbsp;Remove screenshot
     |&nbsp;
 
 mixin buttonRemoveFile
-    a.btn.btn-danger(data-ng-click="vm.removeMediaFile('all')")
+    a.btn.btn-danger(
+            data-ng-click="vm.removeMediaFile('all')")
         i.fa.fa-trash
         |&nbsp;Remove file
     |&nbsp;
 
 mixin buttonDeleteVideo
-    a.btn.btn-danger(data-ng-click="")
+    a.btn.btn-danger(
+            data-ng-click="vm.deleteContentMediaFile()",
+            data-confirm="Are you sure you want to delete that media file?")
         i.fa.fa-trash
         |&nbsp;Delete video
     |&nbsp;
 
 mixin buttonDeleteAllImageFiles
-    a.btn.btn-danger(data-ng-click="")
+    a.btn.btn-danger(
+            data-ng-click="")
         i.fa.fa-trash
         |&nbsp;Delete all images
     |&nbsp;
 
 mixin buttonCreateContent
-    button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
+    button.btn.btn-primary(
+            data-ng-disabled="vm.formContent.$invalid")
         i.fa.fa-plus
         |&nbsp;Create Content
     |&nbsp;
 
 mixin buttonSaveContent
-    button.btn.btn-primary(data-ng-disabled="vm.formContent.$invalid")
+    button.btn.btn-primary(
+            data-ng-disabled="vm.formContent.$invalid")
         i.fa.fa-floppy-o
         |&nbsp;Save Content
     |&nbsp;
 
 mixin buttonDeleteContent
-    a.btn.btn-danger(data-ng-click="vm.deleteContent()",
+    a.btn.btn-danger(
+            data-ng-click="vm.deleteContent()",
             data-confirm="Are you sure you want to delete that content?")
         i.fa.fa-trash
         |&nbsp;Delete Content

@@ -37,7 +37,7 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
     vm.modelContent    = {};
     vm.modelContentNew = {};
     vm.objConfigVideo  = {};
-    vm.flags           = { isNameEncodedTitle: true };
+    vm.flags           = { isInit: false, isNameEncodedTitle: true, isEdit: false };
     vm.state           = { nameAvailability: 'idle' };
 
     // *************************************************************************
@@ -68,25 +68,7 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * @public
      */
     function createContent() {
-        var fileMediaFilePoster = null;
-        if (vm.modelContentNew.mediaFilePoster) {
-            fileMediaFilePoster = CioContentService.makeScreenshotFile(
-                vm.modelContentNew.mediaFilePoster,
-                vm.modelContentNew.mediaFile.name);
-        }
-
-        var objData = {
-            target         : 'createContentBasic',
-            modifiers      : null,
-            imageFiles     : vm.modelContentNew.imageFiles,
-            mediaFile      : vm.modelContentNew.mediaFile,
-            mediaFilePoster: fileMediaFilePoster,
-            content        : {
-                title: vm.modelContentNew.title,
-                name : vm.modelContentNew.name,
-                text : vm.modelContentNew.text,
-            },
-        };
+        var objData = _buildDataObject();
 
         return CioContentService.createContent(objData,
                 function(objErr, objResult, objPendingEvent) {
@@ -111,26 +93,54 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * Controller function to read the current content.
      *
      * @public
+     * @param {Function} callback  function for callback
      */
-    function readContent() {
+    function readContent(callback) {
         if (!$state.params.id) {
             return;
         }
 
-        return CioContentService.readContent($state.params.id, function(objErr, objResult) {
+        return CioContentService.readContent($state.params.id,
+                function(objErr, objResult) {
+            
             if (objErr) {
                 // do something
                 return;
             }
-            vm.modelContent = objResult.contents;
+            if (!objResult || objResult && objResult.contents && objResult.contents.length <= 0) {
+                return $state.go('contents.overview');
+            }
+            vm.modelContent = objResult && objResult.contents || {};
             _setupMediaFiles();
-            _setupCodeMirror(vm.modelContent);
+            _setupCodeMirror(vm.modelContent, callback);
         });
     }
 
     // *************************************************************************
 
-    function updateContent() {}
+    /**
+     * Controller function to update the content including new uploads.
+     *
+     * @public
+     */
+    function updateContent() {
+        var objData         = _buildDataObject(vm.modelContent, 'updateContentBasic');
+        objData.content._id = vm.modelContent._id.toString();
+
+        return CioContentService.updateContent(objData,
+                function(objErr, objResult, objPendingEvent) {
+            
+            if (objErr) {
+                // do something
+            }
+            if (objPendingEvent) {
+                return $rootScope.pending.set(objPendingEvent.loaded, objPendingEvent.total);
+            }
+            if (objResult) {
+                return $state.go($state.current, {}, { reload: true });
+            }
+        });
+    }
     
     // *************************************************************************
 
@@ -159,20 +169,19 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * @public
      */
     function deleteContentMediaFile() {
+        var strContentId     = vm.modelContent._id.toString();
         var strMediaFileName = vm.modelContent.mediaFile.filename;
 
-        if (!strMediaFileName) {
-            return;
-        }
-
-        return CioContentService.deleteContentMediaFile(
+        return CioContentService.deleteContentMediaFile(strContentId,
                 strMediaFileName, function(objErr, objResult) {
             
             if (objErr) {
                 // do something
                 return;
             }
-            return (vm.modelContent.mediaFile = null);
+            vm.modelContent.mediaFile       = null;
+            vm.modelContent.mediaFilePoster = null;
+            return;
         });
     }
     
@@ -316,13 +325,15 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * 
      * @public
      */
-    function testContentName() {
-        if (!vm.modelContentNew || !vm.modelContentNew.name) {
+    function testContentName(objModel) {
+        objModel = objModel || vm.modelContentNew;
+
+        if (!objModel || !objModel.name) {
             return;
         }
         vm.formContent.$setValidity('contentName', true);
         vm.state.nameAvailability = 'pending';
-        return CioContentService.testContentName(vm.modelContentNew.name,
+        return CioContentService.testContentName(objModel.name,
                 function(objErr, objResult) {
             vm.state.nameAvailability = objResult.state;
             vm.formContent.$setValidity('contentName', 'available' === objResult.state);
@@ -358,12 +369,55 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      */
     function _init() {
         if ($state.params.id) {
-            readContent();
+            vm.flags.isEdit = true;
+            readContent(function() {
+                vm.flags.isInit = true;
+            });
         }
         else {
-            _setupCodeMirror(vm.modelContentNew);
+            vm.flags.isEdit = false;
+            _setupCodeMirror(vm.modelContentNew, function() {
+                vm.flags.isInit = true;
+            });
         }
     } _init();
+
+    // *************************************************************************
+
+    /**
+     * Helper function to build the data object.
+     *
+     * @private
+     * @param  {Object} [objModel]   (optional) object of the model to get the data from
+     * @param  {String} [strTarget]  (optional) string of the target function
+     * @return {Object}              data object for "create" or "update" process
+     */
+    function _buildDataObject(objModel, strTarget) {
+        var fileMediaFilePoster = null;
+        
+        objModel  = objModel  || vm.modelContentNew;
+        strTarget = strTarget || 'createContentBasic';
+
+        if (vm.modelContentNew.mediaFilePoster) {
+            fileMediaFilePoster = CioContentService.makeScreenshotFile(
+                vm.modelContentNew.mediaFilePoster,
+                vm.modelContentNew.mediaFile.name);
+        }
+
+        var objData = {
+            target         : strTarget,
+            modifiers      : null,
+            imageFiles     : vm.modelContentNew.imageFiles,
+            mediaFile      : vm.modelContentNew.mediaFile,
+            mediaFilePoster: fileMediaFilePoster,
+            content        : {
+                title: objModel.title,
+                name : objModel.name,
+                text : objModel.text,
+            },
+        };
+        return objData;
+    }
 
     // *************************************************************************
 
@@ -371,9 +425,10 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      * Helper function to setup the "CodeMirror" textarea.
      *
      * @private
-     * @param {Object} objModel  object of the model to be used
+     * @param {Object}   objModel  object of the model to be used
+     * @param {Function} callback  function for callback
      */
-    function _setupCodeMirror(objModel) {
+    function _setupCodeMirror(objModel, callback) {
         var elContentText = $document[0].getElementById('content-text');
         var isChanging    = false;
         var objOptions    = { };
@@ -391,6 +446,8 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
             lineNumbers   : true,
             viewportMargin: Infinity,
         });
+
+        return (callback && 'function' === typeof callback && callback());
     }
 
     // *************************************************************************
@@ -422,8 +479,14 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
     /**
      * Watcher to watch the content name change.
      */
-    $scope.$watch('vm.modelContentNew.name', function(strValueNew) {
-        testContentName();
+    $scope.$watch('vm.modelContentNew.name + vm.modelContent.name',
+            function(strValueNew, strValueOld) {
+        
+        if (vm.flags.isEdit && strValueNew && strValueOld) {
+            testContentName(vm.modelContent);
+        } else {
+            testContentName(vm.modelContentNew);
+        }
     });
 
     // *************************************************************************

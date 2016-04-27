@@ -52,6 +52,7 @@ function Service(CioComService) {
     service.createContent          = createContent;
     service.readContent            = readContent;
     service.readAllContents        = readAllContents;
+    service.updateContent          = updateContent;
     service.deleteContent          = deleteContent;
     service.deleteContentMediaFile = deleteContentMediaFile;
     service.deleteContentImageFile = deleteContentImageFile;
@@ -116,6 +117,25 @@ function Service(CioComService) {
     // *************************************************************************
 
     /**
+     * Service function to update the content including uploading new data.
+     *
+     * @public
+     * @param {Object}   objData   object of the data to be updated
+     * @param {Function} callback  function for callback
+     */
+    function updateContent(objData, callback) {
+        var objRequest = {
+            method : 'PUT',
+            id     : 'update-content',
+            url    : _strUrlContentUpdate,
+            data   : objData,
+        };
+        return CioComService.upload(objRequest, callback);
+    }
+    
+    // *************************************************************************
+
+    /**
      * Service function to delete a content.
      *
      * @public
@@ -137,14 +157,15 @@ function Service(CioComService) {
      * Service function to delete one media file from a content.
      *
      * @public
+     * @param {String}   strContentId      string of the content id
      * @param {String}   strMediaFilename  string of the media filename
      * @param {Function} callback          function for callback
      */
-    function deleteContentMediaFile(strMediaFilename, callback) {
+    function deleteContentMediaFile(strContentId, strMediaFilename, callback) {
         var objRequest = {
             id  : 'delete-content-media-file',
             url : _strUrlContentDeleteMediaFile,
-            data: { mediaFile: strMediaFilename },
+            data: { _id: strContentId, mediaFile: strMediaFilename },
         };
         return CioComService.put(objRequest, callback);
     }
@@ -253,7 +274,6 @@ function Service(CioComService) {
 
         // create the file from the blob
         file = new File([blob], strFilename, { type: strMimetype });
-        console.log(">>> Debug ====================; file:", file, '\n\n');
         return file; 
     }
 

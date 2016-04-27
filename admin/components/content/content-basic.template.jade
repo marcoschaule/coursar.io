@@ -11,7 +11,7 @@ include content-basic.mixins.jade
 .wrapper
     h4 Edit existing basic learning content
     form(name="vm.formContent",
-            data-ng-submit="vm.createContent()")
+            data-ng-submit="vm.updateContent()")
 
         fieldset.form-group.margin-top-2rem
             +inputTitle('vm.modelContent')
@@ -26,7 +26,7 @@ include content-basic.mixins.jade
                 |Video or audio files:
 
             .buttons
-                span(data-ng-if="!vm.modelContent.mediaFile")
+                span(data-ng-if="!vm.modelContent.mediaFile || !vm.modelContent.mediaFile.filename")
                     +buttonSelectMediaFile
                 span(data-ng-if="vm.modelContentNew.mediaFile")
                     +buttonTakePoster
@@ -39,18 +39,18 @@ include content-basic.mixins.jade
                 div(data-ng-if="vm.modelContent.mediaFile.url")
                     .vmargin-2rem
                     +mediaFile(
-                        'media-file',
-                        'vm.modelContent.mediaFile')
+                            'media-file',
+                            'vm.modelContent.mediaFile')
                 div(data-ng-if="vm.modelContentNew.mediaFile.url")
                     .vmargin-2rem
                     +mediaFile(
-                        'media-file-new',
-                        'vm.modelContentNew.mediaFile')
+                            'media-file-new',
+                            'vm.modelContentNew.mediaFile')
                 div(data-ng-if="vm.modelContentNew.mediaFilePosterTmp")
                     .vmargin-2rem
                     +mediaFilePoster(
-                        'media-file-new-poster',
-                        'vm.modelContentNew')
+                            'media-file-new-poster',
+                            'vm.modelContentNew')
                 div(data-ng-if="vm.modelContent.mediaFile.url").right
                     +buttonDeleteVideo
 

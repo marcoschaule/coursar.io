@@ -49,7 +49,7 @@ objRoutes.private = {
         
         // delete one media file
         ['/admin/content/delete-media-file',
-            ContentCtrl.updateContent],
+            ContentCtrl.deleteContentMediaFile],
         
         // delete one image file
         ['/admin/content/delete-image-files',

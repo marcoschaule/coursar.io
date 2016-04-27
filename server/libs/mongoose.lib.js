@@ -19,6 +19,7 @@ objSchemaTypes.FlagTrue              = { type: Boolean, default: true };
 objSchemaTypes.FlagFalse             = { type: Boolean, default: false };
 
 // Numbers
+objSchemaTypes.Number                = { type: Number };
 objSchemaTypes.NumberPos             = { type: Number, min: 1 };
 objSchemaTypes.NumberPos0            = { type: Number, min: 0 };
 objSchemaTypes.NumberNeg             = { type: Number, max: -1 };

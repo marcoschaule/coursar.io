@@ -278,7 +278,7 @@ function Service($rootScope, $state, $window, $timeout, $http, $q, Upload) {
                 $rootScope.flags.isProcessing = false;
 
                 // if backend responds with a redirect, perform it
-                if (!$state.current.public && objResult.redirect) {
+                if (!$state.current.public && objResult && objResult.redirect) {
                     deleteToken('accessToken');
                     return $state.go('signIn');
                 }

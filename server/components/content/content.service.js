@@ -25,7 +25,9 @@ module.exports.createContentCompleteSequence = null;
 module.exports.createContentPractical        = null;
 module.exports.readContents                  = readContents;
 module.exports.updateContents                = updateContents;
+module.exports.updateContentBasic            = updateContentBasic;
 module.exports.deleteContents                = deleteContents;
+module.exports.deleteContentMediaFile        = deleteContentMediaFile;
 module.exports.deleteContentImageFiles       = deleteContentImageFiles;
 module.exports.deleteContentFiles            = deleteContentFiles;
 module.exports.testName                      = testName;
@@ -43,7 +45,6 @@ module.exports.testName                      = testName;
  * @param {Function} callback       function for callback
  */
 function createContentBasic(objUserSimple, objContent, callback) {
-    var dateCurrent = new Date();
     var contentBasic;
 
     objContent        = _extendContent(objUserSimple, objContent, true);
@@ -150,6 +151,33 @@ function updateContents(mixContents, callback) {
 // *****************************************************************************
 
 /**
+ * Service function to update a basic content.
+ *
+ * @public
+ * @param {Object}   objUserSimple  object of the user for information update
+ * @param {Object}   objContent     object of the content to be updated
+ * @param {Function} callback       function for callback
+ */
+function updateContentBasic(objUserSimple, objContent, callback) {
+    var strContentId = objContent._id;
+    delete objContent._id;
+    objContent = _extendContent(objUserSimple, objContent, true);
+
+    return ContentBasic.update({ _id: strContentId }, { $set: objContent },
+            (objErr, objModified) => {
+
+        if (objErr) {
+            console.error(ERRORS.CONTENT.CREATE.GENERAL);
+            console.error(objErr);
+            return callback(ERRORS.CONTENT.CREATE.GENERAL);
+        }
+        return callback(null, objModified);
+    });
+}
+
+// *****************************************************************************
+
+/**
  * Service function to delete multiple contents.
  * 
  * @public
@@ -220,6 +248,60 @@ function deleteContents(mixContentIds, callback) {
         // series callback function
         // "objResult" can be "{ nRemoved: 4 }"
         (objErr, objResult) => callback(objErr, objResult));
+}
+
+// *****************************************************************************
+
+/**
+ * Service function to delete one content media file form hard drive and database.
+ *
+ * @public
+ * @param {String}   strContentId  string of the content id
+ * @param {String}   strFilename   string of the filename of the file to be deleted
+ * @param {Function} callback      function for callback
+ */
+function deleteContentMediaFile(strContentId, strFilename, callback) {
+    return async.waterfall([
+
+        // get media file and poster from database
+        (_callback) => {
+            return ContentBasic.findOne({ _id: strContentId }, (objErr, objContent) => {
+                if (objErr) {
+                    console.error(ERRORS.CONTENT.DELETE_CONTENT_MEDIA_FILE.FIND_CONTENT);
+                    console.error(objErr);
+                    return _callback(ERRORS.CONTENT.DELETE_CONTENT_MEDIA_FILE.FIND_CONTENT);
+                }
+                return _callback(null, objContent);
+            });
+        },
+
+        // delete file from hard drive
+        (objContent, _callback) => {
+            var arrMediaFiles = [
+                objContent.mediaFile.filename,
+                objContent.mediaFilePoster.filename,
+            ];
+            return deleteContentFiles(arrMediaFiles, _callback);
+        },
+
+        // delete from database
+        (_callback) => {
+            return ContentBasic.update(
+                    { _id: strContentId },
+                    { $unset: { 'mediaFile': '', mediaFilePoster: '' } },
+                    { safe: true },
+                    (objErr) => {
+
+                if (objErr) {
+                    console.error(ERRORS.CONTENT.DELETE_CONTENT_MEDIA_FILE.GENERAL);
+                    console.error(objErr);
+                    return _callback(ERRORS.CONTENT.DELETE_CONTENT_MEDIA_FILE.GENERAL);
+                }
+                return _callback(null);
+            });
+        },
+    ], callback);
+
 }
 
 // *****************************************************************************

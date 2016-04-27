@@ -48,11 +48,21 @@ setError(`500|ERRORS.CONTENT.DELETE.DELETE_CONTENTS|
     Content "delete": error with deleting the contents.`);
 
 // *****************************************************************************
+// Content "delete content media file" errors
+// *****************************************************************************
+
+setError(`500|ERRORS.CONTENT.DELETE_CONTENT_MEDIA_FILE.GENERAL|
+    Content "delete content media file": an unexpected error occurred.`);
+
+setError(`500|ERRORS.CONTENT.DELETE_CONTENT_MEDIA_FILE.FIND_CONTENT|
+    Content "delete content media file": error with finding the content in database.`);
+
+// *****************************************************************************
 // Content "delete content image files" errors
 // *****************************************************************************
 
 setError(`500|ERRORS.CONTENT.DELETE_CONTENT_IMAGE_FILES.GENERAL|
-    Content "delete files": an unexpected error occurred.`);
+    Content "delete content image files": an unexpected error occurred.`);
 
 // *****************************************************************************
 // Content "delete files" errors
