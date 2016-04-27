@@ -4,7 +4,7 @@
 // Includes and definitions
 // *****************************************************************************
 
-var ContentCtrl  = require('./content.controller.js');
+var ContentCtrl  = require('./content-basic.controller.js');
 var CreateRouter = require('../../classes/router.class.js');
 var objRoutes    = {};
 

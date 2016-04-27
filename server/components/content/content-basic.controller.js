@@ -7,7 +7,7 @@
 var fs             = require('fs');
 var path           = require('path');
 var multer         = require('multer');
-var ContentService = require('./content.service.js');
+var ContentService = require('./content-basic.service.js');
 var libUpload      = require(paths.libs + '/upload.lib.js');
 var uploads        = multer(libUpload.settingsWithStorage());
 
