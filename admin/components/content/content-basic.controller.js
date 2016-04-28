@@ -430,8 +430,6 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
      */
     function _setupCodeMirror(objModel, callback) {
         var elContentText = $document[0].getElementById('content-text');
-        var isChanging    = false;
-        var objOptions    = { };
         var strText       = objModel && objModel.text || '';
         var timeoutWait;
 
@@ -445,6 +443,11 @@ function Controller($rootScope, $scope, $state, $sce, $window, $document,
             value         : strText,
             lineNumbers   : true,
             viewportMargin: Infinity,
+        });
+        objEditor.on('inputRead', function(objCodeMirror, objChange) {
+            $scope.$apply(function() {
+                objModel.text = objCodeMirror.getValue();
+            });
         });
 
         return (callback && 'function' === typeof callback && callback());

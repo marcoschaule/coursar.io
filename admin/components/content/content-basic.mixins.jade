@@ -135,8 +135,12 @@ mixin mediaFile(strId, strUrlObject)
                 data-ng-attr-poster="{{ #{strUrlObject}Poster.url }}")
             source(src="{{ #{strUrlObject}.url }}",
                     type="{{ #{strUrlObject}.mimetype }}")
-        .absolute.abs-top.abs-left.margin-1rem.white
+        .absolute.abs-top.abs-left.margin-1rem.white.shadow(
+                data-ng-if=strUrlObject+".name")
             h4 {{ #{strUrlObject}.name }}
+        .absolute.abs-top.abs-left.margin-1rem.white.shadow(
+                data-ng-if=strUrlObject+".originalname")
+            h4 {{ #{strUrlObject}.originalname }}
         .absolute.abs-top.abs-right.margin-2rem
             a.btn.btn-danger(data-ng-click="vm.deleteContentMediaFile()",
             data-confirm="Are you sure you want to delete that media file?")
