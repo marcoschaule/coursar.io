@@ -4,8 +4,12 @@
 // Includes and definitions
 // *****************************************************************************
 
+// *****************************************************************************
+// String extension functions
+// *****************************************************************************
+
 /**
- * String function to transform a string into dash case format.
+ * String extension function to transform a string into dash case format.
  *
  * @public
  * @return {String}  string that is in dash case
@@ -22,7 +26,7 @@ String.prototype.toDashCase = function() {
 // *****************************************************************************
 
 /**
- * String function to transform a string into dash case format and to
+ * String extension function to transform a string into dash case format and to
  * remove or replace all unsafe characters.
  *
  * @public
@@ -43,7 +47,7 @@ String.prototype.toDashCaseSave = function() {
 // *****************************************************************************
 
 /**
- * String function to transform a string into camel case format.
+ * String extension function to transform a string into camel case format.
  *
  * @public
  * @return {String}  string that is in camel case
@@ -58,7 +62,7 @@ String.prototype.toCamelCase = function() {
 // *****************************************************************************
 
 /**
- * String function to transform a string into camel case format and to
+ * String extension function to transform a string into camel case format and to
  * remove or replace all unsafe characters.
  *
  * @public
@@ -74,13 +78,26 @@ String.prototype.toCamelCaseSave = function() {
 // *****************************************************************************
 
 /**
- * String function to capitalize a string.
+ * String extension function to capitalize a string.
  *
  * @public
  * @return {String}  string that is capitalized
  */
 String.prototype.capitalize = function() {
     return (this.charAt(0).toUpperCase() + this.substr(1).toLowerCase());
+};
+
+// *****************************************************************************
+
+/**
+ * String extension function to append a path to the current string.
+ *
+ * @public
+ * @param  {String} strPathToAppend  string to append to current path
+ * @return {String}                  string of combined paths
+ */
+String.prototype.appendPath = function(strPathToAppend) {
+    return path.join(this, strPathToAppend);
 };
 
 // *****************************************************************************

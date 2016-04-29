@@ -5,7 +5,7 @@
 // *****************************************************************************
 
 var path               = require('path');
-var CreateRouter       = require('../../classes/router.class.js');
+var CreateRouter       = require(paths.core.appendPath('router.class.js'));
 
 var env                = process.env.NODE_ENV || 'dev';
 var strFClient         = path.join(__dirname, '../../../.build/', env);

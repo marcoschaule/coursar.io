@@ -111,9 +111,9 @@ function readContents(mixContentIds, objModifiers, callback) {
                 return callback(ERRORS.CONTENT.READ.GENERAL);
             }
             if (isSingular && arrContents && arrContents[0]) {
-                return callback(null, contentBasicResource.filterWhitelist(arrContents[0]));
+                return callback(null, contentBasicResource.filter(arrContents[0]));
             }
-            return callback(null, contentBasicResource.filterWhitelistList(arrContents));
+            return callback(null, contentBasicResource.filterList(arrContents));
         });
 }
 

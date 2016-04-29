@@ -5,7 +5,7 @@
 // *****************************************************************************
 
 var AuthCtrl     = require('./auth.controller.js');
-var CreateRouter = require('../../classes/router.class.js');
+var CreateRouter = require(paths.core.appendPath('router.class.js'));
 var objRoutes    = {};
 
 // *****************************************************************************

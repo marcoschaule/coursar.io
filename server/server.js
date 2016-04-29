@@ -11,6 +11,9 @@ global.APPURL  = 'coursar.io';
 // Includes and definitions
 // ********************************************************************************
 
+// load extensions
+// require('./extensions/string.extension.js');
+
 // setup settings
 require('./settings/general.settings.js');
 require('./settings/database.settings.js');

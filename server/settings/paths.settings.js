@@ -20,6 +20,22 @@ global.paths          = { settings: {} };
 global.settings.paths = global.paths;
 
 // *****************************************************************************
+// Extension functions
+// *****************************************************************************
+
+/**
+ * String extension function to append a path to the current string.
+ *
+ * @public
+ * @param  {String} strPathToAppend  string to append to current path
+ * @return {String}                  string of combined paths
+ */
+String.prototype.appendPath = function(strPathToAppend) {
+    return path.join(this, strPathToAppend);
+};
+
+
+// *****************************************************************************
 // Basic paths
 // *****************************************************************************
 
@@ -27,43 +43,43 @@ global.settings.paths = global.paths;
  * Basic server path.
  * @type {String}
  */
-settings.paths.basepath = path.join(process.cwd(), 'server');
+settings.paths.basepath = process.cwd().appendPath('server');
 
 /**
- * Basic classes path.
+ * Basic core path.
  * @type {String}
  */
-paths.classes = path.join(paths.basepath, 'classes');
+paths.core = 'core';
 
 /**
  * Basic settings path.
  * @type {String}
  */
-paths.settings = path.join(paths.basepath, 'settings');
+paths.settings = 'settings';
 
 /**
  * Basic libraries path.
  * @type {String}
  */
-paths.libs = path.join(paths.basepath, 'libs');
+paths.libs = 'libs';
 
 /**
  * Basic components path.
  * @type {String}
  */
-paths.components = path.join(paths.basepath, 'components');
+paths.components = 'components';
 
 /**
  * Basic templates path.
  * @type {String}
  */
-paths.templates = path.join(paths.basepath, 'templates');
+paths.templates = 'templates';
 
 /**
  * Basic uploads path.
  * @type {String}
  */
-paths.uploads = path.join(paths.basepath, '../', '.uploads');
+paths.uploads = '../.uploads';
 
 // *****************************************************************************
 // Aliases
@@ -72,6 +88,20 @@ paths.uploads = path.join(paths.basepath, '../', '.uploads');
 // Basepath aliases
 settings.paths.base   = settings.paths.basepath;
 settings.paths.server = settings.paths.basepath;
+
+// *****************************************************************************
+// Path functions
+// *****************************************************************************
+
+function appendPaths() {
+    var arrKeys = Object.keys(paths);
+    for (var i = 0; i < arrKeys.length; i += 1) {
+        if ('basepath' === arrKeys[i]) {
+            continue;
+        }
+        paths[arrKeys[i]] = paths.basepath.appendPath(paths[arrKeys[i]]);
+    }
+} appendPaths();
 
 // *****************************************************************************
 

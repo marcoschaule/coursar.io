@@ -94,6 +94,8 @@ var Model = mongoose.model(_strModelName, schema, _strCollectionName);
 // Exports
 // *****************************************************************************
 
+module.exports.filterList          = ResourceCommon.setupWhitelistFilter();
+module.exports.filter              = ResourceCommon.setupWhitelistFilter(objWhitelistResource);
 module.exports.filterWhitelistList = ResourceCommon.setupWhitelistFilter();
 module.exports.filterWhitelist     = ResourceCommon.setupWhitelistFilter(objWhitelistResource);
 module.exports.resource            = objResource;
