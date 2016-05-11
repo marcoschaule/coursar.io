@@ -45,19 +45,19 @@ settings.general.system.url = _createSystemUrl();
  * Email SMTP user name.
  * @type {String}
  */
-settings.general.smtp.username = 'coursar-io-0001'; // also: 'net-designernet-0001'
+settings.general.smtp.username = 'email-user';
 
 /**
  * Email SMTP password.
  * @type {String}
  */
-settings.general.smtp.password = 'mS1iB2H3!';
+settings.general.smtp.password = 'email-password';
 
 /**
  * Email SMTP host.
  * @type {String}
  */
-settings.general.smtp.host = 'smtp.udag.de';
+settings.general.smtp.host = 'email-host';
 
 /**
  * Email SMTP port.
